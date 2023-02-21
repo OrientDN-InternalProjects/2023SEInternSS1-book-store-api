@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Admin
     {
+        public Admin()
+        {
+
+        }
         [Key]
         public string? AdminId { get; set; }
 

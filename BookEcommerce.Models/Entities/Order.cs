@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Order
     {
+        public Order()
+        {
+            OrderDetails = new HashSet<OrderDetail>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? OrderId { get; set; }

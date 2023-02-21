@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Role
     {
+        public Role()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? RoleId { get; set; }

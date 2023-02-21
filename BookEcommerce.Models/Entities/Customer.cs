@@ -10,6 +10,12 @@ namespace BookEcommerce.Models.Entities
 {
     public class Customer
     {
+        public Customer()
+        {
+            Addresses = new HashSet<Address>();
+            Orders = new HashSet<Order>();
+            PhoneNumbers = new HashSet<PhoneNumber>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? CustomerId { get; set; }

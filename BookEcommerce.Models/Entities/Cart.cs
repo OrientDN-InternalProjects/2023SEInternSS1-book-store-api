@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Cart
     {
+        public Cart()
+        {
+            ProductVariants = new HashSet<ProductVariant>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [MaxLength(255)]
@@ -19,7 +23,7 @@ namespace BookEcommerce.Models.Entities
         public int Quantity { get; set; }
         public string? CustomerId { get; set; }
         [NotMapped]
-        public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
+        public virtual ICollection<ProductVariant> ProductVariants { get; set; }
         [NotMapped]
         public Customer? Customer { get; set; }
     }

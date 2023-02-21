@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer("Server=localhost;Database=BOOK_STORE_ECOMMERCE;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True", b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer("Server=DD-DATDH\\SQLEXPRESS;Database=BOOK_STORE_ECOMMERCE;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True", b => b.MigrationsAssembly("BookEcommerce"));
 });
 
 var app = builder.Build();
