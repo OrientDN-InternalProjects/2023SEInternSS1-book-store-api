@@ -10,6 +10,8 @@ namespace BookEcommerce.Models.Entities
 {
     public class AccountToken
     {
+        public AccountToken()
+        {}
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? AccountTokenId { get; set; }

@@ -10,6 +10,12 @@ namespace BookEcommerce.Models.Entities
 {
     public class Product
     {
+        public Product()
+        {
+            Images = new HashSet<Image>();
+            ProductCategories = new HashSet<ProductCategory>();
+            ProductVariants = new HashSet<ProductVariant>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? ProductId { get; set; }

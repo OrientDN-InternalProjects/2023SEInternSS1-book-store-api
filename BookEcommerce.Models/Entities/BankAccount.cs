@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class BankAccount
     {
+        public BankAccount()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? BankAccountId { get; set; }

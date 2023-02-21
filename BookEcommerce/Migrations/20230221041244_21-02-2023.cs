@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _20022023 : Migration
+    public partial class _21022023 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

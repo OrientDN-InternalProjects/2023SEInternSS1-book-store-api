@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Category
     {
+        public Category()
+        {
+            ProductCategories = new HashSet<ProductCategory>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [MaxLength(255)]

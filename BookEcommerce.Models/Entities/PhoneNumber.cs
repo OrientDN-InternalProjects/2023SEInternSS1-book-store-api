@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class PhoneNumber
     {
+        public PhoneNumber()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? PhoneNumberId { get; set; }

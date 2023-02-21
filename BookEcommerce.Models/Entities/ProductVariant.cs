@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public partial class ProductVariant
     {
+        public ProductVariant()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? ProductPriceId { get; set; }

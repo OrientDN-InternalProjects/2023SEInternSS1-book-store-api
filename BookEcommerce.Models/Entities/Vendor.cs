@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Vendor
     {
+        public Vendor()
+        {
+            Categories = new HashSet<Category>();
+        }
         [Key]
         public string? VendorId { get; set; }
         public string? FullName { get; set; }
@@ -26,6 +30,6 @@ namespace BookEcommerce.Models.Entities
         public BankAccount? BankAccount { get; set; }
 
         [ForeignKey("FK_VENDOR_CATEGORY")]
-        public List<Category>? Category { get; set; }
+        public ICollection<Category>? Categories { get; set; }
     }
 }

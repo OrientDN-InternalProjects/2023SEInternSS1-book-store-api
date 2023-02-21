@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class ProductPrice
     {
+        public ProductPrice()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [MaxLength(255)]
