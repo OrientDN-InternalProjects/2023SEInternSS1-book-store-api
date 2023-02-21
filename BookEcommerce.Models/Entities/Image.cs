@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Image
     {
+        public Image()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? ImageId { get; set; }

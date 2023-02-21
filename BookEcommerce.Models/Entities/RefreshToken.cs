@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class RefreshToken
     {
+        public RefreshToken()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? RefreshTokenId { get; set; }

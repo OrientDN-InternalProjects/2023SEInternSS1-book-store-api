@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Payment
     {
+        public Payment()
+        {
+            Orders = new HashSet<Order>();
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [MaxLength(255)]

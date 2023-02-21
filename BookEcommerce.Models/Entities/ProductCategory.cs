@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class ProductCategory
     {
+        public ProductCategory()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [MaxLength(255)]

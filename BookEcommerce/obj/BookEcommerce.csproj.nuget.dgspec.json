@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "d:\\Src\\BookEcommerce\\BookEcommerce.csproj": {}
+    "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj": {}
   },
   "projects": {
-    "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
+    "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj",
+        "projectUniqueName": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj",
         "projectName": "BookEcommerce.Models",
-        "projectPath": "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj",
-        "packagesPath": "C:\\Users\\huy.hoang\\.nuget\\packages\\",
-        "outputPath": "d:\\Src\\BookEcommerce.Models\\obj\\",
+        "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj",
+        "packagesPath": "C:\\Users\\dat.dinhhoang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\huy.hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\dat.dinhhoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -46,17 +46,17 @@
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
@@ -82,17 +82,17 @@
         }
       }
     },
-    "d:\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
+    "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj",
+        "projectUniqueName": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj",
         "projectName": "BookEcommerce.Services",
-        "projectPath": "d:\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj",
-        "packagesPath": "C:\\Users\\huy.hoang\\.nuget\\packages\\",
-        "outputPath": "d:\\Src\\BookEcommerce.Services\\obj\\",
+        "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj",
+        "packagesPath": "C:\\Users\\dat.dinhhoang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\huy.hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\dat.dinhhoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -106,8 +106,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
-                "projectPath": "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
+              "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
+                "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
               }
             }
           }
@@ -140,17 +140,17 @@
         }
       }
     },
-    "d:\\Src\\BookEcommerce\\BookEcommerce.csproj": {
+    "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Src\\BookEcommerce\\BookEcommerce.csproj",
+        "projectUniqueName": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj",
         "projectName": "BookEcommerce",
-        "projectPath": "d:\\Src\\BookEcommerce\\BookEcommerce.csproj",
-        "packagesPath": "C:\\Users\\huy.hoang\\.nuget\\packages\\",
-        "outputPath": "d:\\Src\\BookEcommerce\\obj\\",
+        "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj",
+        "packagesPath": "C:\\Users\\dat.dinhhoang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\huy.hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\dat.dinhhoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -164,11 +164,11 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
-                "projectPath": "d:\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
+              "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
+                "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
               },
-              "d:\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
-                "projectPath": "d:\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj"
+              "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
+                "projectPath": "C:\\Users\\dat.dinhhoang\\source\\repos\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj"
               }
             }
           }
@@ -185,17 +185,17 @@
           "dependencies": {
             "Microsoft.EntityFrameworkcore": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Microsoft.EntityFrameworkcore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Microsoft.EntityFrameworkcore.SqlServer": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.14, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

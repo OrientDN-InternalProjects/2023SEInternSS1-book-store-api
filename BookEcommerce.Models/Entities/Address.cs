@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class Address
     {
+        public Address()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? AddressId { get; set; }

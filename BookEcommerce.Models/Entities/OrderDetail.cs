@@ -10,6 +10,10 @@ namespace BookEcommerce.Models.Entities
 {
     public class OrderDetail
     {
+        public OrderDetail()
+        {
+
+        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? OrderDetailId { get; set; }
