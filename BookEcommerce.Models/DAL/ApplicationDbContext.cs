@@ -1,0 +1,50 @@
+﻿using BookEcommerce.Models.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BookEcommerce.Models.DAL
+{
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public ApplicationDbContext() : base()
+        {
+
+        }
+        public ApplicationDbContext(DbContextOptions options) : base(options)
+        {
+            
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
+
+        public virtual DbSet<UserAccountRole> UserAccountRoles { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<AccountToken> AccountTokens { get; set; }
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Cart> Carts { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Image> Images { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Payment> Payments { get; set; }
+        public virtual DbSet<Vendor> Vendors { get; set; }
+        public virtual DbSet<Admin> Admins { get; set; }
+        public virtual DbSet<BankAccount> BankAcocunts { get; set; }
+        public virtual DbSet<BankProvider> BankProviders { get; set; }
+        public virtual DbSet<PhoneNumber> PhoneNumbers { get; set; }
+        public virtual DbSet<ProductCategory> ProductCategories { get; set; }
+        public virtual DbSet<ProductVariant> ProductVariants { get; set; }
+        public virtual DbSet<ProductPrice> ProductPrices { get; set; }
+        public virtual DbSet<Address> Addresses { get; set; }
+    }
+}
