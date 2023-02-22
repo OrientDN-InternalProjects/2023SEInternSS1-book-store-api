@@ -11,14 +11,15 @@ namespace BookEcommerce.Models.DAL
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbFactory dbFactory;
+        private readonly DbFactory? dbFactory;
+     
         public UnitOfWork(DbFactory dbFactory)
         {
             this.dbFactory = dbFactory;
         }
         public Task CommitTransaction()
         {
-            return dbFactory.DbContext.SaveChangesAsync();
+            return dbFactory!.DbContext.SaveChangesAsync();
         }
     }
 }

@@ -10,5 +10,14 @@ namespace BookEcommerce.Models.DTOs.Response.Base
     {
         public bool IsSuccess { get; set; }
         public string? Message { get; set; }
+        public ResponseBase()
+        {
+
+        }
+        public ResponseBase(bool isSuccess, string? message)
+        {
+            IsSuccess = isSuccess;
+            Message = message;
+        }
     }
 }
