@@ -13,7 +13,7 @@ using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var services = builder.Services;
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -21,9 +21,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
+var localConnectionString = string.Empty;
+localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer("Server=localhost;Database=BOOK_STORE_ECOMMERCE;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True", b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer(localConnectionString, b => b.MigrationsAssembly("BookEcommerce"));
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -56,9 +58,14 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
 //.AddScoped<DbFactory>();
 
+services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()));
+services.AddScoped<DbFactory>();
+services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 //service
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
+services.AddScoped<IProductService, ProductService>();
 //repo
 builder.Services
 .AddScoped<IRoleRepository, RoleRepository>()
@@ -66,8 +73,11 @@ builder.Services
 .AddScoped<IMapper, Mapper>()
 .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
 .AddScoped<ITokenRepository, TokenRepository>();
-
-
+services.AddScoped<IProductRepository, ProductRepository>();
+services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
+services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+services.AddScoped<IImageRepository, ImageRepository>();
+services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 
 
 var app = builder.Build();

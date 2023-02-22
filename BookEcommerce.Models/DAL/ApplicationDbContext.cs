@@ -66,27 +66,27 @@ namespace BookEcommerce.Models.DAL
                 .HasForeignKey<Image>(k => k.VendorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<Vendor>()
-                .HasMany<Product>(m => m.Products)
-                .WithOne(o => o.Vendor)
-                .HasForeignKey(k => k.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<Vendor>()
+            //    .HasMany<Product>(m => m.Products)
+            //    .WithOne(o => o.Vendor)
+            //    .HasForeignKey(k => k.ProductId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<Product>()
-                .HasMany<Image>(m => m.Images)
-                .WithOne(o => o.Product)
-                .HasForeignKey(k => k.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<Product>()
+            //    .HasMany<Image>(m => m.Images)
+            //    .WithOne(o => o.Product)
+            //    .HasForeignKey(k => k.ProductId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<ProductCategory>()
-                .HasOne<Product>(o => o.Product)
-                .WithMany(o => o.ProductCategories)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<ProductCategory>()
+            //    .HasOne<Product>(o => o.Product)
+            //    .WithMany(o => o.ProductCategories)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<ProductVariant>()
-                .HasOne<ProductPrice>(o => o.ProductPrice)
-                .WithOne(o => o.ProductVariant)
-                .HasForeignKey<ProductPrice>(k => k.ProductPriceId);
+            //builder.Entity<ProductVariant>()
+            //    .HasOne<ProductPrice>(o => o.ProductPrice)
+            //    .WithOne(o => o.ProductVariant)
+            //    .HasForeignKey<ProductPrice>(k => k.ProductPriceId);
 
             builder.Entity<OrderDetail>()
                 .HasOne<ProductVariant>(o => o.ProductVariant)

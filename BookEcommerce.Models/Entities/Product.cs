@@ -24,8 +24,6 @@ namespace BookEcommerce.Models.Entities
         public string? VendorId { get; set; }
         public  Vendor? Vendor { get; set; }
         public  ICollection<Image>? Images { get; set; }
-        public string? CategoryId { get; set; }
-        public Category? Category { get; set; }
         public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
         public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
 }

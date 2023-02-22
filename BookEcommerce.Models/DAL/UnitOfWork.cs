@@ -19,7 +19,7 @@ namespace BookEcommerce.Models.DAL
         }
         public Task CommitTransaction()
         {
-            return dbFactory!.DbContext.SaveChangesAsync();
+            return dbFactory.DbContext.SaveChangesAsync();
         }
     }
 }
