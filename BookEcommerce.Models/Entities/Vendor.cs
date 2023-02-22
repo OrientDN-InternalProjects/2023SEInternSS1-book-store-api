@@ -15,21 +15,24 @@ namespace BookEcommerce.Models.Entities
             Categories = new HashSet<Category>();
         }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? VendorId { get; set; }
         public string? FullName { get; set; }
         public string? StreetAddress { get; set; } 
         public string? Country { get; set; }  
         public string? PhoneNumber { get; set; }
 
-        [ForeignKey("FK_VENDOR_ACCOUNT")]
         public string? AccountId { get; set; }
         public ApplicationUser? Account { get; set; }
-
-        [ForeignKey("FK_VENDOR_BANKACCOUNT")]
         public string? BankAccountId { get; set; }
         public BankAccount? BankAccount { get; set; }
 
-        [ForeignKey("FK_VENDOR_CATEGORY")]
+        //public string ImageId { get; set; }
+        public Image? Image { get; set; }
+        public ICollection<Product>? Products{ get; set; }
+
+        public ICollection<Order>? Orders { get; set; }
+
         public ICollection<Category>? Categories { get; set; }
     }
 }
