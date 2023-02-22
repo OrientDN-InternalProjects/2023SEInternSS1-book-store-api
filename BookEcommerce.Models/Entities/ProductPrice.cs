@@ -16,12 +16,12 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [MaxLength(255)]
         public string? ProductPriceId { get; set; }
         public double ProductVariantDefaultPrice { get; set; }
         public double PruductVariantSalePrice { get; set; }
         public DateTime? ActivationDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
+        public string? ProductVariantId { get; set; }
         public virtual ProductVariant? ProductVariant { get; set; }
     }
 }

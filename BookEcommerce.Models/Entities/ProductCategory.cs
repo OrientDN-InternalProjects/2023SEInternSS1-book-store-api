@@ -10,19 +10,12 @@ namespace BookEcommerce.Models.Entities
 {
     public class ProductCategory
     {
-        public ProductCategory()
-        {
-
-        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [MaxLength(255)]
         public string? IdProductCategory { get; set; }
-        [ForeignKey("FK_CategoryProduct_Category")]
-        public string? CategoryId { get; set; }
-        [ForeignKey("FK_CategoryProduct_Product")]
         public string? ProductId { get; set; }
         public virtual Product? Product { get; set; }
+        public string? CategoryId { get; set; }
         public virtual Category? Category { get; set; }
     }
 }

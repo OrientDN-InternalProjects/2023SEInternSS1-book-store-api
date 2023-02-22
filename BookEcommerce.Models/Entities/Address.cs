@@ -19,7 +19,6 @@ namespace BookEcommerce.Models.Entities
         public string? AddressId { get; set; }
         public string? StreetAddress { get; set; }
         public string? Country { get; set; }
-        public string? CustomerId { get; set; }
         public virtual Customer? Customer { get; set; }
     }
 }
