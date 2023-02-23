@@ -16,11 +16,9 @@ namespace BookEcommerce.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? AccountTokenId { get; set; }
 
-        [ForeignKey("FK_ACCOUNTTOKEN_REFRESHTOKEN")]
-        public string? RefreshTokenId { get; set; }
+        public string? ResfreshTokenId { get; set; }
         public RefreshToken? RefreshToken { get; set; }
 
-        [ForeignKey("FK_ACCOUNTTOKEN_ACCOUNT")]
         public string? AccountId { get; set; }
         public ApplicationUser? Account{ get; set; }
         public DateTime ExpirationDate{ get; set; }

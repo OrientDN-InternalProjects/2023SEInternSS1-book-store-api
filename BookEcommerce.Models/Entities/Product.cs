@@ -12,25 +12,20 @@ namespace BookEcommerce.Models.Entities
     {
         public Product()
         {
-            Images = new HashSet<Image>();
-            ProductCategories = new HashSet<ProductCategory>();
-            ProductVariants = new HashSet<ProductVariant>();
+            //Images = new HashSet<Image>();
+            //ProductCategories = new HashSet<ProductCategory>();
+            //ProductVariants = new HashSet<ProductVariant>();
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? ProductId { get; set; }
         public string? ProductName { get; set; }
-        [ForeignKey("FK_Product_Vendor")]
-        public string? VendorId { get; set; }
         public string? ProductDecription { get; set; }
-        [ForeignKey("FK_Product_ProductVariant")]
-        public string? ProductVariantId { get; set; }
-        public virtual Vendor? Vendor { get; set; }
-        [NotMapped]
-        public virtual ICollection<Image>? Images { get; set; }
-        [NotMapped]
+        public string? VendorId { get; set; }
+        public  Vendor? Vendor { get; set; }
+        public  ICollection<Image>? Images { get; set; }
         public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
-        [NotMapped]
         public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
 }
 }
+ 

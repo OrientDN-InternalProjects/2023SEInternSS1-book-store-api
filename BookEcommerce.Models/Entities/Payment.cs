@@ -16,13 +16,9 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [MaxLength(255)]
         public string? PaymentId { get; set; }
-        [MaxLength(255)]
         public string? PaymentType { get; set; }
-        [MaxLength(255)]
         public string? PaymentStatus { get; set; }
-        [NotMapped]
         public virtual ICollection<Order>? Orders { get; set; }
     }
 }
