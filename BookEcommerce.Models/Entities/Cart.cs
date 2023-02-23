@@ -16,15 +16,12 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [MaxLength(255)]
         public string? CartId { get; set; }
-        [MaxLength(255)]
         public string? ProductVariantId { get; set; }
         public int Quantity { get; set; }
+        public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
+
         public string? CustomerId { get; set; }
-        [NotMapped]
-        public virtual ICollection<ProductVariant> ProductVariants { get; set; }
-        [NotMapped]
         public Customer? Customer { get; set; }
     }
 }

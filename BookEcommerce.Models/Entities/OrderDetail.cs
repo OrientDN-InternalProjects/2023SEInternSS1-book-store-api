@@ -17,10 +17,11 @@ namespace BookEcommerce.Models.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? OrderDetailId { get; set; }
-        public string? OrderId { get; set; }
-        public string? ProductVariantId { get; set; }
         public int Quantity { get; set; }
+        public string? OrderId { get; set; }
         public Order? Order { get; set; }
+        
+        public string? ProductVariantId { get; set; }
         public ProductVariant? ProductVariant { get; set; }
 
     }

@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BookEcommerce.Models.DTOs.Request
+{
+    public class LoginDTO
+    {
+        public LoginDTO()
+        {
+
+        }
+
+        public LoginDTO(string? Email, string? Password)
+        {
+            this.Email = Email;
+            this.Password = Password;
+        }
+
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+    }
+}

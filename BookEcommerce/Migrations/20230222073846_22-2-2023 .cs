@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _21022023 : Migration
+    public partial class _2222023 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,6 +28,9 @@ namespace BookEcommerce.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VendorId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AdminId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -65,28 +68,13 @@ namespace BookEcommerce.Migrations
                 name: "Payments",
                 columns: table => new
                 {
-                    PaymentId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    PaymentType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    PaymentStatus = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                    PaymentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PaymentType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Payments", x => x.PaymentId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductPrices",
-                columns: table => new
-                {
-                    ProductPriceId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ProductVariantDefaultPrice = table.Column<double>(type: "float", nullable: false),
-                    PruductVariantSalePrice = table.Column<double>(type: "float", nullable: false),
-                    ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductPrices", x => x.ProductPriceId);
                 });
 
             migrationBuilder.CreateTable(
@@ -99,18 +87,6 @@ namespace BookEcommerce.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RefreshTokens", x => x.RefreshTokenId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Roles",
-                columns: table => new
-                {
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Roles", x => x.RoleId);
                 });
 
             migrationBuilder.CreateTable(
@@ -225,8 +201,9 @@ namespace BookEcommerce.Migrations
                 {
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ImageId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CartId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -239,33 +216,13 @@ namespace BookEcommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserAccountRoles",
-                columns: table => new
-                {
-                    UserAccountRoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    RoleId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserAccountRoles", x => x.UserAccountRoleId);
-                    table.ForeignKey(
-                        name: "FK_UserAccountRoles_AspNetUsers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BankAcocunts",
                 columns: table => new
                 {
                     BankAccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BankAccountName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BankAccountCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Bank_Provider_Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     BankProviderId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -279,29 +236,11 @@ namespace BookEcommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductVariants",
-                columns: table => new
-                {
-                    ProductPriceId = table.Column<string>(type: "nvarchar(255)", nullable: false),
-                    ProductVariantId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductVariantName = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductVariants", x => x.ProductPriceId);
-                    table.ForeignKey(
-                        name: "FK_ProductVariants_ProductPrices_ProductPriceId",
-                        column: x => x.ProductPriceId,
-                        principalTable: "ProductPrices",
-                        principalColumn: "ProductPriceId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AccountTokens",
                 columns: table => new
                 {
                     AccountTokenId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ResfreshTokenId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshTokenId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -341,6 +280,25 @@ namespace BookEcommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Carts",
+                columns: table => new
+                {
+                    CartId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductVariantId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carts", x => x.CartId);
+                    table.ForeignKey(
+                        name: "FK_Carts_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "CustomerId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PhoneNumbers",
                 columns: table => new
                 {
@@ -363,11 +321,17 @@ namespace BookEcommerce.Migrations
                 columns: table => new
                 {
                     AdminId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    BankAccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    BankAccountId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Admins", x => x.AdminId);
+                    table.ForeignKey(
+                        name: "FK_Admins_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Admins_BankAcocunts_BankAccountId",
                         column: x => x.BankAccountId,
@@ -403,46 +367,21 @@ namespace BookEcommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Carts",
-                columns: table => new
-                {
-                    CartId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ProductVariantId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Carts", x => x.CartId);
-                    table.ForeignKey(
-                        name: "FK_Carts_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerId");
-                    table.ForeignKey(
-                        name: "FK_Carts_ProductVariants_ProductVariantId",
-                        column: x => x.ProductVariantId,
-                        principalTable: "ProductVariants",
-                        principalColumn: "ProductPriceId");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
-                    CategoryId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    CategoryName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    SubCategory = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    VendorId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    FK_VENDOR_CATEGORY = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubCategory = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ImageId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.CategoryId);
                     table.ForeignKey(
-                        name: "FK_Categories_Vendors_FK_VENDOR_CATEGORY",
-                        column: x => x.FK_VENDOR_CATEGORY,
+                        name: "FK_Categories_Vendors_VendorId",
+                        column: x => x.VendorId,
                         principalTable: "Vendors",
                         principalColumn: "VendorId");
                 });
@@ -452,14 +391,14 @@ namespace BookEcommerce.Migrations
                 columns: table => new
                 {
                     OrderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     TransferAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PaymentId = table.Column<string>(type: "nvarchar(255)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TotalPrice = table.Column<double>(type: "float", nullable: false),
+                    TotalPrice = table.Column<double>(type: "float", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StatusOrder = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    StatusOrder = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PaymentId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -478,7 +417,8 @@ namespace BookEcommerce.Migrations
                         name: "FK_Orders_Vendors_VendorId",
                         column: x => x.VendorId,
                         principalTable: "Vendors",
-                        principalColumn: "VendorId");
+                        principalColumn: "VendorId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -487,47 +427,24 @@ namespace BookEcommerce.Migrations
                 {
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ProductDecription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProductVariantId = table.Column<string>(type: "nvarchar(255)", nullable: true)
+                    VendorId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
                     table.ForeignKey(
-                        name: "FK_Products_ProductVariants_ProductVariantId",
-                        column: x => x.ProductVariantId,
-                        principalTable: "ProductVariants",
-                        principalColumn: "ProductPriceId");
+                        name: "FK_Products_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId");
                     table.ForeignKey(
-                        name: "FK_Products_Vendors_VendorId",
-                        column: x => x.VendorId,
+                        name: "FK_Products_Vendors_ProductId",
+                        column: x => x.ProductId,
                         principalTable: "Vendors",
-                        principalColumn: "VendorId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderDetails",
-                columns: table => new
-                {
-                    OrderDetailId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OrderId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ProductVariantId = table.Column<string>(type: "nvarchar(255)", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailId);
-                    table.ForeignKey(
-                        name: "FK_OrderDetails_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
-                        principalColumn: "OrderId");
-                    table.ForeignKey(
-                        name: "FK_OrderDetails_ProductVariants_ProductVariantId",
-                        column: x => x.ProductVariantId,
-                        principalTable: "ProductVariants",
-                        principalColumn: "ProductPriceId");
+                        principalColumn: "VendorId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -536,11 +453,8 @@ namespace BookEcommerce.Migrations
                 {
                     ImageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShopId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ItemId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CategoryId1 = table.Column<string>(type: "nvarchar(255)", nullable: true),
+                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     VendorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -548,34 +462,37 @@ namespace BookEcommerce.Migrations
                 {
                     table.PrimaryKey("PK_Images", x => x.ImageId);
                     table.ForeignKey(
-                        name: "FK_Images_Categories_CategoryId1",
-                        column: x => x.CategoryId1,
+                        name: "FK_Images_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "CategoryId");
                     table.ForeignKey(
                         name: "FK_Images_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "CustomerId");
+                        principalColumn: "CustomerId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Images_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
-                        principalColumn: "ProductId");
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Images_Vendors_VendorId",
                         column: x => x.VendorId,
                         principalTable: "Vendors",
-                        principalColumn: "VendorId");
+                        principalColumn: "VendorId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ProductCategories",
                 columns: table => new
                 {
-                    IdProductCategory = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    CategoryId = table.Column<string>(type: "nvarchar(255)", nullable: true),
-                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    IdProductCategory = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -589,7 +506,80 @@ namespace BookEcommerce.Migrations
                         name: "FK_ProductCategories_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductVariants",
+                columns: table => new
+                {
+                    ProductVariantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductVariantName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CartId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    OrderDetailId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariants", x => x.ProductVariantId);
+                    table.ForeignKey(
+                        name: "FK_ProductVariants_Carts_CartId",
+                        column: x => x.CartId,
+                        principalTable: "Carts",
+                        principalColumn: "CartId");
+                    table.ForeignKey(
+                        name: "FK_ProductVariants_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "ProductId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    OrderDetailId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductVariantId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailId);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "OrderId");
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_ProductVariants_ProductVariantId",
+                        column: x => x.ProductVariantId,
+                        principalTable: "ProductVariants",
+                        principalColumn: "ProductVariantId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductPrices",
+                columns: table => new
+                {
+                    ProductPriceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductVariantDefaultPrice = table.Column<double>(type: "float", nullable: false),
+                    PruductVariantSalePrice = table.Column<double>(type: "float", nullable: false),
+                    ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProductVariantId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductPrices", x => x.ProductPriceId);
+                    table.ForeignKey(
+                        name: "FK_ProductPrices_ProductVariants_ProductPriceId",
+                        column: x => x.ProductPriceId,
+                        principalTable: "ProductVariants",
+                        principalColumn: "ProductVariantId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -606,6 +596,13 @@ namespace BookEcommerce.Migrations
                 name: "IX_Addresses_CustomerId",
                 table: "Addresses",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Admins_AccountId",
+                table: "Admins",
+                column: "AccountId",
+                unique: true,
+                filter: "[AccountId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Admins_BankAccountId",
@@ -664,26 +661,23 @@ namespace BookEcommerce.Migrations
                 filter: "[CustomerId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Carts_ProductVariantId",
-                table: "Carts",
-                column: "ProductVariantId",
-                unique: true,
-                filter: "[ProductVariantId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Categories_FK_VENDOR_CATEGORY",
+                name: "IX_Categories_VendorId",
                 table: "Categories",
-                column: "FK_VENDOR_CATEGORY");
+                column: "VendorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customers_AccountId",
                 table: "Customers",
-                column: "AccountId");
+                column: "AccountId",
+                unique: true,
+                filter: "[AccountId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Images_CategoryId1",
+                name: "IX_Images_CategoryId",
                 table: "Images",
-                column: "CategoryId1");
+                column: "CategoryId",
+                unique: true,
+                filter: "[CategoryId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Images_CustomerId",
@@ -700,7 +694,9 @@ namespace BookEcommerce.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Images_VendorId",
                 table: "Images",
-                column: "VendorId");
+                column: "VendorId",
+                unique: true,
+                filter: "[VendorId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderId",
@@ -745,26 +741,26 @@ namespace BookEcommerce.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_ProductVariantId",
+                name: "IX_Products_CategoryId",
                 table: "Products",
-                column: "ProductVariantId",
-                unique: true,
-                filter: "[ProductVariantId] IS NOT NULL");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_VendorId",
-                table: "Products",
-                column: "VendorId");
+                name: "IX_ProductVariants_CartId",
+                table: "ProductVariants",
+                column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAccountRoles_AccountId",
-                table: "UserAccountRoles",
-                column: "AccountId");
+                name: "IX_ProductVariants_ProductId",
+                table: "ProductVariants",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vendors_AccountId",
                 table: "Vendors",
-                column: "AccountId");
+                column: "AccountId",
+                unique: true,
+                filter: "[AccountId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vendors_BankAccountId",
@@ -799,9 +795,6 @@ namespace BookEcommerce.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Carts");
-
-            migrationBuilder.DropTable(
                 name: "Images");
 
             migrationBuilder.DropTable(
@@ -814,10 +807,7 @@ namespace BookEcommerce.Migrations
                 name: "ProductCategories");
 
             migrationBuilder.DropTable(
-                name: "Roles");
-
-            migrationBuilder.DropTable(
-                name: "UserAccountRoles");
+                name: "ProductPrices");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
@@ -829,7 +819,13 @@ namespace BookEcommerce.Migrations
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "ProductVariants");
+
+            migrationBuilder.DropTable(
+                name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "Carts");
 
             migrationBuilder.DropTable(
                 name: "Products");
@@ -838,16 +834,10 @@ namespace BookEcommerce.Migrations
                 name: "Customers");
 
             migrationBuilder.DropTable(
-                name: "Payments");
-
-            migrationBuilder.DropTable(
-                name: "ProductVariants");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Vendors");
-
-            migrationBuilder.DropTable(
-                name: "ProductPrices");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
