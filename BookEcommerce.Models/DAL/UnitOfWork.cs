@@ -11,7 +11,8 @@ namespace BookEcommerce.Models.DAL
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbFactory dbFactory;
+        private readonly DbFactory? dbFactory;
+     
         public UnitOfWork(DbFactory dbFactory)
         {
             this.dbFactory = dbFactory;

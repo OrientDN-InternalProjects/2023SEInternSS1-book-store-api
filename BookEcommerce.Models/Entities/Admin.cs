@@ -15,10 +15,11 @@ namespace BookEcommerce.Models.Entities
 
         }
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? AdminId { get; set; }
-
-        [ForeignKey("FK_ADMIN_BANKACCOUNT")]
         public string? BankAccountId { get; set; }
         public BankAccount? BankAccount { get; set; }
+        public string? AccountId { get; set; }
+        public ApplicationUser? Account { get; set; }
     }
 }

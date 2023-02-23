@@ -17,20 +17,19 @@ namespace BookEcommerce.Models.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? OrderId { get; set; }
-        public string? VendorId { get; set; }
-        public string? CustomerId { get; set; }
         public string? TransferAddress { get; set; }
-        public string? PaymentId { get; set; }
         public string? Message { get; set; }
-        public double TotalPrice { get; set; }
+        public double? TotalPrice { get; set; }
         public DateTime OrderDate { get; set; }
         public string? StatusOrder { get; set; }
-            
+       
+        public string? PaymentId { get; set; }
         public virtual Payment? Payment { get; set; }
+        public string? CustomerId { get; set; }
         public virtual Customer? Customer { get; set; }
+        public string? VendorId { get; set; }
         public virtual Vendor? Vendor { get; set; }
 
-        [NotMapped]
         public virtual ICollection<OrderDetail>? OrderDetails { get; set; }
 
     }

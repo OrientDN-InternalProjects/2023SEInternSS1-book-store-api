@@ -20,13 +20,15 @@ namespace BookEcommerce.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string? CustomerId { get; set; }
         public string? FullName { get; set; }
-        public string? PhoneNumberId { get; set; }
-
         public string? AccountId { get; set; }
         public virtual ApplicationUser? Account { get; set; }
 
         public virtual ICollection<Address>? Addresses { get; set; }
+
+        public string? ImageId { get; set; }
         public virtual Image? Image { get; set; }
+
+        public string? CartId { get; set; }
         public virtual Cart? Cart { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<PhoneNumber>? PhoneNumbers { get; set; }
