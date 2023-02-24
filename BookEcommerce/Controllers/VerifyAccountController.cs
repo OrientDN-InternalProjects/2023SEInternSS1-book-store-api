@@ -14,8 +14,8 @@ namespace BookEcommerce.Controllers
         {
             this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost]
-        public async Task<IActionResult> SendMail([FromBody] string Email)
+        [HttpPost("send-mail")]
+        public async Task<IActionResult> SendMail([FromForm] string Email)
         {
             await this.verifyAccountService.SendVerificationMail(Email);
             return StatusCode(StatusCodes.Status200OK, new ResponseBase
@@ -24,7 +24,7 @@ namespace BookEcommerce.Controllers
                 Message = "Sent"
             });
         }
-        [HttpGet]
+        [HttpGet("submit")]
         public async Task<IActionResult> ConfirmMail([FromQuery] string token, string email)
         {
             var result = await this.verifyAccountService.ConfirmMail(email);

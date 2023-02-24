@@ -29,7 +29,7 @@ namespace BookEcommerce.Models.Entities
         public virtual Image? Image { get; set; }
 
         public string? CartId { get; set; }
-        public virtual Cart? Cart { get; set; }
+        public virtual List<Cart>? Carts { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<PhoneNumber>? PhoneNumbers { get; set; }
 

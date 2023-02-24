@@ -9,6 +9,7 @@ using BookEcommerce.Models.DTOs.Response.Base;
 using Microsoft.AspNetCore.Identity;
 using BookEcommerce.Models.Entities;
 using Microsoft.Extensions.Configuration;
+using BookEcommerce.Models.DTOs.Request;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using BookEcommerce.Models.DAL.Constants;
@@ -58,6 +59,12 @@ namespace BookEcommerce.Models.DAL.Repositories
             return Result;
         }
 
+        //public async Task<IdentityResult> CreateAdmin(ApplicationUser ApplicationUser)
+        //{
+
+        //    var Admin = await this.userManager.CreateAsync(ApplicationUser, Password.PASSWORD);
+        //}
+
         public async Task<string> Login(LoginDTO LoginDTO)
         {
             try
@@ -69,19 +76,20 @@ namespace BookEcommerce.Models.DAL.Repositories
                 if (!result.Succeeded) return null!;
 
                 List<Claim> claims = new List<Claim>
-                {
-                    new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                };
+            {
+                new Claim(JwtRegisteredClaimNames.NameId, User.Id),
+                new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
                 var RoleManager = await this.userManager!.GetRolesAsync(User);
-                foreach (var role in RoleManager)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-                var token = tokenRepository!.CreateToken(claims);
-                return token;
+            foreach (var role in RoleManager)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
+                var token = tokenRepository!.CreateToken(claims);
+            return token;
+        }
             catch (Exception e)
             {
                 throw e;

@@ -19,6 +19,7 @@ namespace BookEcommerce.Models.Entities
         public string? ProductVariantId { get; set; }
         public string? ProductVariantName { get; set; }
         public int Quantity { get; set; }
+        public string? ProductId { get; set; }
         public virtual Product? Product { get; set; }
         public virtual Cart? Cart { get; set; }
         public virtual ProductPrice? ProductPrice  { get; set; }

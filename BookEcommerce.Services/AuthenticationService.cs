@@ -114,24 +114,24 @@ namespace BookEcommerce.Services
                 await unitOfWork.CommitTransaction();
 
                 if (Token == null) return new TokenResponse
-                {
-                    IsSuccess = false,
-                    Message = "Email or Password got wrong",
-                    Token = null
-                };
-                return new TokenResponse
-                {
-                    IsSuccess = true,
-                    Message = "Welcome back",
+            {
+                IsSuccess = false,
+                Message = "Email or Password got wrong",
+                Token = null
+            };
+            return new TokenResponse
+            {
+                IsSuccess = true,
+                Message = "Welcome back",
                     Token = Token
-                };
+            };
 
             }
             catch(Exception e)
             {
                 Console.WriteLine(e);
                 throw e;
-            }
+        }
         }
 
         public async Task<ResponseBase> VendorRegister(AccountDTO AccountDTO)

@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookEcommerce.Controllers
 {
     [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
+
 
     public class CustomerController : ControllerBase
     {
@@ -20,14 +22,17 @@ namespace BookEcommerce.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProfile([FromBody] CustomerDTO CustomerDTO)
+        public async Task<IActionResult> CreateProfile([FromForm] CustomerDTO CustomerDTO)
         {
-            var result = await this.customerService.CreateCustomer(CustomerDTO);
-            if (result.IsSuccess) return StatusCode(StatusCodes.Status200OK, new ResponseBase
-            {
-                    IsSuccess = true,
-                    Message = "OK"
-            });
+            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            Console.WriteLine(AuthHeader);
+            var result = await this.customerService.CreateCustomer(CustomerDTO, AuthHeader);
+            if (result.IsSuccess) 
+                return StatusCode(StatusCodes.Status200OK, new ResponseBase
+                {
+                        IsSuccess = true,
+                        Message = "OK"
+                });
 
             return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
             {

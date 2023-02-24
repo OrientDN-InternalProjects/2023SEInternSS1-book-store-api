@@ -19,8 +19,8 @@ namespace BookEcommerce.Controllers
             this.authenticationService = authenticationService;
             this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost("CreateCustomer")]
-        public async Task<IActionResult> CustomerRegister([FromBody] AccountDTO AccountDTO)
+        [HttpPost("register/customer")]
+        public async Task<IActionResult> CustomerRegister([FromForm] AccountDTO AccountDTO)
         {
             var result = await this.authenticationService!.CustomerRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -37,8 +37,8 @@ namespace BookEcommerce.Controllers
                 Message = "OK"
             });
         }
-        [HttpPost("Verify")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO LoginDTO)
+        [HttpPost("verify")]
+        public async Task<IActionResult> Login([FromForm] LoginDTO LoginDTO)
         {
             var result = await this.authenticationService!.Login(LoginDTO);
             if (!result.IsSuccess)
@@ -56,8 +56,8 @@ namespace BookEcommerce.Controllers
                 Token = result.Token
             });
         }
-        [HttpPost("CreateVendor")]
-        public async Task<IActionResult> VendorRegister([FromBody] AccountDTO AccountDTO)
+        [HttpPost("register/vendor")]
+        public async Task<IActionResult> VendorRegister([FromForm] AccountDTO AccountDTO)
         {
             var result = await this.authenticationService!.VendorRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -74,8 +74,8 @@ namespace BookEcommerce.Controllers
                 Message = "OK"
             });
         }
-        [HttpPost("CreateAdmin")]
-        public async Task<IActionResult> AdminRegister([FromBody] AccountDTO AccountDTO)
+        [HttpPost("create/admin")]
+        public async Task<IActionResult> AdminRegister([FromForm] AccountDTO AccountDTO)
         {
             var result = await this.authenticationService!.AdminRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -92,7 +92,7 @@ namespace BookEcommerce.Controllers
                 Message = "OK"
             });
         }
-        [HttpPost("Refresh")]
+        [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromBody] TokenDTO TokenDTO)
         {
             try

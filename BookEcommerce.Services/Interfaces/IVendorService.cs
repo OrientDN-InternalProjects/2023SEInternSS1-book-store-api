@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.DTOs.Request;
+﻿using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Response.Base;
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICustomerService
+    public interface IVendorService
     {
-        public Task<ResponseBase> CreateCustomer(CustomerDTO CustomerDTO, string Token);
+        public Task<ResponseBase> CreateVendor(CreateVendorDTO CreateVendorDTO, string Token);
     }
 }

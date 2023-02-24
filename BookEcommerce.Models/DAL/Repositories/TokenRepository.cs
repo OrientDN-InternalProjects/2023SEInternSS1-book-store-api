@@ -1,5 +1,6 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DTOs;
+using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +47,25 @@ namespace BookEcommerce.Models.DAL.Repositories
             return result;
         }
 
+        //public string CreateAccessToken(List<Claim> claims)
+        //{
+        //    SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
+        //    SigningCredentials signingCredentials = new SigningCredentials(
+        //        SymmetricSecurityKey,
+        //        SecurityAlgorithms.HmacSha256
+        //    );
+        //    JwtSecurityToken Token = new JwtSecurityToken(
+        //        configuration["JWT:Issuer"],
+        //        configuration["JWT:Audience"],
+        //        claims: claims,
+        //        signingCredentials: signingCredentials,
+        //        expires: DateTime.Now.AddSeconds(30)
+        //    );
+
+        //    var result = new JwtSecurityTokenHandler().WriteToken(Token);
+        //    return result;
+        //}
+
         public string CreateRefreshToken()
         {
             var RandomNumber = new byte[64];
@@ -76,6 +96,24 @@ namespace BookEcommerce.Models.DAL.Repositories
 
                 var NewAccessToken = CreateToken(principal.Claims.ToList());
                 return NewAccessToken;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public string GetUserIdFromToken(string Token)
+        {
+            try
+            {
+                //ClaimsPrincipal principal = GetClaimsPrincipal(Token);
+                //string UserId = principal.FindFirstValue(JwtRegisteredClaimNames.NameId);
+                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
+                string UserId = TokenString!.Claims.First(token => token.Type == "nameid").Value;
+                Console.WriteLine(Token);
+                return UserId;
             }
             catch(Exception e)
             {

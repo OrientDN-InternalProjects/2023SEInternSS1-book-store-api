@@ -1,5 +1,5 @@
 ﻿using BookEcommerce.Models.DTOs.Request;
-using BookEcommerce.Models.DTOs.Response.Base;
+using BookEcommerce.Models.DTOs.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICustomerService
+    public interface IProductService
     {
-        public Task<ResponseBase> CreateCustomer(CustomerDTO CustomerDTO, string Token);
+        Task<ProductResponse> AddProduct(ProductRequest req);
     }
 }

@@ -15,19 +15,28 @@ namespace BookEcommerce.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository customerRepository;
+        private readonly ITokenRepository tokenRepository;
         private readonly IMapper Mapper;
         private readonly IUnitOfWork unitOfWork;
-        public CustomerService(ICustomerRepository customerRepository, IMapper Mapper, IUnitOfWork unitOfWork)
+        public CustomerService(ICustomerRepository customerRepository, IMapper Mapper, IUnitOfWork unitOfWork, ITokenRepository tokenRepository)
         {
             this.customerRepository = customerRepository;
             this.Mapper = Mapper;
             this.unitOfWork = unitOfWork;
+            this.tokenRepository = tokenRepository;
         }
 
-        public async Task<ResponseBase> CreateCustomer(CustomerDTO CustomerDTO)
+        public async Task<ResponseBase> CreateCustomer(CustomerDTO CustomerDTO, string Token)
         {
-            var MapCustomer = Mapper.Map<CustomerDTO, Customer>(CustomerDTO);
-            await this.customerRepository.AddAsync(MapCustomer);
+            string UserId = tokenRepository.GetUserIdFromToken(Token);
+
+            //var MapCustomer = Mapper.Map<CustomerDTO, Customer>();
+            Customer customer = new Customer
+            {
+                FullName = CustomerDTO.FullName,
+                AccountId = UserId
+            };
+            await this.customerRepository.AddAsync(customer);
             await unitOfWork.CommitTransaction();
 
             return new ResponseBase

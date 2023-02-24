@@ -4306,11 +4306,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\internship\\project_1\\Src\\BookEcommerce\\BookEcommerce.csproj",
+      "projectUniqueName": "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj",
       "projectName": "BookEcommerce",
-      "projectPath": "D:\\internship\\project_1\\Src\\BookEcommerce\\BookEcommerce.csproj",
+      "projectPath": "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce\\BookEcommerce.csproj",
       "packagesPath": "C:\\Users\\huy.hoang\\.nuget\\packages\\",
-      "outputPath": "D:\\internship\\project_1\\Src\\BookEcommerce\\obj\\",
+      "outputPath": "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\huy.hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -4327,11 +4327,11 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "D:\\internship\\project_1\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
-              "projectPath": "D:\\internship\\project_1\\Src\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
+            "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj": {
+              "projectPath": "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce.Models\\BookEcommerce.Models.csproj"
             },
-            "D:\\internship\\project_1\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
-              "projectPath": "D:\\internship\\project_1\\Src\\BookEcommerce.Services\\BookEcommerce.Services.csproj"
+            "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj": {
+              "projectPath": "D:\\internship\\2023SEInternSS1-book-store-api\\BookEcommerce.Services\\BookEcommerce.Services.csproj"
             }
           }
         }

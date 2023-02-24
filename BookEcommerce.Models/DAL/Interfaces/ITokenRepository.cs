@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DTOs;
+using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -17,5 +18,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
         public Task StoreRefreshToken(RefreshToken RefreshToken);
         public string RefreshToken(string AccessToken);
         public ClaimsPrincipal GetClaimsPrincipal(string Token);
+        public string GetUserIdFromToken(string Token);
     }
 }

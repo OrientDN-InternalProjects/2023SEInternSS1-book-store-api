@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptions();
+var services = builder.Services;
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -56,16 +57,12 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
-
 //builder.Services.Configure<MailSettings>();
-
 //DB
 builder.Services
     .AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()!))
     .AddScoped<IUnitOfWork, UnitOfWork>()
     .AddScoped<DbFactory>();
-
-
 //root service
 builder.Services
     .AddScoped<MailSettings>()
@@ -91,6 +88,37 @@ builder.Services
     .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
     .AddScoped<ICustomerRepository, CustomerRepository>();
 
+
+
+//DB
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
+//.AddScoped<DbFactory>();
+
+services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()));
+services.AddScoped<DbFactory>();
+services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+//service
+builder.Services
+    .AddScoped<IAuthenticationService, AuthenticationService>()
+    .AddScoped<ICustomerService, CustomerService>()
+    .AddScoped<IVendorService, VendorService>()
+    .AddScoped<IProductService, ProductService>();
+//repo
+builder.Services
+    .AddScoped<IRoleRepository, RoleRepository>()
+    //.AddScoped<Profile, MapperProfile>()
+    .AddScoped<IMapper, Mapper>()
+    .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
+    .AddScoped<ITokenRepository, TokenRepository>()
+    .AddScoped<ICustomerRepository, CustomerRepository>()
+    .AddScoped<IVendorRepository, VendorRepository>();
+services.AddScoped<IProductRepository, ProductRepository>();
+services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
+services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+services.AddScoped<IImageRepository, ImageRepository>();
+services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 
 
 var app = builder.Build();

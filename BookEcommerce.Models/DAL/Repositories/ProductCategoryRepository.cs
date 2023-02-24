@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class VendorRepository : Repository<Vendor>, IVendorRepository
+    public class ProductCategoryRepository : Repository<ProductCategory>, IProductCategoryRepository
     {
-        public VendorRepository(DbFactory dbFactory) : base(dbFactory)
+        public ProductCategoryRepository(DbFactory dbFactory) : base(dbFactory)
         {
-
         }
     }
 }

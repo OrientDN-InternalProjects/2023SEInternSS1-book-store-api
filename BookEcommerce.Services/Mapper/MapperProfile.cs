@@ -19,6 +19,8 @@ namespace BookEcommerce.Services.Mapper
             CreateMap<StoreRefreshTokenDTO, RefreshToken>();
             CreateMap<RefreshToken, StoreRefreshTokenDTO>();
             CreateMap<CustomerDTO, Customer>();
+            CreateMap<CreateVendorDTO, Vendor>();
+            CreateMap<Vendor, CreateVendorDTO>();
         }
     }
 }
