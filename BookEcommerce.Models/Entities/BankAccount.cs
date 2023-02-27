@@ -16,12 +16,12 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? BankAccountId { get; set; }
+        public Guid? BankAccountId { get; set; }
         public string? BankAccountName { get; set; }
         public string? BankAccountCode { get; set; }
         public DateTime? CreatedDate { get; set; }
 
-        public string? BankProviderId { get; set; }
+        public Guid? BankProviderId { get; set; }
         public BankProvider? BankProvider { get; set; }
 
     }

@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DAL.Interfaces
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface ICartRepository : IRepository<Cart>
     {
-        Task<Product> GetProductById(Guid id);
-
+        public Task<Cart> GetCartByCustomerId(Guid id);
     }
 }

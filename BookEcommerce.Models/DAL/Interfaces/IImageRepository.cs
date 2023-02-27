@@ -9,6 +9,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface IImageRepository : IRepository<Image>
     {
-    
+        Task<List<Image>> GetImagesByProductId(Guid productId);
     }
 }

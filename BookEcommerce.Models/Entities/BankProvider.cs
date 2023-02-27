@@ -17,7 +17,7 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? BankProviderId { get; set; }
+        public Guid? BankProviderId { get; set; }
         public string? BankProviderName { get; set; }
         public string? BankProviderShortName { get; set; }
 
