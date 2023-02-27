@@ -20,22 +20,22 @@ namespace BookEcommerce.Controllers
         }
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "VENDOR")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProfile([FromForm] CreateVendorDTO CreateVendorDTO)
+        public async Task<IActionResult> CreateVendor([FromForm] VendorCreateViewModel CreateVendorDTO)
         {
             string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
             Console.WriteLine(AuthHeader);
             var result = await this.vendorService.CreateVendor(CreateVendorDTO, AuthHeader);
             if (result.IsSuccess)
-                return StatusCode(StatusCodes.Status200OK, new ResponseBase
+                return Ok(new ResponseBase
                 {
-                    IsSuccess = true,
-                    Message = "OK"
+                    IsSuccess = result.IsSuccess,
+                    Message = result.Message
                 });
 
-            return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
+            return BadRequest(new ResponseBase
             {
                 IsSuccess = false,
-                Message = "Bad request"
+                Message = "Create vendor failed"
             });
         }
     }

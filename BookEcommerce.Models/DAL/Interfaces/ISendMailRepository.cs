@@ -9,6 +9,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface ISendMailRepository
     {
-        public Task SendMailAsync(SendMailDTO SendMailDTO);
+        public Task SendMailAsync(MailSendingViewModel SendMailDTO);
     }
 }

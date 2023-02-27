@@ -55,20 +55,45 @@ namespace BookEcommerce.Services
             return link;
         }
 
-        public async Task SendVerificationMail(string Email)
+        public async Task<ResponseBase> SendVerificationMail(string Email)
         {
-            ApplicationUser User = new()
+            try
             {
-                Email = Email
-            };
-            var link = await this.GenerateConfirmationLink(User);
-            SendMailDTO SendMailDTO = new()
+                if (Email == null)
+                {
+                    return new ResponseBase
+                    {
+                        IsSuccess = false,
+                        Message = "invalid mail"
+                    };
+                }
+                ApplicationUser User = new()
+                {
+                    Email = Email
+                };
+                var link = await this.GenerateConfirmationLink(User);
+                MailSendingViewModel SendMailDTO = new()
+                {
+                    Email = Email,
+                    Subject = "Verification",
+                    HtmlMessage = link
+                };
+                await this.sendMailRepository.SendMailAsync(SendMailDTO);
+                return new ResponseBase
+                {
+                    IsSuccess = true,
+                    Message = "Mail sent"
+                };
+            }
+            catch (Exception e)
             {
-                Email = Email,
-                Subject = "Verification",
-                HtmlMessage = link
-            };
-            await this.sendMailRepository.SendMailAsync(SendMailDTO);
+                return new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = e.Message,
+                };
+                
+            }
         }
     }
 }

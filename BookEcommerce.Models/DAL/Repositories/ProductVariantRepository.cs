@@ -15,5 +15,16 @@ namespace BookEcommerce.Models.DAL.Repositories
         public ProductVariantRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
+
+        public async Task<ProductVariant> GetProductVariantById(Guid productVariantId)
+        {
+            return await GetQuery(pv => pv.ProductVariantId.Equals(productVariantId)).SingleAsync();
+        }
+
+        public async Task<List<ProductVariant>> GetProductVariantsByIdProduct(Guid productId)
+        {
+            return await GetQuery(pv => pv.ProductId.Equals(productId)).ToListAsync();
+        }
+
     }
 }

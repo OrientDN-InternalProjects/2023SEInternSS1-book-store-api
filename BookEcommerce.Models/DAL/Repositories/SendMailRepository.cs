@@ -24,49 +24,44 @@ namespace BookEcommerce.Models.DAL.Repositories
             this.mimeMessage = mimeMessage;
             this.smtpClient = smtpClient;
         }
-        public async Task SendMailAsync(SendMailDTO SendMailDTO)
+        public async Task SendMailAsync(MailSendingViewModel SendMailDTO)
         {
-            try
-            {
-                this.mimeMessage.Sender = new MailboxAddress(
+            this.mimeMessage.Sender = new MailboxAddress(
+                this.mailSettings.DisplayName,
+                this.mailSettings.Mail
+            );
+            this.mimeMessage.From.Add(
+                new MailboxAddress(
                     this.mailSettings.DisplayName,
                     this.mailSettings.Mail
-                );
-                this.mimeMessage.From.Add(
-                    new MailboxAddress(
-                        this.mailSettings.DisplayName,
-                        this.mailSettings.Mail
-                    )
-                );
-                this.mimeMessage.To.Add(MailboxAddress.Parse(SendMailDTO.Email));
-                this.mimeMessage.Subject = SendMailDTO.Subject;
+                )
+            );
+            this.mimeMessage.To.Add(MailboxAddress.Parse(SendMailDTO.Email));
+            this.mimeMessage.Subject = SendMailDTO.Subject;
 
-                var builder = new BodyBuilder();
-                builder.HtmlBody = SendMailDTO.HtmlMessage;
-                this.mimeMessage.Body = builder.ToMessageBody();
+            var builder = new BodyBuilder();
+            builder.HtmlBody = SendMailDTO.HtmlMessage;
+            this.mimeMessage.Body = builder.ToMessageBody();
 
-                try
-                {
-                    smtpClient.Connect(
-                        this.mailSettings.Host,
-                        this.mailSettings.Port,
-                        MailKit.Security.SecureSocketOptions.Auto
-                    );
-                    smtpClient.Authenticate(
-                        this.mailSettings.Mail,
-                        this.mailSettings.Password
-                    );
-                    await smtpClient.SendAsync(this.mimeMessage);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+            try
+            {
+                smtpClient.Connect(
+                    this.mailSettings.Host,
+                    this.mailSettings.Port,
+                    MailKit.Security.SecureSocketOptions.Auto
+                );
+                smtpClient.Authenticate(
+                    this.mailSettings.Mail,
+                    this.mailSettings.Password
+                );
+                await smtpClient.SendAsync(this.mimeMessage);
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception("fail to send mail");
             }
         }
     }
 }
+
+

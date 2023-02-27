@@ -9,7 +9,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<Product> GetById(string id);
+        Task<Product> GetProductById(Guid id);
 
     }
 }

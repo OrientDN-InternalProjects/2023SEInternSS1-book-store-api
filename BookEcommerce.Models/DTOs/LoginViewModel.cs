@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DTOs
 {
-    public class LoginDTO
+    public class LoginViewModel
     {
-        public LoginDTO()
+        public LoginViewModel()
         {
 
         }
 
-        public LoginDTO(string? Email, string? Password)
+        public LoginViewModel(string? Email, string? Password)
         {
             this.Email = Email;
             this.Password = Password;

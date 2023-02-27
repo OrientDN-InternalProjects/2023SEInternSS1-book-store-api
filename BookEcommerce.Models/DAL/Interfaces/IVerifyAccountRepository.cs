@@ -12,7 +12,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
     public interface IVerifyAccountRepository
     {
         public Task<string> GenerateConfirmationLink(ApplicationUser User);
-        public Task SendVerificationMail(SendMailDTO SendMailDTO);
+        public Task SendVerificationMail(MailSendingViewModel SendMailDTO);
         public Task<IdentityResult> ConfirmEmail(ApplicationUser User, string Token);
         public Task<string> CreateToken(ApplicationUser User);
         public Task<ApplicationUser> GetUser(ApplicationUser ApplicationUser);

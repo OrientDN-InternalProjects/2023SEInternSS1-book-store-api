@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookEcommerce.Models.DTOs.Request
+namespace BookEcommerce.Models.DTOs
 {
-    public class CustomerDTO
+    public class CustomerViewModel
     {
         public string? FullName { get; set; }
         public string? PhoneNumber { get; set; }
         public string? AccountId { get; set; }
         public string? ImageId { get; set; }
-        public string? CartId { get; set; }
     }
 }

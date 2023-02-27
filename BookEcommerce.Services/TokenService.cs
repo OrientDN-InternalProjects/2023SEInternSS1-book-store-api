@@ -34,13 +34,13 @@ namespace BookEcommerce.Services
         public async Task<string> StoreRefreshToken()
         {
             string Token = this.CreateRefreshToken();
-            StoreRefreshTokenDTO StoreRefreshTokenDTO = new StoreRefreshTokenDTO
+            RefreshTokenStoreViewModel StoreRefreshTokenDTO = new RefreshTokenStoreViewModel
             {
                 Token = Token
             };
-            var MapRefreshToken = Mapper.Map<StoreRefreshTokenDTO, RefreshToken>(StoreRefreshTokenDTO);
+            var MapRefreshToken = Mapper.Map<RefreshTokenStoreViewModel, RefreshToken>(StoreRefreshTokenDTO);
             await this.tokenRepository.StoreRefreshToken(MapRefreshToken);
-            return MapRefreshToken.RefreshTokenId!;
+            return MapRefreshToken.RefreshTokenId.ToString()!;
         }
     }
 }

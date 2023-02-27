@@ -65,24 +65,22 @@ namespace BookEcommerce.Models.DAL.Repositories
         //    var Admin = await this.userManager.CreateAsync(ApplicationUser, Password.PASSWORD);
         //}
 
-        public async Task<string> Login(LoginDTO LoginDTO)
+        public async Task<string> Login(LoginViewModel LoginDTO)
         {
-            try
-            {
-                var User = await this.GetUserByEmail(LoginDTO.Email!);
-                if (User == null) return null!;
-                //if (!await this.userManager.CheckPasswordAsync(User, LoginDTO.Password)) return null;
-                SignInResult result = await this.signInManager!.PasswordSignInAsync(User, LoginDTO.Password, false, false);
-                if (!result.Succeeded) return null!;
+            var User = await this.GetUserByEmail(LoginDTO.Email!);
+            if (User == null) return null!;
+            //if (!await this.userManager.CheckPasswordAsync(User, LoginDTO.Password)) return null;
+            SignInResult result = await this.signInManager!.PasswordSignInAsync(User, LoginDTO.Password, false, false);
+            if (!result.Succeeded) return null!;
 
-                List<Claim> claims = new List<Claim>
+            List<Claim> claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, User.Id),
-                new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.NameId, User.Id),
+            new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-                var RoleManager = await this.userManager!.GetRolesAsync(User);
+            var RoleManager = await this.userManager!.GetRolesAsync(User);
             foreach (var role in RoleManager)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
@@ -90,98 +88,59 @@ namespace BookEcommerce.Models.DAL.Repositories
                 var token = tokenRepository!.CreateToken(claims);
             return token;
         }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
 
         public async Task<IdentityResult> RegisterCustomer(ApplicationUser ApplicationUser, string password)
         {
-            try
+            IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
+            if (!result.Succeeded) return result;
+            var RoleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
+            if (!RoleExisted)
             {
-                IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
-                if (!result.Succeeded) return result;
-                var RoleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
-                if (!RoleExisted)
-                {
-                    await this.roleRepository.CreateRole(new IdentityRole(Roles.CUSTOMER));
-                }
-                await this.roleRepository.AddToRole(ApplicationUser, Roles.CUSTOMER);
-                return result;
+                await this.roleRepository.CreateRole(new IdentityRole(Roles.CUSTOMER));
             }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            await this.roleRepository.AddToRole(ApplicationUser, Roles.CUSTOMER);
+            return result;
         }
 
         public async Task<IdentityResult> RegisterVendor(ApplicationUser ApplicationUser, string password)
         {
-            try
+            IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
+            if (!result.Succeeded) return result;
+            var RoleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
+            if (!RoleExisted)
             {
-                IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
-                if (!result.Succeeded) return result;
-                var RoleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
-                if (!RoleExisted)
-                {
-                    await this.roleRepository.CreateRole(new IdentityRole(Roles.VENDOR));
-                }
-                await this.roleRepository.AddToRole(ApplicationUser, Roles.VENDOR);
-                return result;
+                await this.roleRepository.CreateRole(new IdentityRole(Roles.VENDOR));
             }
-            catch(Exception e)
-            {
-                throw e;
-            }
+            await this.roleRepository.AddToRole(ApplicationUser, Roles.VENDOR);
+            return result;      
         }
 
-        public async Task<string> RefreshToken(string Email, TokenDTO TokenDTO)
-        {
-            try
+        public async Task<string> RefreshToken(string Email, TokenViewModel TokenDTO)
+        {           
+            var user = await this.userManager!.FindByEmailAsync(Email);
+            if (user == null)
             {
-                var user = await this.userManager!.FindByEmailAsync(Email);
-                if (user == null)
-                {
-                    return null!;
-                }
-                if (user.RefreshToken!.Token != TokenDTO.RefreshToken) return null!;
-                string Token = this.tokenRepository!.RefreshToken(TokenDTO.AccessToken!);
-                return Token;
+                return null!;
             }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
+            if (user.RefreshToken!.Token != TokenDTO.RefreshToken) return null!;
+            string Token = this.tokenRepository!.RefreshToken(TokenDTO.AccessToken!);
+            return Token;            
         }
 
         public async Task<ApplicationUser> GetUserByEmail(string Email)
-        {
-            try
-            {
-                var result = await this.userManager!.FindByEmailAsync(Email);
-                return result;
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
+        {           
+            var result = await this.userManager!.FindByEmailAsync(Email);
+            return result;           
         }
 
         public async Task Revoke(string Email)
         {
-            try
+            
+            var user = await this.userManager!.FindByEmailAsync(Email);
+            if (user != null)
             {
-                var user = await this.userManager!.FindByEmailAsync(Email);
-                if (user != null)
-                {
-                    user.RefreshTokenId = null;
-                }
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
+                user.RefreshTokenId = null;
+            }   
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BookEcommerce.Models.DTOs.Request;
+﻿using BookEcommerce.Models.DTOs;
+using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -22,22 +23,23 @@ namespace BookEcommerce.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProfile([FromForm] CustomerDTO CustomerDTO)
+        public async Task<IActionResult> CreateCustomer([FromForm] CustomerViewModel CustomerDTO)
         {
             string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
             Console.WriteLine(AuthHeader);
             var result = await this.customerService.CreateCustomer(CustomerDTO, AuthHeader);
-            if (result.IsSuccess) 
-                return StatusCode(StatusCodes.Status200OK, new ResponseBase
+
+            if (result.IsSuccess)
+                return Ok(new ResponseBase
                 {
-                        IsSuccess = true,
-                        Message = "OK"
+                    IsSuccess = true,
+                    Message = result.Message
                 });
 
-            return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
+            return BadRequest(new ResponseBase
             {
-                    IsSuccess = false,
-                    Message = "Bad request"
+                IsSuccess = false,
+                Message = "create customer failed"
             });
         }
     }

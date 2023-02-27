@@ -44,11 +44,11 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             string Token = await this.userManager!.GenerateEmailConfirmationTokenAsync(User);
             string EncodeToken = HttpUtility.UrlEncode(Token);
-            string ConfirmationLink = $"https://localhost:7018/api/VerifyAccount?token={EncodeToken}&email={User.Email}";
+            string ConfirmationLink = $"https://localhost:7018/api/VerifyAccount/submit?token={EncodeToken}&email={User.Email}";
             return ConfirmationLink;
         }
 
-        public async Task SendVerificationMail(SendMailDTO SendMailDTO)
+        public async Task SendVerificationMail(MailSendingViewModel SendMailDTO)
         {
             await this.sendMailRepository.SendMailAsync(SendMailDTO);
         }

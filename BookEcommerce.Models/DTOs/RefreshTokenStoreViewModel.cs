@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DTOs
 {
-    internal class CreateAccountDTO
+    public class RefreshTokenStoreViewModel
     {
+        public string? Token { get; set; }
     }
 }

@@ -37,9 +37,9 @@ namespace BookEcommerce.Services
             this.tokenService = tokenService;
         }
 
-        public async Task<ResponseBase> AdminRegister(AccountDTO AccountDTO)
+        public async Task<ResponseBase> AdminRegister(AccountViewModel AccountDTO)
         {
-            var Admin = mapper.Map<AccountDTO, ApplicationUser>(AccountDTO);
+            var Admin = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
             var Result = await this.authenticationRepository!.CreateAdmin(Admin, AccountDTO.Password!);
             if (!Result.Succeeded)
             {
@@ -56,9 +56,9 @@ namespace BookEcommerce.Services
             };
         }
 
-        public async Task<ResponseBase> CustomerRegister(AccountDTO AccountDTO)
+        public async Task<ResponseBase> CustomerRegister(AccountViewModel AccountDTO)
         {
-            var User = mapper.Map<AccountDTO, ApplicationUser>(AccountDTO);
+            var User = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
             //ApplicationUser User = new ApplicationUser
             //{
             //    UserName = AccountDTO.UserName,
@@ -84,7 +84,7 @@ namespace BookEcommerce.Services
                 };
             }
         }
-        public async Task<TokenResponse> Login(LoginDTO LoginDTO)
+        public async Task<TokenResponse> Login(LoginViewModel LoginDTO)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace BookEcommerce.Services
                 }
 
                 string id = await this.tokenService.StoreRefreshToken();
-                User.RefreshTokenId = id;
+                User.RefreshTokenId = Guid.Parse(id);
                 authenticationRepository.Update(User);
                 await unitOfWork.CommitTransaction();
 
@@ -134,9 +134,9 @@ namespace BookEcommerce.Services
         }
         }
 
-        public async Task<ResponseBase> VendorRegister(AccountDTO AccountDTO)
+        public async Task<ResponseBase> VendorRegister(AccountViewModel AccountDTO)
         {
-            var Vendor = mapper.Map<AccountDTO, ApplicationUser>(AccountDTO);
+            var Vendor = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
             var Result = await this.authenticationRepository.RegisterVendor(Vendor, AccountDTO.Password!);
             if (!Result.Succeeded)
             {
@@ -153,9 +153,10 @@ namespace BookEcommerce.Services
             };
         }
 
-        public async Task<ResponseBase> RefreshToken(string Email, TokenDTO TokenDTO)
+        public async Task<ResponseBase> RefreshToken(string Email, TokenViewModel TokenDTO)
         {
             var Token = await this.authenticationRepository.RefreshToken(Email, TokenDTO);
+
             if (Token == null)
             {
                 return new ResponseBase

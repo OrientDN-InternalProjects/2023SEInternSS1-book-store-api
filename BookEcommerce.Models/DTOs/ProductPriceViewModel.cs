@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DTOs
 {
-    public class SendMailDTO
+    public class ProductPriceViewModel
     {
-        public string? Email { get; set; }
-        public string? Subject { get; set; }
-        public string? HtmlMessage { get; set; }
+
     }
 }

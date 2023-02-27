@@ -12,10 +12,10 @@ namespace BookEcommerce.Services.Interfaces
 {
     public interface IAuthenticationService
     {
-        public Task<TokenResponse> Login(LoginDTO LoginDTO);
-        public Task<ResponseBase> CustomerRegister(AccountDTO AccountDTO);
-        public Task<ResponseBase> VendorRegister(AccountDTO AccountDTO);
-        public Task<ResponseBase> AdminRegister(AccountDTO AccountDTO);
-        public Task<ResponseBase> RefreshToken(string Email, TokenDTO TokenDTO);
+        public Task<TokenResponse> Login(LoginViewModel LoginDTO);
+        public Task<ResponseBase> CustomerRegister(AccountViewModel AccountDTO);
+        public Task<ResponseBase> VendorRegister(AccountViewModel AccountDTO);
+        public Task<ResponseBase> AdminRegister(AccountViewModel AccountDTO);
+        public Task<ResponseBase> RefreshToken(string Email, TokenViewModel TokenDTO);
     }
 }

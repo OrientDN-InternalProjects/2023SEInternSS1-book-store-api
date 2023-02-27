@@ -16,6 +16,25 @@ namespace BookEcommerce.Controllers
         {
             this.productService = productService;
         }
+
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(Guid productId)
+        { 
+            var res = await productService.GetProductById(productId);
+            if(res.IsSuccess)
+            {
+                return Ok(res);
+            }
+            return BadRequest(res);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProduct()
+        {
+            var res = await productService.GetAllProduct();
+            return Ok(res);
+        }
+
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "VENDOR")]
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] ProductRequest request)

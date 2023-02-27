@@ -17,12 +17,16 @@ namespace BookEcommerce.Controllers
         [HttpPost("send-mail")]
         public async Task<IActionResult> SendMail([FromForm] string Email)
         {
-            await this.verifyAccountService.SendVerificationMail(Email);
-            return StatusCode(StatusCodes.Status200OK, new ResponseBase
+            var result = await this.verifyAccountService.SendVerificationMail(Email);
+            if(result.IsSuccess)
             {
-                IsSuccess = true,
-                Message = "Sent"
-            });
+                return Ok(new ResponseBase
+                {
+                    IsSuccess = result.IsSuccess,
+                    Message = result.Message
+                });
+            }
+            return BadRequest(result.Message);
         }
         [HttpGet("submit")]
         public async Task<IActionResult> ConfirmMail([FromQuery] string token, string email)
@@ -31,12 +35,12 @@ namespace BookEcommerce.Controllers
             if (!result.IsSuccess) return StatusCode(StatusCodes.Status404NotFound, new ResponseBase
             {
                 IsSuccess = false,
-                Message = "Bad Request"
+                Message = "submit failed"
             });
-            return StatusCode(StatusCodes.Status200OK, new ResponseBase
+            return Ok(new ResponseBase
             {
-                IsSuccess = true,
-                Message = "OK"
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
             });
         }
     }

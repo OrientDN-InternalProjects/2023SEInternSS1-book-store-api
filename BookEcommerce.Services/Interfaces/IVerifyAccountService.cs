@@ -12,7 +12,7 @@ namespace BookEcommerce.Services.Interfaces
     public interface IVerifyAccountService
     {
         public Task<string> GenerateConfirmationLink(ApplicationUser User);
-        public Task SendVerificationMail(string Email);
+        public Task<ResponseBase> SendVerificationMail(string Email);
         public Task<ResponseBase> ConfirmMail(string Email);
     }
 }

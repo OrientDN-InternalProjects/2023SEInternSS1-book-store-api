@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using BookEcommerce.Services.Interfaces;
 using BookEcommerce.Services;
 using System.Text;
-using BookEcommerce.Services.Mapper;
+using BookEcommerce.Services.Map;
 using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("default"), b => b.MigrationsAssembly("BookEcommerce"));
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -57,38 +57,6 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
-//builder.Services.Configure<MailSettings>();
-//DB
-builder.Services
-    .AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()!))
-    .AddScoped<IUnitOfWork, UnitOfWork>()
-    .AddScoped<DbFactory>();
-//root service
-builder.Services
-    .AddScoped<MailSettings>()
-    .AddScoped<MimeMessage>()
-    .AddScoped<SmtpClient>();
-
-//service
-builder.Services
-    .AddScoped<IVerifyAccountService, VerifyAccountService>()
-    .AddScoped<IAuthenticationService, AuthenticationService>()
-    .AddScoped<ITokenService, TokenService>()
-    .AddScoped<ICustomerService, CustomerService>();
-
-
-//repo
-builder.Services
-    .AddScoped<IRoleRepository, RoleRepository>()
-    //.AddScoped<Profile, MapperProfile>()
-    .AddScoped<IMapper, Mapper>()
-    .AddScoped<ISendMailRepository, SendMailRepository>()
-    .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
-    .AddScoped<ITokenRepository, TokenRepository>()
-    .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
-    .AddScoped<ICustomerRepository, CustomerRepository>();
-
-
 
 //DB
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
@@ -99,26 +67,40 @@ services.AddScoped<DbFactory>();
 services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services
+    .AddScoped<MailSettings>()
+    .AddScoped<MimeMessage>()
+    .AddScoped<SmtpClient>();
+
 //service
 builder.Services
     .AddScoped<IAuthenticationService, AuthenticationService>()
+    .AddScoped<IVerifyAccountService, VerifyAccountService>()
+    .AddScoped<ITokenService, TokenService>()
     .AddScoped<ICustomerService, CustomerService>()
     .AddScoped<IVendorService, VendorService>()
-    .AddScoped<IProductService, ProductService>();
+    .AddScoped<IProductService, ProductService>()
+    .AddScoped<ICartService, CartService>();
 //repo
 builder.Services
     .AddScoped<IRoleRepository, RoleRepository>()
     //.AddScoped<Profile, MapperProfile>()
     .AddScoped<IMapper, Mapper>()
+    .AddScoped<ISendMailRepository, SendMailRepository>()
     .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
+    .AddScoped<IRoleRepository, RoleRepository>()
     .AddScoped<ITokenRepository, TokenRepository>()
-    .AddScoped<ICustomerRepository, CustomerRepository>()
-    .AddScoped<IVendorRepository, VendorRepository>();
+    .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
+    .AddScoped<IVendorRepository, VendorRepository>()
+    .AddScoped<ICustomerRepository, CustomerRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
 services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
+services.AddScoped<ICartRepository, CartRepository>();
+services.AddScoped<ICartDetailRepository, CartDetailRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+
 
 
 var app = builder.Build();

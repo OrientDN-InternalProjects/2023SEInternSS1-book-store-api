@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DTOs
 {
-    public class CreateVendorDTO
+    public class VendorCreateViewModel
     {
         public string? FullName { get; set; }
         public string? StreetAddress { get; set; }

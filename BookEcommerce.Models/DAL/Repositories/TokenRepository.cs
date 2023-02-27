@@ -77,48 +77,28 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task StoreRefreshToken(RefreshToken RefreshToken)
         {
-            try
-            {
-                await this.applicationDbContext.RefreshTokens.AddAsync(RefreshToken);
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
+            await this.applicationDbContext.RefreshTokens.AddAsync(RefreshToken);
         }
 
         public string RefreshToken(string AccessToken)
         {
-            try
+            ClaimsPrincipal principal = GetClaimsPrincipal(AccessToken);
+            string Email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (Email == null)
             {
-                ClaimsPrincipal principal = GetClaimsPrincipal(AccessToken);
-                string Email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
-
-                var NewAccessToken = CreateToken(principal.Claims.ToList());
-                return NewAccessToken;
+                return String.Empty;
             }
-            catch(Exception e)
-            {
-                throw e;
-            }
+            var NewAccessToken = CreateToken(principal.Claims.ToList());
+            return NewAccessToken;
         }
 
         public string GetUserIdFromToken(string Token)
         {
-            try
-            {
-                //ClaimsPrincipal principal = GetClaimsPrincipal(Token);
-                //string UserId = principal.FindFirstValue(JwtRegisteredClaimNames.NameId);
-                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-                var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
-                string UserId = TokenString!.Claims.First(token => token.Type == "nameid").Value;
-                Console.WriteLine(Token);
-                return UserId;
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
+            string UserId = TokenString!.Claims.First(token => token.Type == "nameid").Value;
+            Console.WriteLine(Token);
+            return UserId;
         }
 
         public ClaimsPrincipal GetClaimsPrincipal(string Token)

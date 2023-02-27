@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? AddressId { get; set; }
+        public Guid AddressId { get; set; }
         public string? StreetAddress { get; set; }
         public string? Country { get; set; }
         public virtual Customer? Customer { get; set; }

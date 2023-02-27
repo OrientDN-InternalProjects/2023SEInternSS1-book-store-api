@@ -10,6 +10,6 @@ namespace BookEcommerce.Services.Interfaces
 {
     public interface IVendorService
     {
-        public Task<ResponseBase> CreateVendor(CreateVendorDTO CreateVendorDTO, string Token);
+        public Task<ResponseBase> CreateVendor(VendorCreateViewModel CreateVendorDTO, string Token);
     }
 }

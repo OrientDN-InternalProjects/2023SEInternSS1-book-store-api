@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DTOs
 {
-    public class RefreshTokenDTO
+    public class RefreshTokenViewModel
     {
         public string? Email { get; set; }
         public string? AccessToken { get; set; }
