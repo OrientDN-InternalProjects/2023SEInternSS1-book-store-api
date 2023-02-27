@@ -66,18 +66,20 @@ services.AddScoped<IUnitOfWork, UnitOfWork>();
 //service
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 services.AddScoped<IProductService, ProductService>();
+services.AddScoped<ICartService, CartService>();
 //repo
-builder.Services
-.AddScoped<IRoleRepository, RoleRepository>()
-//.AddScoped<Profile, MapperProfile>()
-.AddScoped<IMapper, Mapper>()
+builder.Services.AddScoped<IRoleRepository, RoleRepository>()
+.AddScoped<Profile, MapperProfile>()
+//.AddScoped<IMapper, Mapper>()
 .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
 .AddScoped<ITokenRepository, TokenRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
+services.AddScoped<ICartRepository, CartRepository>();
 services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+services.AddScoped<ICartDetailRepository, CartDetailRepository>();
 
 
 var app = builder.Build();

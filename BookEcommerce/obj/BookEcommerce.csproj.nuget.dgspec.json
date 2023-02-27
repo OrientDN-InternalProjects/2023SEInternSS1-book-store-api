@@ -191,6 +191,12 @@
               "target": "Package",
               "version": "[6.0.14, )"
             },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.14, )"
+            },
             "Microsoft.EntityFrameworkcore": {
               "target": "Package",
               "version": "[6.0.14, )"
@@ -204,6 +210,10 @@
             "Microsoft.EntityFrameworkcore.SqlServer": {
               "target": "Package",
               "version": "[6.0.14, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[6.0.12, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

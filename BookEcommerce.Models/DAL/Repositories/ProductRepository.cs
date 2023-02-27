@@ -15,9 +15,9 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
         }
 
-        public async Task<Product> GetById(string id)
+        public async Task<Product> GetProductById(Guid id)
         {
-            return await GetQuery(pr => pr.ProductId.Contains(id)).FirstAsync();
+            return await GetQuery(pr => pr.ProductId.Equals(id)).SingleAsync();
         }
     }
 }

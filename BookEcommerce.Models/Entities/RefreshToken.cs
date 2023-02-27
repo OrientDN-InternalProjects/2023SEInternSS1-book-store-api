@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? RefreshTokenId { get; set; }
+        public Guid? RefreshTokenId { get; set; }
         public string? Token { get; set; }
     }
 }

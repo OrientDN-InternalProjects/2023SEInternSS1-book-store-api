@@ -8,17 +8,19 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.Entities
 {
-    public class Address
+    public class CartDetail
     {
-        public Address()
+        public CartDetail()
         {
 
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid AddressId { get; set; }
-        public string? StreetAddress { get; set; }
-        public string? Country { get; set; }
-        public virtual Customer? Customer { get; set; }
+        public Guid CartDetailId { get; set; }
+        public Guid ProductVariantId { get; set; }
+        public int Quantity { get; set; }
+        public Guid? CartId { get; set; }
+        public virtual Cart Cart { get; set; }
+        public virtual ProductVariant ProductVariants { get; set; }
     }
 }

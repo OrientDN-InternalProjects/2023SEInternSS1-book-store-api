@@ -16,8 +16,26 @@ namespace BookEcommerce.Controllers
             this.productService = productService;
         }
 
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(Guid productId)
+        { 
+            var res = await productService.GetProductById(productId);
+            if(res.IsSuccess)
+            {
+                return Ok(res);
+            }
+            return BadRequest(res);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProduct()
+        {
+            var res = await productService.GetAllProduct();
+            return Ok(res);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> AddItem([FromBody] ProductRequest request)
+        public async Task<IActionResult> AddProdutOfShop([FromBody] ProductRequest request)
         {
             var res = await productService.AddProduct(request);
             if(res.IsSuccess)

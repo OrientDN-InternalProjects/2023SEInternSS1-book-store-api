@@ -9,5 +9,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface IProductVariantRepository : IRepository<ProductVariant>
     {
+        Task<List<ProductVariant>> GetProductVariantsByIdProduct(Guid productId);
+        Task<ProductVariant> GetProductVariantById(Guid productVariantId);
     }
 }

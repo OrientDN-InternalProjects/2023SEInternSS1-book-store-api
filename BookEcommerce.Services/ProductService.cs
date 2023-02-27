@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Models.Entities;
@@ -38,6 +39,7 @@ namespace BookEcommerce.Services
                     ProductName = req.ProductName,
                     ProductDecription = req.ProductDescription,
                     VendorId = req.VendorId,
+                    IsActive = true,
                 };
                 await productRepository.AddAsync(product);
                 foreach (var path in req.Paths)
@@ -93,12 +95,100 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                throw e;
-                //return new ProductResponse
-                //{
-                //    IsSuccess = false,
-                //    Message = e.Message
-                //};
+                return new ProductResponse
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+        }
+
+        public async Task<List<ProductViewModel>> GetAllProduct()
+        {
+            var listProducts = await productRepository.GetAll();
+            var listProductsDTO = new List<ProductViewModel>();
+            foreach (var item in listProducts)
+            {
+                var listProductVariants = new List<ProductVariantViewModel>();
+                var listProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(item.ProductId);
+                foreach (var pv in listProductVariant)
+                {
+                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(pv.ProductVariantId);
+                    var productVariantDTO = new ProductVariantViewModel
+                    {
+                        ProductVariantId = pv.ProductVariantId,
+                        ProductVariantName = pv.ProductVariantName,
+                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
+                        ProductSalePrice = productPrice.PruductVariantSalePrice,
+                    };
+                    listProductVariants.Add(productVariantDTO);
+                }
+                var productDTO = new ProductViewModel
+                {
+                    ProductName = item.ProductName,
+                    ProductDescription = item.ProductDecription,
+                    ProductVariants = listProductVariants
+                };
+                listProductsDTO.Add(productDTO);
+            }
+            return listProductsDTO;
+        }
+
+        public async Task<ProductViewModel> GetProductById(Guid productId)
+        {
+            try
+            {
+                var findProduct = await productRepository.GetProductById(productId);
+                if (findProduct == null)
+                {
+                    return new ProductViewModel
+                    {
+                        IsSuccess = false,
+                        Message = "Can't find Product!"
+                    };
+                }
+                var findProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(findProduct.ProductId);
+                var findImageProduct = await imageRepository.GetImagesByProductId(findProduct.ProductId);
+                var imageProduct = new List<ImageViewModel>();
+                foreach (var img in findImageProduct)
+                {
+                    var imgProduct = new ImageViewModel
+                    {
+                        ImageId = img.ImageId.ToString(),
+                        Path = img.ImageURL,
+                    };
+                    imageProduct.Add(imgProduct);
+                }
+                var listProductVariant = new List<ProductVariantViewModel>();
+                foreach (var item in findProductVariant)
+                {
+                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(item.ProductVariantId);
+                    var productVariant = new ProductVariantViewModel
+                    {
+                        ProductVariantId = item.ProductVariantId,
+                        ProductVariantName = item.ProductVariantName,
+                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
+                        ProductSalePrice = productPrice.PruductVariantSalePrice,
+                    };
+                    listProductVariant.Add(productVariant);
+                }
+                return new ProductViewModel
+                {
+                    IsSuccess = true,
+                    ProductId = findProduct.ProductId,
+                    ProductName = findProduct.ProductName,
+                    ProductDescription = findProduct.ProductDecription,
+                    ProductVariants = listProductVariant,
+                    Images = imageProduct,
+                };
+            }
+            catch (Exception e)
+            {
+                return new ProductViewModel 
+                { 
+                    IsSuccess = false, 
+                    Message = e.Message 
+                };
             }
         }
     }
