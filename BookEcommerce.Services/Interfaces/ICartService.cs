@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface IProductService
+    public interface ICartService
     {
-        Task<ProductResponse> AddProduct(ProductRequest req);
-        Task<List<ProductViewModel>> GetAllProduct();
-        Task<ProductViewModel> GetProductById(Guid productId);
+        public Task<CartResponse> AddCart(CartRequest req,Guid cusId);
+        public Task<List<CartViewModel>> GetCart(Guid cusId);
     }
 }

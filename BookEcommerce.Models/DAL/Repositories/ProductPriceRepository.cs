@@ -1,5 +1,6 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,11 @@ namespace BookEcommerce.Models.DAL.Repositories
     {
         public ProductPriceRepository(DbFactory dbFactory) : base(dbFactory)
         {
+        }
+
+        public async Task<ProductPrice> GetProductPriceByProductVariantId(Guid productVariantId)
+        {
+            return await GetQuery(pp => pp.ProductVariantId.Equals(productVariantId)).SingleAsync();
         }
     }
 }

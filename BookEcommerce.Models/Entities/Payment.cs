@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string? PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
         public string? PaymentType { get; set; }
         public string? PaymentStatus { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }

@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class ImageRepository : Repository<Image>, IImageRepository
+    public class CartDetailRepository : Repository<CartDetail>, ICartDetailRepository
     {
-        public ImageRepository(DbFactory dbFactory) : base(dbFactory)
+        public CartDetailRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
 
-        public async Task<List<Image>> GetImagesByProductId(Guid productId)
+        public async Task<List<CartDetail>> GetListCartDetailByCartId(Guid cartId)
         {
-            return await GetQuery(pi => pi.ProductId.Equals(productId)).ToListAsync();
+            return await GetQuery(cd => cd.CartId.Equals(cartId)).ToListAsync();
         }
     }
 }
