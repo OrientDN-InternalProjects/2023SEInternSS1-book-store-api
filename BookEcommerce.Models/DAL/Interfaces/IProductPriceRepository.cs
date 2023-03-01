@@ -10,5 +10,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
     public interface IProductPriceRepository : IRepository<ProductPrice>
     {
         Task<ProductPrice> GetProductPriceByProductVariantId(Guid productVariantId);
+        Task<double> GetPriceByProductVariant(Guid productVariantId);
     }
 }

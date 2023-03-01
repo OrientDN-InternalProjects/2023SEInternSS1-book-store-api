@@ -9,6 +9,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface ICartDetailRepository : IRepository<CartDetail>
     {
-        Task<List<CartDetail>> GetListCartDetailByCartId(Guid cartId);
+        Task<List<CartDetail>> GetListCartDetailByCartId(Guid? cartId);
+        Task<CartDetail> GetCartDetailByCartIdAndProductVariantId(Guid? CartId, Guid? productVariantId);
     }
 }

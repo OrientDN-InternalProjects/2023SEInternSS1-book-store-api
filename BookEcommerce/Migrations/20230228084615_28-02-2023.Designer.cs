@@ -4,6 +4,7 @@ using BookEcommerce.Models.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230228084615_28-02-2023")]
+    partial class _28022023
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,7 +194,7 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Cart", b =>
                 {
-                    b.Property<Guid?>("CartId")
+                    b.Property<Guid>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -201,9 +203,7 @@ namespace BookEcommerce.Migrations
 
                     b.HasKey("CartId");
 
-                    b.HasIndex("CustomerId")
-                        .IsUnique()
-                        .HasFilter("[CustomerId] IS NOT NULL");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Carts");
                 });
@@ -375,7 +375,9 @@ namespace BookEcommerce.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductVariantId");
+                    b.HasIndex("ProductVariantId")
+                        .IsUnique()
+                        .HasFilter("[ProductVariantId] IS NOT NULL");
 
                     b.ToTable("OrderDetails");
                 });
@@ -745,8 +747,8 @@ namespace BookEcommerce.Migrations
             modelBuilder.Entity("BookEcommerce.Models.Entities.Cart", b =>
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
-                        .WithOne("Cart")
-                        .HasForeignKey("BookEcommerce.Models.Entities.Cart", "CustomerId");
+                        .WithMany("Cart")
+                        .HasForeignKey("CustomerId");
 
                     b.Navigation("Customer");
                 });
@@ -832,8 +834,8 @@ namespace BookEcommerce.Migrations
                         .HasForeignKey("OrderId");
 
                     b.HasOne("BookEcommerce.Models.Entities.ProductVariant", "ProductVariant")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductVariantId");
+                        .WithOne("OrderDetail")
+                        .HasForeignKey("BookEcommerce.Models.Entities.OrderDetail", "ProductVariantId");
 
                     b.Navigation("Order");
 
@@ -978,8 +980,7 @@ namespace BookEcommerce.Migrations
 
                     b.Navigation("Addresses");
 
-                    b.Navigation("Cart")
-                        .IsRequired();
+                    b.Navigation("Cart");
 
                     b.Navigation("Image");
 
@@ -1011,7 +1012,7 @@ namespace BookEcommerce.Migrations
                 {
                     b.Navigation("CartDetail");
 
-                    b.Navigation("OrderDetails");
+                    b.Navigation("OrderDetail");
 
                     b.Navigation("ProductPrice");
                 });

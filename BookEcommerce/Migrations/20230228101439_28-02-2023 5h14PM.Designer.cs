@@ -4,6 +4,7 @@ using BookEcommerce.Models.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230228101439_28-02-2023 5h14PM")]
+    partial class _280220235h14PM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -375,7 +377,9 @@ namespace BookEcommerce.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductVariantId");
+                    b.HasIndex("ProductVariantId")
+                        .IsUnique()
+                        .HasFilter("[ProductVariantId] IS NOT NULL");
 
                     b.ToTable("OrderDetails");
                 });
@@ -832,8 +836,8 @@ namespace BookEcommerce.Migrations
                         .HasForeignKey("OrderId");
 
                     b.HasOne("BookEcommerce.Models.Entities.ProductVariant", "ProductVariant")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductVariantId");
+                        .WithOne("OrderDetail")
+                        .HasForeignKey("BookEcommerce.Models.Entities.OrderDetail", "ProductVariantId");
 
                     b.Navigation("Order");
 
@@ -1011,7 +1015,7 @@ namespace BookEcommerce.Migrations
                 {
                     b.Navigation("CartDetail");
 
-                    b.Navigation("OrderDetails");
+                    b.Navigation("OrderDetail");
 
                     b.Navigation("ProductPrice");
                 });

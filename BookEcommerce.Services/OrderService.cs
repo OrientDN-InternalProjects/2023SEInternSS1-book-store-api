@@ -1,0 +1,137 @@
+﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response;
+using BookEcommerce.Models.Entities;
+using BookEcommerce.Services.Base;
+using BookEcommerce.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BookEcommerce.Services
+{
+    public class OrderService : BaseService, IOrderService
+    {
+        private readonly IOrderRepository orderRepository;
+        private readonly IOrderDetailRepository orderDetailRepository;
+        private readonly IProductVariantRepository productVariantRepository;
+        private readonly IProductPriceRepository productPriceRepository;
+        private readonly IProductRepository productRepository;
+        private readonly ICartDetailRepository cartDetailRepository;
+        private readonly ICartRepository cartRepository;
+        public OrderService(IUnitOfWork unitOfWork, IOrderRepository orderRepository,IOrderDetailRepository orderDetailRepository,
+                            IProductVariantRepository productVariantRepository, IProductPriceRepository productPriceRepository, IProductRepository productRepository, 
+                            ICartDetailRepository cartDetailRepository, ICartRepository cartRepository) : base(unitOfWork)
+        {
+            this.orderRepository = orderRepository;
+            this.orderDetailRepository = orderDetailRepository;
+            this.productVariantRepository = productVariantRepository;
+            this.productPriceRepository = productPriceRepository;
+            this.productRepository = productRepository;
+            this.cartDetailRepository = cartDetailRepository;
+            this.cartRepository = cartRepository;
+        }
+        public async Task<OrderResponse> AddOrder(OrderRequest req, Guid cusId)
+        {
+            try
+            {
+                foreach (var item in req.Details)
+                {
+                    var order = new Order
+                    {
+                        CustomerId = cusId,
+                        TransferAddress = req.TransferAddress,
+                        PaymentId = req.PaymentId,
+                        Message = req.Message,
+                        OrderDate = DateTime.Now,
+                        StatusOrder = "Pending",
+                        VendorId = item.ShopId,
+                        TotalPrice = 0
+                    };
+                    foreach (var ordt in item.OrderDetailRequests)
+                    {
+                        var priceProduct = await productPriceRepository.GetPriceByProductVariant(ordt.ProductVariantId);
+                        var findProductVariant = await productVariantRepository.GetProductVariantById(ordt.ProductVariantId);
+                        var orderDetail = new OrderDetail
+                        {
+                            OrderId = order.OrderId,
+                            ProductVariantId = ordt.ProductVariantId,
+                            Quantity = ordt.Quantity,
+                            Price = ((double)priceProduct) * ordt.Quantity
+                        };
+                        await orderDetailRepository.AddAsync(orderDetail);
+                        order.TotalPrice += orderDetail.Price;
+                        findProductVariant.Quantity -= ordt.Quantity;
+                        productVariantRepository.Update(findProductVariant);
+                    }
+                    await orderRepository.AddAsync(order);
+                }
+                await _unitOfWork.CommitTransaction();
+                return new OrderResponse
+                {
+                    IsSuccess = true
+                };
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("Some propaties is valid !");
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<OrderResponse> CancelOrder(Guid orderId)
+        {
+            var findOrder = await orderRepository.GetOrderByOrderId(orderId);
+            findOrder.StatusOrder = "Cancel";
+            var findOrderDetail = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
+            foreach (var item in findOrderDetail)
+            {
+                var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId); 
+                findProductVariant.Quantity += item.Quantity;
+                productVariantRepository.Update(findProductVariant);
+            }
+            await _unitOfWork.CommitTransaction();
+            return new OrderResponse
+            {
+                IsSuccess = true,
+                Message = "Cancel Order is success!"
+            };
+        }
+
+        public async Task<OrderResponse> ChangeStatusOrder(StatusRequest statusReq, Guid orderId)
+        {
+            try
+            {
+                var findOrder = await orderRepository.GetOrderByOrderId(orderId);
+                var listOrderDetails = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
+                findOrder.StatusOrder = statusReq.StatusOrder;
+                foreach (var item in listOrderDetails)
+                {
+                    var findCart = cartRepository.GetCartByCustomerId(findOrder.CustomerId);
+                    var findCartDetail = await cartDetailRepository.GetCartDetailByCartIdAndProductVariantId(findCart.Result.CartId, item.ProductVariantId);
+                    cartDetailRepository.Delete(findCartDetail);
+                }
+                orderRepository.Update(findOrder);
+                await _unitOfWork.CommitTransaction();
+                return new OrderResponse 
+                { 
+                    IsSuccess = true,
+                    Message = "Change Status Order is success!"
+                };
+            }
+            catch (NullReferenceException)
+            {
+                throw new NullReferenceException("Some properties is Null!");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+    }
+}

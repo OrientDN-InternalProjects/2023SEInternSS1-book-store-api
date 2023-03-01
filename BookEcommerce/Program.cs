@@ -11,6 +11,7 @@ using BookEcommerce.Services.Mapper;
 using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -67,6 +68,7 @@ services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<ICartService, CartService>();
+services.AddScoped<IOrderService, OrderService>();
 //repo
 builder.Services.AddScoped<IRoleRepository, RoleRepository>()
 .AddScoped<Profile, MapperProfile>()
@@ -80,9 +82,11 @@ services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 services.AddScoped<ICartDetailRepository, CartDetailRepository>();
-
-
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
         }
 
-        public async Task<ProductVariant> GetProductVariantById(Guid productVariantId)
+        public async Task<ProductVariant> GetProductVariantById(Guid? productVariantId)
         {
             return await GetQuery(pv => pv.ProductVariantId.Equals(productVariantId)).SingleAsync();
         }
