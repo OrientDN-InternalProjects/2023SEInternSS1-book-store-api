@@ -120,6 +120,7 @@ src/.vs/config/applicationhost.config
 
 /BookEcommerce/bin
 /BookEcommerce/obj
+/BookEcommerce/obj/Debug/net6.0
 /BookEcommerce/obj/Release
 /BookEcommerce/Release/net6.0
 

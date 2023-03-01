@@ -1,5 +1,4 @@
 ﻿using BookEcommerce.Models.DTOs;
-using BookEcommerce.Models.DTOs.Response.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICustomerService
+    public interface ITokenService
     {
-        public Task<ResponseBase> CreateCustomer(CustomerViewModel CustomerDTO, string Token);
+        public string CreateRefreshToken();
+        public Task<string> StoreRefreshToken();
+        //public string RefreshToken(string AccessToken);
     }
 }
