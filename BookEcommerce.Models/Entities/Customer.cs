@@ -25,7 +25,7 @@ namespace BookEcommerce.Models.Entities
         public virtual ICollection<Address>? Addresses { get; set; }
         //public Guid? ImageId { get; set; }
         public virtual Image? Image { get; set; }
-        public virtual ICollection<Cart>? Cart { get; set; }
+        public virtual Cart Cart { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<PhoneNumber>? PhoneNumbers { get; set; }
 

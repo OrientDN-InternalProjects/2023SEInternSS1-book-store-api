@@ -23,7 +23,7 @@ namespace BookEcommerce.Models.Entities
         public virtual Product? Product { get; set; }
         public virtual CartDetail? CartDetail { get; set; }
         public virtual ProductPrice? ProductPrice  { get; set; }
-        public virtual OrderDetail? OrderDetail { get; set; }
+        public virtual IEnumerable<OrderDetail>? OrderDetails { get; set; }
 
     }
 }

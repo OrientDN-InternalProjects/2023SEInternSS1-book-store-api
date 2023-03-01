@@ -4,6 +4,7 @@ using BookEcommerce.Models.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230228101439_28-02-2023 5h14PM")]
+    partial class _280220235h14PM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -227,6 +229,9 @@ namespace BookEcommerce.Migrations
 
                     b.HasIndex("CartId");
 
+                    b.HasIndex("ProductVariantId")
+                        .IsUnique();
+
                     b.ToTable("CartDetails");
                 });
 
@@ -372,7 +377,9 @@ namespace BookEcommerce.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductVariantId");
+                    b.HasIndex("ProductVariantId")
+                        .IsUnique()
+                        .HasFilter("[ProductVariantId] IS NOT NULL");
 
                     b.ToTable("OrderDetails");
                 });
@@ -495,9 +502,6 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CartDetailId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -508,8 +512,6 @@ namespace BookEcommerce.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ProductVariantId");
-
-                    b.HasIndex("CartDetailId");
 
                     b.HasIndex("ProductId");
 
@@ -759,7 +761,15 @@ namespace BookEcommerce.Migrations
                         .WithMany("CartDetails")
                         .HasForeignKey("CartId");
 
+                    b.HasOne("BookEcommerce.Models.Entities.ProductVariant", "ProductVariants")
+                        .WithOne("CartDetail")
+                        .HasForeignKey("BookEcommerce.Models.Entities.CartDetail", "ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Cart");
+
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Category", b =>
@@ -826,8 +836,8 @@ namespace BookEcommerce.Migrations
                         .HasForeignKey("OrderId");
 
                     b.HasOne("BookEcommerce.Models.Entities.ProductVariant", "ProductVariant")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductVariantId");
+                        .WithOne("OrderDetail")
+                        .HasForeignKey("BookEcommerce.Models.Entities.OrderDetail", "ProductVariantId");
 
                     b.Navigation("Order");
 
@@ -880,17 +890,11 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.ProductVariant", b =>
                 {
-                    b.HasOne("BookEcommerce.Models.Entities.CartDetail", "CartDetail")
-                        .WithMany("ProductVariants")
-                        .HasForeignKey("CartDetailId");
-
                     b.HasOne("BookEcommerce.Models.Entities.Product", "Product")
                         .WithMany("ProductVariants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CartDetail");
 
                     b.Navigation("Product");
                 });
@@ -965,11 +969,6 @@ namespace BookEcommerce.Migrations
                     b.Navigation("CartDetails");
                 });
 
-            modelBuilder.Entity("BookEcommerce.Models.Entities.CartDetail", b =>
-                {
-                    b.Navigation("ProductVariants");
-                });
-
             modelBuilder.Entity("BookEcommerce.Models.Entities.Category", b =>
                 {
                     b.Navigation("Image");
@@ -1014,7 +1013,9 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.ProductVariant", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("CartDetail");
+
+                    b.Navigation("OrderDetail");
 
                     b.Navigation("ProductPrice");
                 });
