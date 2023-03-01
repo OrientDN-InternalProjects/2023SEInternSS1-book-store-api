@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
         public Task<IdentityResult> RegisterCustomer(ApplicationUser ApplicationUser, string Password);
         public Task<IdentityResult> RegisterVendor(ApplicationUser ApplicationUser, string password);
         public Task<IdentityResult> CreateAdmin(ApplicationUser applicationUser, string password);
-        public Task<string> Login(LoginViewModel LoginDTO);
+        public Task<TokenViewModel> Login(LoginViewModel LoginDTO);
         public Task<string> RefreshToken(string Email, TokenViewModel TokenDTO);
         public Task Revoke(string Email);
         //public Task ForgotPassword(string Email, string OldPassword, string NewPassword);

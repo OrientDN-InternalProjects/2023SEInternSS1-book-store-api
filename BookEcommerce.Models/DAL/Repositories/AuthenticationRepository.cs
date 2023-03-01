@@ -65,7 +65,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         //    var Admin = await this.userManager.CreateAsync(ApplicationUser, Password.PASSWORD);
         //}
 
-        public async Task<string> Login(LoginViewModel LoginDTO)
+        public async Task<TokenViewModel> Login(LoginViewModel LoginDTO)
         {
             var User = await this.GetUserByEmail(LoginDTO.Email!);
             if (User == null) return null!;
@@ -85,8 +85,13 @@ namespace BookEcommerce.Models.DAL.Repositories
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-                var token = tokenRepository!.CreateToken(claims);
-            return token;
+            var AccessToken = tokenRepository!.CreateToken(claims);
+            var RefreshToken = tokenRepository!.CreateRefreshToken();
+            return new TokenViewModel
+            {
+                AccessToken = AccessToken,
+                RefreshToken = RefreshToken
+            };
         }
 
         public async Task<IdentityResult> RegisterCustomer(ApplicationUser ApplicationUser, string password)
@@ -122,7 +127,7 @@ namespace BookEcommerce.Models.DAL.Repositories
             {
                 return null!;
             }
-            if (user.RefreshToken!.Token != TokenDTO.RefreshToken) return null!;
+            if (user.RefreshTokenId != Guid.Parse(TokenDTO.RefreshToken)) return null!;
             string Token = this.tokenRepository!.RefreshToken(TokenDTO.AccessToken!);
             return Token;            
         }
@@ -134,8 +139,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         }
 
         public async Task Revoke(string Email)
-        {
-            
+        {        
             var user = await this.userManager!.FindByEmailAsync(Email);
             if (user != null)
             {
