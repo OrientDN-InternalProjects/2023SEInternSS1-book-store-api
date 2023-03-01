@@ -15,7 +15,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
         }
 
-        public async Task<List<CartDetail>> GetListCartDetailByCartId(Guid cartId)
+        public async Task<List<CartDetail>> GetListCartDetailByCartId(Guid? cartId)
         {
             return await GetQuery(cd => cd.CartId.Equals(cartId)).ToListAsync();
         }

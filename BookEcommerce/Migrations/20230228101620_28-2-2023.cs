@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _27022023 : Migration
+    public partial class _2822023 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -214,9 +214,10 @@ namespace BookEcommerce.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     VendorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    RefreshTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -244,8 +245,12 @@ namespace BookEcommerce.Migrations
                         name: "FK_AspNetUsers_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "CustomerId");
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_RefreshTokens_RefreshTokenId",
+                        column: x => x.RefreshTokenId,
+                        principalTable: "RefreshTokens",
+                        principalColumn: "RefreshTokenId");
                     table.ForeignKey(
                         name: "FK_AspNetUsers_Vendors_VendorId",
                         column: x => x.VendorId,
@@ -451,13 +456,13 @@ namespace BookEcommerce.Migrations
                 name: "ProductCategories",
                 columns: table => new
                 {
-                    IdProductCategory = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategories", x => x.IdProductCategory);
+                    table.PrimaryKey("PK_ProductCategories", x => x.ProductCategoryId);
                     table.ForeignKey(
                         name: "FK_ProductCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
@@ -478,7 +483,8 @@ namespace BookEcommerce.Migrations
                     ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductVariantName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderDetailId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -614,7 +620,15 @@ namespace BookEcommerce.Migrations
                 name: "IX_AspNetUsers_CustomerId",
                 table: "AspNetUsers",
                 column: "CustomerId",
-                unique: true);
+                unique: true,
+                filter: "[CustomerId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_RefreshTokenId",
+                table: "AspNetUsers",
+                column: "RefreshTokenId",
+                unique: true,
+                filter: "[RefreshTokenId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_VendorId",
@@ -649,7 +663,9 @@ namespace BookEcommerce.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Carts_CustomerId",
                 table: "Carts",
-                column: "CustomerId");
+                column: "CustomerId",
+                unique: true,
+                filter: "[CustomerId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_VendorId",
@@ -786,9 +802,6 @@ namespace BookEcommerce.Migrations
                 name: "ProductPrices");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -808,6 +821,9 @@ namespace BookEcommerce.Migrations
 
             migrationBuilder.DropTable(
                 name: "Admins");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Customers");

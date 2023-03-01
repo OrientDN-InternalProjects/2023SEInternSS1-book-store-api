@@ -16,7 +16,7 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CartId { get; set; }
+        public Guid? CartId { get; set; }
         public virtual ICollection<CartDetail>? CartDetails { get; set; }
         public Guid? CustomerId { get; set; }
         public Customer? Customer { get; set; }

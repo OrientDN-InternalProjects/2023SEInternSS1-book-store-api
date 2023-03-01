@@ -78,7 +78,7 @@ namespace BookEcommerce.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -111,6 +111,9 @@ namespace BookEcommerce.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("RefreshTokenId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -131,7 +134,8 @@ namespace BookEcommerce.Migrations
                         .HasFilter("[AdminId] IS NOT NULL");
 
                     b.HasIndex("CustomerId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[CustomerId] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -140,6 +144,10 @@ namespace BookEcommerce.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("RefreshTokenId")
+                        .IsUnique()
+                        .HasFilter("[RefreshTokenId] IS NOT NULL");
 
                     b.HasIndex("VendorId")
                         .IsUnique()
@@ -192,7 +200,7 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Cart", b =>
                 {
-                    b.Property<Guid>("CartId")
+                    b.Property<Guid?>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -201,7 +209,9 @@ namespace BookEcommerce.Migrations
 
                     b.HasKey("CartId");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasFilter("[CustomerId] IS NOT NULL");
 
                     b.ToTable("Carts");
                 });
@@ -495,6 +505,9 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("OrderDetailId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -715,9 +728,11 @@ namespace BookEcommerce.Migrations
 
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
                         .WithOne("Account")
-                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "CustomerId");
+
+                    b.HasOne("BookEcommerce.Models.Entities.RefreshToken", "RefreshToken")
+                        .WithOne("ApplicationUser")
+                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "RefreshTokenId");
 
                     b.HasOne("BookEcommerce.Models.Entities.Vendor", "Vendor")
                         .WithOne("Account")
@@ -726,6 +741,8 @@ namespace BookEcommerce.Migrations
                     b.Navigation("Admin");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("RefreshToken");
 
                     b.Navigation("Vendor");
                 });
@@ -742,8 +759,8 @@ namespace BookEcommerce.Migrations
             modelBuilder.Entity("BookEcommerce.Models.Entities.Cart", b =>
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
-                        .WithMany("Cart")
-                        .HasForeignKey("CustomerId");
+                        .WithOne("Cart")
+                        .HasForeignKey("BookEcommerce.Models.Entities.Cart", "CustomerId");
 
                     b.Navigation("Customer");
                 });
@@ -975,7 +992,8 @@ namespace BookEcommerce.Migrations
 
                     b.Navigation("Addresses");
 
-                    b.Navigation("Cart");
+                    b.Navigation("Cart")
+                        .IsRequired();
 
                     b.Navigation("Image");
 
@@ -1010,6 +1028,11 @@ namespace BookEcommerce.Migrations
                     b.Navigation("OrderDetail");
 
                     b.Navigation("ProductPrice");
+                });
+
+            modelBuilder.Entity("BookEcommerce.Models.Entities.RefreshToken", b =>
+                {
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Vendor", b =>

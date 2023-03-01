@@ -22,6 +22,11 @@ namespace BookEcommerce.Models.DAL
         {
             this.dbFactory = dbFactory;
         }
+
+        public Repository()
+        {
+        }
+
         public async Task<T> AddAsync(T entity)
         {
             await DbSet.AddAsync(entity);
