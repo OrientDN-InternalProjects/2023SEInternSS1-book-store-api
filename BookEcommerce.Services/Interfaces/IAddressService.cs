@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICustomerService
+    public interface IAddressService
     {
-        public Task<ResponseBase> CreateCustomer(CustomerViewModel CustomerDTO, string Token);
-        public Task<Guid?> GetCustomerIdFromToken(string Token);
+        public Task<ResponseBase> CreateAddress(AddressViewModel AddressViewModel, string Token);
     }
 }

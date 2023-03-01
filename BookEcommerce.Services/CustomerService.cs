@@ -53,5 +53,12 @@ namespace BookEcommerce.Services
                 Message = "A Customer's created"
             };
         }
+
+        public async Task<Guid?> GetCustomerIdFromToken(string Token)
+        {
+            var userId = this.tokenRepository.GetUserIdFromToken(Token);
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(Guid.Parse(userId)));
+            return customer.CustomerId;
+        }
     }
 }

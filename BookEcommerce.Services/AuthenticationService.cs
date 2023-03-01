@@ -95,7 +95,8 @@ namespace BookEcommerce.Services
                 {
                     IsSuccess = false,
                     Message = "Non user existed",
-                    Token = null
+                    AccessToken = null,
+                    RefreshToken = null
                 };
 
                 if (!User.EmailConfirmed)
@@ -104,34 +105,39 @@ namespace BookEcommerce.Services
                     {
                         IsSuccess = false,
                         Message = "Account did not confirmed",
-                        Token = null
+                        AccessToken = null,
+                        RefreshToken = null
                     };
                 }
-
                 string id = await this.tokenService.StoreRefreshToken();
                 User.RefreshTokenId = Guid.Parse(id);
                 authenticationRepository.Update(User);
                 await unitOfWork.CommitTransaction();
-
-                if (Token == null) return new TokenResponse
-            {
-                IsSuccess = false,
-                Message = "Email or Password got wrong",
-                Token = null
-            };
+            if (Token == null) 
+                return new TokenResponse
+                {
+                    IsSuccess = false,
+                    Message = "Email or Password got wrong",
+                    AccessToken = null,
+                    RefreshToken = null
+                };
             return new TokenResponse
             {
                 IsSuccess = true,
                 Message = "Welcome back",
-                    Token = Token
+                AccessToken = Token.AccessToken,
+                RefreshToken = Token.RefreshToken
             };
 
             }
             catch(Exception e)
             {
-                Console.WriteLine(e);
-                throw e;
-        }
+                return new TokenResponse
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
         }
 
         public async Task<ResponseBase> VendorRegister(AccountViewModel AccountDTO)
@@ -155,7 +161,16 @@ namespace BookEcommerce.Services
 
         public async Task<ResponseBase> RefreshToken(string Email, TokenViewModel TokenDTO)
         {
-            var Token = await this.authenticationRepository.RefreshToken(Email, TokenDTO);
+            var EmailToUpdateToken = await this.authenticationRepository.GetUserByEmail(Email);
+            if (EmailToUpdateToken == null)
+            {
+                return new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "Non user exist"
+                };
+            }
+            var Token = await this.authenticationRepository.RefreshToken(EmailToUpdateToken.Email, TokenDTO);
 
             if (Token == null)
             {

@@ -11,7 +11,7 @@ namespace BookEcommerce.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<ProductResponse> AddProduct(ProductRequest req);
+        Task<ProductResponse> AddProduct(ProductRequest req, string Token);
         Task<List<ProductViewModel>> GetAllProduct();
         Task<ProductViewModel> GetProductById(Guid productId);
     }

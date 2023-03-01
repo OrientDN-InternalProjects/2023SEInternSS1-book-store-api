@@ -13,7 +13,10 @@ using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
 using MimeKit;
 using MailKit.Net.Smtp;
+
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptions();
@@ -58,6 +61,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+//builder.Services.AddHttpLogging(logging =>
+//{
+//    logging.LoggingFields = HttpLoggingFields.All;
+//    logging.RequestHeaders.Add("sec-ch-ua");
+//    logging.ResponseHeaders.Add("MyResponseHeader");
+//    logging.MediaTypeOptions.AddText("application/javascript");
+//    logging.RequestBodyLogLimit = 4096;
+//    logging.ResponseBodyLogLimit = 4096;
+//});
+
+//builder.Host.ConfigureLogging(logging =>
+//{
+//    logging.AddConsole();
+//    logging.ClearProviders();
+//});
+
+
 //DB
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
 //.AddScoped<DbFactory>();
@@ -80,7 +100,8 @@ builder.Services
     .AddScoped<ICustomerService, CustomerService>()
     .AddScoped<IVendorService, VendorService>()
     .AddScoped<IProductService, ProductService>()
-    .AddScoped<ICartService, CartService>();
+    .AddScoped<ICartService, CartService>()
+    .AddScoped<IAddressService, AddressService>();
 //repo
 builder.Services
     .AddScoped<IRoleRepository, RoleRepository>()
@@ -92,7 +113,8 @@ builder.Services
     .AddScoped<ITokenRepository, TokenRepository>()
     .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
     .AddScoped<IVendorRepository, VendorRepository>()
-    .AddScoped<ICustomerRepository, CustomerRepository>();
+    .AddScoped<ICustomerRepository, CustomerRepository>()
+    .AddScoped<IAddressRepository, AddressRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
 services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<ICartRepository, CartRepository>();
@@ -104,6 +126,8 @@ services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 
 
 var app = builder.Build();
+
+//app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

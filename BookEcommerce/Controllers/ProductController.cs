@@ -39,7 +39,8 @@ namespace BookEcommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] ProductRequest request)
         {
-            var res = await productService.AddProduct(request);
+            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var res = await productService.AddProduct(request, AuthHeader);
             if(res.IsSuccess)
             {
                 return Ok("Add Product Success!!");

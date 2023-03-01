@@ -20,25 +20,39 @@ namespace BookEcommerce.Services
         private readonly IProductPriceRepository productPriceRepository;
         private readonly IImageRepository imageRepository;
         private readonly IProductCategoryRepository productCategoryRepository;
-        public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IProductPriceRepository productPriceRepository
-                              , IProductVariantRepository productVariantRepository, IImageRepository imageRepository, IProductCategoryRepository productCategoryRepository) : base(unitOfWork)
+        private readonly ITokenRepository tokenRepository;
+        private readonly IVendorRepository vendorRepository;
+        public ProductService
+            (IUnitOfWork unitOfWork, 
+            IProductRepository productRepository, 
+            IProductPriceRepository productPriceRepository, 
+            IProductVariantRepository productVariantRepository, 
+            IImageRepository imageRepository, 
+            IProductCategoryRepository productCategoryRepository, 
+            ITokenRepository tokenRepository,
+            IVendorRepository vendorRepository
+            ) : base(unitOfWork)
         {
             this.productRepository = productRepository;
             this.productVariantRepository = productVariantRepository;
             this.productPriceRepository = productPriceRepository;
             this.imageRepository = imageRepository;
             this.productCategoryRepository = productCategoryRepository;
+            this.tokenRepository = tokenRepository;
+            this.vendorRepository = vendorRepository;
         }
 
-        public async Task<ProductResponse> AddProduct(ProductRequest req)
+        public async Task<ProductResponse> AddProduct(ProductRequest req, string Token)
         {
             try
             {
+                var userId = this.tokenRepository.GetUserIdFromToken(Token);
+                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId.Equals(Guid.Parse(userId)));
                 var product = new Product
                 {
                     ProductName = req.ProductName,
                     ProductDecription = req.ProductDescription,
-                    VendorId = req.VendorId,
+                    VendorId = vendor.VendorId,
                     IsActive = true,
                 };
                 await productRepository.AddAsync(product);
