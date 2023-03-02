@@ -23,24 +23,27 @@ namespace BookEcommerce.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCustomer([FromForm] CustomerViewModel CustomerDTO)
+        public async Task<IActionResult> CreateCustomer([FromBody] CustomerViewModel CustomerDTO)
         {
-            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            Console.WriteLine(AuthHeader);
-            var result = await this.customerService.CreateCustomer(CustomerDTO, AuthHeader);
-
-            if (result.IsSuccess)
+            try
+            {
+                string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+                Console.WriteLine(AuthHeader);
+                var result = await this.customerService.CreateCustomer(CustomerDTO, AuthHeader);
                 return Ok(new ResponseBase
                 {
-                    IsSuccess = true,
-                    Message = result.Message
-                });
-
-            return BadRequest(new ResponseBase
+                   IsSuccess = result.IsSuccess,
+                   Message = result.Message
+                });     
+            }
+            catch(Exception ex)
             {
-                IsSuccess = false,
-                Message = "create customer failed"
-            });
+                return NotFound(new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "failed to execute"
+                });
+            }
         }
     }
 }

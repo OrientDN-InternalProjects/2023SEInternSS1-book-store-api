@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.Entities;
+using BookEcommerce.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +10,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
     public interface ICartDetailRepository : IRepository<CartDetail>
     {
         Task<List<CartDetail>> GetListCartDetailByCartId(Guid? cartId);
+        Task<CartDetail> GetCartDetailByCartIdAndProductVariantId(Guid? CartId, Guid? productVariantId);
     }
 }

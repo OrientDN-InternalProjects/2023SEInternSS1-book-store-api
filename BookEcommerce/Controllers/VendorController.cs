@@ -20,7 +20,7 @@ namespace BookEcommerce.Controllers
         }
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "VENDOR")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateVendor([FromForm] VendorCreateViewModel CreateVendorDTO)
+        public async Task<IActionResult> CreateVendor([FromBody] VendorCreateViewModel CreateVendorDTO)
         {
             string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
             Console.WriteLine(AuthHeader);

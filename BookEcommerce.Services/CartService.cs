@@ -125,6 +125,10 @@ namespace BookEcommerce.Services
                 }
                 return cart;
             }
+            catch(NullReferenceException nulla)
+            {
+                throw nulla;
+            }
             catch (Exception e)
             {
                 throw e;

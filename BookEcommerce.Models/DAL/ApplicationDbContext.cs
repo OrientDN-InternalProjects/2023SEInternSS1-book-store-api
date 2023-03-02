@@ -19,6 +19,19 @@ namespace BookEcommerce.Models.DAL
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<ApplicationUser>()
+                .HasOne<Admin>(o => o.Admin)
+                .WithOne(o => o.Account)
+                .HasForeignKey<Admin>(k => k.AccountId);
+            builder.Entity<ApplicationUser>()
+                .HasOne<Vendor>(o => o.Vendor)
+                .WithOne(o => o.Account)
+                .HasForeignKey<Vendor>(k => k.AccountId);
+            builder.Entity<ApplicationUser>()
+                .HasOne<Customer>(o => o.Customer)
+                .WithOne(o => o.Account)
+                .HasForeignKey<Customer>(k => k.AccountId);
+
         }
 
         //public virtual DbSet<UserAccountRole> UserAccountRoles { get; set; }

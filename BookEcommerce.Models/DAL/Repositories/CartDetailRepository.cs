@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,6 +13,11 @@ namespace BookEcommerce.Models.DAL.Repositories
     {
         public CartDetailRepository(DbFactory dbFactory) : base(dbFactory)
         {
+        }
+
+        public async Task<CartDetail> GetCartDetailByCartIdAndProductVariantId(Guid? cartId, Guid? productVariantId)
+        {
+            return await GetQuery(cd => cd.CartId == cartId && cd.ProductVariantId == productVariantId).SingleAsync();
         }
 
         public async Task<List<CartDetail>> GetListCartDetailByCartId(Guid? cartId)

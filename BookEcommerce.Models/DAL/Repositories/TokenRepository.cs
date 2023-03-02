@@ -92,11 +92,11 @@ namespace BookEcommerce.Models.DAL.Repositories
             return NewAccessToken;
         }
 
-        public string GetUserIdFromToken(string Token)
+        public Guid GetUserIdFromToken(string Token)
         {
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
-            string UserId = TokenString!.Claims.First(token => token.Type == "nameid").Value;
+            Guid UserId = new Guid(TokenString!.Claims.First(token => token.Type == "nameid").Value);
             Console.WriteLine(Token);
             return UserId;
         }

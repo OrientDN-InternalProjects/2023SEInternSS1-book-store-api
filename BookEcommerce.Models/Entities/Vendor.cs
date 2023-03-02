@@ -22,15 +22,15 @@ namespace BookEcommerce.Models.Entities
         public string? Country { get; set; }  
         public string? PhoneNumber { get; set; }
 
-        public Guid? AccountId { get; set; }
-        public ApplicationUser? Account { get; set; }
+        public string? AccountId { get; set; }
+        public virtual ApplicationUser? Account { get; set; }
         public Guid? BankAccountId { get; set; }
-        public BankAccount? BankAccount { get; set; }
+        public virtual BankAccount? BankAccount { get; set; }
 
         //public string ImageId { get; set; }
-        public Image? Image { get; set; }
-        public ICollection<Product>? Products{ get; set; }
-        public ICollection<Order>? Orders { get; set; }
-        public ICollection<Category>? Categories { get; set; }
+        public virtual Image? Image { get; set; }
+        public virtual ICollection<Product>? Products{ get; set; }
+        public virtual ICollection<Order>? Orders { get; set; }
+        public virtual ICollection<Category>? Categories { get; set; }
     }
 }

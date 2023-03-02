@@ -12,25 +12,33 @@ namespace BookEcommerce.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService productService;
-        public ProductController(IProductService productService)
+        private readonly ILogger<ProductController> logger;
+        public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             this.productService = productService;
+            this.logger = logger;
         }
 
         [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductById(Guid productId)
-        { 
-            var res = await productService.GetProductById(productId);
-            if(res.IsSuccess)
+        {
+            try
             {
+                logger.LogInformation("Start Get Product! ");
+                var res = await productService.GetProductById(productId);
                 return Ok(res);
             }
-            return BadRequest(res);
+            catch (Exception e)
+            {
+                logger.LogError("Get Product Fail!");
+                return NotFound(e.Message);
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProduct()
         {
+            logger.LogInformation("Start All Product! ");
             var res = await productService.GetAllProduct();
             return Ok(res);
         }
@@ -39,11 +47,12 @@ namespace BookEcommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] ProductRequest request)
         {
+            logger.LogInformation("Start Get Product! ");
             string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
             var res = await productService.AddProduct(request, AuthHeader);
             if(res.IsSuccess)
             {
-                return Ok("Add Product Success!!");
+                return StatusCode(StatusCodes.Status201Created,Ok("Add Product Success!!"));
             }
             return BadRequest(res.Message);
         }

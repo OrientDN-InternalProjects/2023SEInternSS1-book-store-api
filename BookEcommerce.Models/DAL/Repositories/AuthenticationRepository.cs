@@ -120,15 +120,15 @@ namespace BookEcommerce.Models.DAL.Repositories
             return result;      
         }
 
-        public async Task<string> RefreshToken(string Email, TokenViewModel TokenDTO)
+        public async Task<string> RefreshToken(string Email, TokenViewModel tokenViewModel)
         {           
             var user = await this.userManager!.FindByEmailAsync(Email);
             if (user == null)
             {
                 return null!;
             }
-            if (user.RefreshTokenId != Guid.Parse(TokenDTO.RefreshToken)) return null!;
-            string Token = this.tokenRepository!.RefreshToken(TokenDTO.AccessToken!);
+            if (user.RefreshTokenId != Guid.Parse(tokenViewModel.RefreshToken)) return null!;
+            string Token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
             return Token;            
         }
 

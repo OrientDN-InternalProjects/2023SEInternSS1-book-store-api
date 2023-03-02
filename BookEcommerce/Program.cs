@@ -17,6 +17,7 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptions();
@@ -27,10 +28,19 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.Name = "paypal-session";
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("default"), b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseLazyLoadingProxies();
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -86,6 +96,7 @@ services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provide
 services.AddScoped<DbFactory>();
 services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<ILogger, Logger<PaymentService>>();
 
 builder.Services
     .AddScoped<MailSettings>()
@@ -101,7 +112,9 @@ builder.Services
     .AddScoped<IVendorService, VendorService>()
     .AddScoped<IProductService, ProductService>()
     .AddScoped<ICartService, CartService>()
-    .AddScoped<IAddressService, AddressService>();
+    .AddScoped<IAddressService, AddressService>()
+    .AddScoped<IOrderService, OrderService>()
+    .AddScoped<IPaymentService, PaymentService>();
 //repo
 builder.Services
     .AddScoped<IRoleRepository, RoleRepository>()
@@ -122,10 +135,12 @@ services.AddScoped<ICartDetailRepository, CartDetailRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
-
-
-
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+services.AddScoped<IPaymentRepository, PaymentRepository>();
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 //app.UseHttpLogging();
 
@@ -139,6 +154,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllers();
 

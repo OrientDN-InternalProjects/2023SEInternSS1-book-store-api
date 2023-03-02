@@ -30,7 +30,7 @@ namespace BookEcommerce.Models.Entities
         public Guid? VendorId { get; set; }
         public virtual Vendor? Vendor { get; set; }
 
-        public virtual ICollection<OrderDetail>? OrderDetails { get; set; }
+        public virtual IEnumerable<OrderDetail>? OrderDetails { get; set; }
 
     }
 }

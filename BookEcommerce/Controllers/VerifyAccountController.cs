@@ -15,7 +15,7 @@ namespace BookEcommerce.Controllers
             this.verifyAccountService = verifyAccountService;
         }
         [HttpPost("send-mail")]
-        public async Task<IActionResult> SendMail([FromForm] string Email)
+        public async Task<IActionResult> SendMail([FromBody] string Email)
         {
             var result = await this.verifyAccountService.SendVerificationMail(Email);
             if(result.IsSuccess)

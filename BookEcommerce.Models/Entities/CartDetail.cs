@@ -16,11 +16,11 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CartDetailId { get; set; }
-        public Guid ProductVariantId { get; set; }
-        public int Quantity { get; set; }
-        public Guid? CartId { get; set; }
+        public virtual Guid CartDetailId { get; set; }
+        public virtual Guid ProductVariantId { get; set; }
+        public virtual int Quantity { get; set; }
+        public virtual Guid? CartId { get; set; }
         public virtual Cart Cart { get; set; }
-        public virtual ProductVariant ProductVariants { get; set; }
+        public virtual ICollection<ProductVariant> ProductVariants { get; set; }
     }
 }

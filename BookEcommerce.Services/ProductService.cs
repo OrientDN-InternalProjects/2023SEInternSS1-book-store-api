@@ -23,12 +23,12 @@ namespace BookEcommerce.Services
         private readonly ITokenRepository tokenRepository;
         private readonly IVendorRepository vendorRepository;
         public ProductService
-            (IUnitOfWork unitOfWork, 
-            IProductRepository productRepository, 
-            IProductPriceRepository productPriceRepository, 
-            IProductVariantRepository productVariantRepository, 
-            IImageRepository imageRepository, 
-            IProductCategoryRepository productCategoryRepository, 
+            (IUnitOfWork unitOfWork,
+            IProductRepository productRepository,
+            IProductPriceRepository productPriceRepository,
+            IProductVariantRepository productVariantRepository,
+            IImageRepository imageRepository,
+            IProductCategoryRepository productCategoryRepository,
             ITokenRepository tokenRepository,
             IVendorRepository vendorRepository
             ) : base(unitOfWork)
@@ -41,13 +41,67 @@ namespace BookEcommerce.Services
             this.tokenRepository = tokenRepository;
             this.vendorRepository = vendorRepository;
         }
-
+        public async Task<ProductResponse> AddProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
+        {
+            foreach (var proVariant in listProductsVariant)
+            {
+                if (proVariant.Quantity == 0 || proVariant.ProductDefautPrice == 0 || proVariant.ProductSalePrice == 0)
+                {
+                    return new ProductResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Can't enter value 0 when adding product"
+                    };
+                }
+                else
+                {
+                    var productVariant = new ProductVariant
+                    {
+                        ProductVariantName = proVariant.ProductVariantName,
+                        Quantity = proVariant.Quantity,
+                        ProductId = product.ProductId
+                    };
+                    await productVariantRepository.AddAsync(productVariant);
+                    var productPrice = new ProductPrice
+                    {
+                        ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
+                        PruductVariantSalePrice = proVariant.ProductSalePrice,
+                        ActivationDate = proVariant.ActivationDate,
+                        ExpirationDate = proVariant.ExpirationDate,
+                        ProductVariantId = productVariant.ProductVariantId,
+                    };
+                    await productPriceRepository.AddAsync(productPrice);
+                }
+            }
+            return new ProductResponse
+            {
+                IsSuccess = true
+            };
+        }
+        public async Task AddImageAndProductCategory(ProductRequest req , Product product)
+        {
+            foreach (var path in req.Paths)
+            {
+                var img = new Image
+                {
+                    ImageURL = path,
+                    ProductId = product.ProductId
+                };
+                await imageRepository.AddAsync(img);
+            }
+            var cate = new ProductCategory
+            {
+                CategoryId = req.CategoryId,
+                ProductId = product.ProductId
+            };
+            await productCategoryRepository.AddAsync(cate);
+        }
         public async Task<ProductResponse> AddProduct(ProductRequest req, string Token)
         {
             try
             {
                 var userId = this.tokenRepository.GetUserIdFromToken(Token);
-                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId.Equals(Guid.Parse(userId)));
+                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
                 var product = new Product
                 {
                     ProductName = req.ProductName,
@@ -56,51 +110,11 @@ namespace BookEcommerce.Services
                     IsActive = true,
                 };
                 await productRepository.AddAsync(product);
-                foreach (var path in req.Paths)
+                await AddImageAndProductCategory(req, product);
+                if(!AddProductVariant(req.ProductVariants, product).Result.IsSuccess)
                 {
-                    var img = new Image
-                    {
-                        ImageURL = path,
-                        ProductId = product.ProductId
-                    };
-                    await imageRepository.AddAsync(img);
-                }
-                var cate = new ProductCategory
-                {
-                    CategoryId = req.CategoryId,
-                    ProductId = product.ProductId
+                    return await AddProductVariant(req.ProductVariants, product);
                 };
-                await productCategoryRepository.AddAsync(cate);
-                foreach (var proVariant in req.ProductVariants)
-                {
-                    if (proVariant.Quantity == 0 || proVariant.ProductDefautPrice == 0 || proVariant.ProductSalePrice == 0)
-                    {
-                        return new ProductResponse
-                        {
-                            IsSuccess = false,
-                            Message = "Can't enter value 0 when adding product"
-                        };
-                    }
-                    else
-                    {
-                        var productVariant = new ProductVariant
-                        {
-                            ProductVariantName = proVariant.ProductVariantName,
-                            Quantity = proVariant.Quantity,
-                            ProductId = product.ProductId
-                        };
-                        await productVariantRepository.AddAsync(productVariant);
-                        var productPrice = new ProductPrice
-                        {
-                            ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
-                            PruductVariantSalePrice = proVariant.ProductSalePrice,
-                            ActivationDate = proVariant.ActivationDate,
-                            ExpirationDate = proVariant.ExpirationDate,
-                            ProductVariantId = productVariant.ProductVariantId,
-                        };
-                        await productPriceRepository.AddAsync(productPrice);
-                    }
-                }
                 await _unitOfWork.CommitTransaction();
                 return new ProductResponse
                 {
@@ -120,7 +134,7 @@ namespace BookEcommerce.Services
         public async Task<List<ProductViewModel>> GetAllProduct()
         {
             var listProducts = await productRepository.GetAll();
-            var listProductsDTO = new List<ProductViewModel>();
+            var listProductsViewModel = new List<ProductViewModel>();
             foreach (var item in listProducts)
             {
                 var listProductVariants = new List<ProductVariantViewModel>();
@@ -128,24 +142,24 @@ namespace BookEcommerce.Services
                 foreach (var pv in listProductVariant)
                 {
                     var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(pv.ProductVariantId);
-                    var productVariantDTO = new ProductVariantViewModel
+                    var productVariantViewModel = new ProductVariantViewModel
                     {
                         ProductVariantId = pv.ProductVariantId,
                         ProductVariantName = pv.ProductVariantName,
                         ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
                         ProductSalePrice = productPrice.PruductVariantSalePrice,
                     };
-                    listProductVariants.Add(productVariantDTO);
+                    listProductVariants.Add(productVariantViewModel);
                 }
-                var productDTO = new ProductViewModel
+                var productViewModel = new ProductViewModel
                 {
                     ProductName = item.ProductName,
                     ProductDescription = item.ProductDecription,
                     ProductVariants = listProductVariants
                 };
-                listProductsDTO.Add(productDTO);
+                listProductsViewModel.Add(productViewModel);
             }
-            return listProductsDTO;
+            return listProductsViewModel;
         }
 
         public async Task<ProductViewModel> GetProductById(Guid productId)

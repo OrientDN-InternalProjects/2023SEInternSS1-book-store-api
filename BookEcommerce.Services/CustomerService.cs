@@ -31,13 +31,13 @@ namespace BookEcommerce.Services
 
         public async Task<ResponseBase> CreateCustomer(CustomerViewModel CustomerDTO, string Token)
         {
-            string UserId = tokenRepository.GetUserIdFromToken(Token);
+            Guid UserId = tokenRepository.GetUserIdFromToken(Token);
 
             //var MapCustomer = Mapper.Map<CustomerDTO, Customer>();
             Customer customer = new Customer
             {
                 FullName = CustomerDTO.FullName,
-                AccountId = Guid.Parse(UserId)
+                AccountId = UserId.ToString()
             };
             await this.customerRepository.AddAsync(customer);
             Cart cart = new Cart
@@ -54,11 +54,18 @@ namespace BookEcommerce.Services
             };
         }
 
-        public async Task<Guid?> GetCustomerIdFromToken(string Token)
+        public async Task<Guid> GetCustomerIdFromToken(string Token)
         {
             var userId = this.tokenRepository.GetUserIdFromToken(Token);
-            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(Guid.Parse(userId)));
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
             return customer.CustomerId;
+        }
+
+        public async Task<string> GetCustomerEmailFromToken(string Token)
+        {
+            var userId = this.tokenRepository.GetUserIdFromToken(Token);
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
+            return customer.Account!.Email;
         }
     }
 }

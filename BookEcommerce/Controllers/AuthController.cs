@@ -22,7 +22,7 @@ namespace BookEcommerce.Controllers
             this.verifyAccountService = verifyAccountService;
         }
         [HttpPost("register/customer")]
-        public async Task<IActionResult> CustomerRegister([FromForm] AccountViewModel AccountDTO)
+        public async Task<IActionResult> CustomerRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.CustomerRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -40,7 +40,7 @@ namespace BookEcommerce.Controllers
             });
         }
         [HttpPost("verify")]
-        public async Task<IActionResult> Login([FromForm] LoginViewModel LoginDTO)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel LoginDTO)
         {
             var result = await this.authenticationService!.Login(LoginDTO);
             if (!result.IsSuccess)
@@ -62,7 +62,7 @@ namespace BookEcommerce.Controllers
             });
         }
         [HttpPost("register/vendor")]
-        public async Task<IActionResult> VendorRegister([FromForm] AccountViewModel AccountDTO)
+        public async Task<IActionResult> VendorRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.VendorRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -80,7 +80,7 @@ namespace BookEcommerce.Controllers
             });
         }
         [HttpPost("create/admin")]
-        public async Task<IActionResult> AdminRegister([FromForm] AccountViewModel AccountDTO)
+        public async Task<IActionResult> AdminRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.AdminRegister(AccountDTO);
             if (!result.IsSuccess)
@@ -98,7 +98,7 @@ namespace BookEcommerce.Controllers
             });
         }
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromForm] TokenViewModel TokenDTO)
+        public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromBody] TokenViewModel TokenDTO)
         {
             await this.authenticationService!.RefreshToken(Email, TokenDTO);
             return Ok(new ResponseBase

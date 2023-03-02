@@ -18,7 +18,7 @@ namespace BookEcommerce.Controllers
         }
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
         [HttpPost("create-address")]
-        public async Task<IActionResult> CreateAddress([FromForm] AddressViewModel addressViewModel)
+        public async Task<IActionResult> CreateAddress([FromBody] AddressViewModel addressViewModel)
         {
             try
             {

@@ -30,9 +30,9 @@ namespace BookEcommerce.Services
         {
             try
             {
-                string UserId = tokenRepository.GetUserIdFromToken(Token);
+                Guid UserId = tokenRepository.GetUserIdFromToken(Token);
                 var VendorMapper = this.mapper.Map<VendorCreateViewModel, Vendor>(CreateVendorDTO);
-                VendorMapper.AccountId = Guid.Parse(UserId);
+                VendorMapper.AccountId = UserId.ToString();
                 await this.vendorRepository.AddAsync(VendorMapper);
                 await this.unitOfWork.CommitTransaction();
                 return new ResponseBase

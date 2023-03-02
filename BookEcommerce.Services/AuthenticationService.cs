@@ -37,10 +37,10 @@ namespace BookEcommerce.Services
             this.tokenService = tokenService;
         }
 
-        public async Task<ResponseBase> AdminRegister(AccountViewModel AccountDTO)
+        public async Task<ResponseBase> AdminRegister(AccountViewModel accountViewModel)
         {
-            var Admin = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
-            var Result = await this.authenticationRepository!.CreateAdmin(Admin, AccountDTO.Password!);
+            var Admin = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
+            var Result = await this.authenticationRepository!.CreateAdmin(Admin, accountViewModel.Password!);
             if (!Result.Succeeded)
             {
                 return new ResponseBase
@@ -56,16 +56,16 @@ namespace BookEcommerce.Services
             };
         }
 
-        public async Task<ResponseBase> CustomerRegister(AccountViewModel AccountDTO)
+        public async Task<ResponseBase> CustomerRegister(AccountViewModel accountViewModel)
         {
-            var User = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
+            var User = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
             //ApplicationUser User = new ApplicationUser
             //{
-            //    UserName = AccountDTO.UserName,
-            //    Email = AccountDTO.Email,
+            //    UserName = accountViewModel.UserName,
+            //    Email = accountViewModel.Email,
             //};
 
-            var result = await this.authenticationRepository!.RegisterCustomer(User, AccountDTO.Password!);
+            var result = await this.authenticationRepository!.RegisterCustomer(User, accountViewModel.Password!);
             //await this.unitOfWork!.CommitTransaction();
             if (result.Succeeded)
             {
@@ -84,12 +84,12 @@ namespace BookEcommerce.Services
                 };
             }
         }
-        public async Task<TokenResponse> Login(LoginViewModel LoginDTO)
+        public async Task<TokenResponse> Login(LoginViewModel loginViewModel)
         {
             try
             {
-                var Token = await this.authenticationRepository!.Login(LoginDTO);
-                var User = await this.authenticationRepository.GetUserByEmail(LoginDTO.Email!);
+                var Token = await this.authenticationRepository!.Login(loginViewModel);
+                var User = await this.authenticationRepository.GetUserByEmail(loginViewModel.Email!);
 
                 if (User == null) return new TokenResponse
                 {
@@ -140,10 +140,10 @@ namespace BookEcommerce.Services
             }
         }
 
-        public async Task<ResponseBase> VendorRegister(AccountViewModel AccountDTO)
+        public async Task<ResponseBase> VendorRegister(AccountViewModel accountViewModel)
         {
-            var Vendor = mapper.Map<AccountViewModel, ApplicationUser>(AccountDTO);
-            var Result = await this.authenticationRepository.RegisterVendor(Vendor, AccountDTO.Password!);
+            var Vendor = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
+            var Result = await this.authenticationRepository.RegisterVendor(Vendor, accountViewModel.Password!);
             if (!Result.Succeeded)
             {
                 return new ResponseBase
@@ -159,7 +159,7 @@ namespace BookEcommerce.Services
             };
         }
 
-        public async Task<ResponseBase> RefreshToken(string Email, TokenViewModel TokenDTO)
+        public async Task<ResponseBase> RefreshToken(string Email, TokenViewModel tokenViewModel)
         {
             var EmailToUpdateToken = await this.authenticationRepository.GetUserByEmail(Email);
             if (EmailToUpdateToken == null)
@@ -170,7 +170,7 @@ namespace BookEcommerce.Services
                     Message = "Non user exist"
                 };
             }
-            var Token = await this.authenticationRepository.RefreshToken(EmailToUpdateToken.Email, TokenDTO);
+            var Token = await this.authenticationRepository.RefreshToken(EmailToUpdateToken.Email, tokenViewModel);
 
             if (Token == null)
             {
