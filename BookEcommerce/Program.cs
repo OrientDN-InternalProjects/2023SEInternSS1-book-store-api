@@ -7,16 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 using BookEcommerce.Services.Interfaces;
 using BookEcommerce.Services;
 using System.Text;
-using BookEcommerce.Services.Map;
+using BookEcommerce.Services.Mapper;
 using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
-using MimeKit;
-using MailKit.Net.Smtp;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOptions();
 var services = builder.Services;
 // Add services to the container.
 
@@ -25,9 +22,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
+var localConnectionString = string.Empty;
+localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("default"), b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer(localConnectionString, b => b.MigrationsAssembly("BookEcommerce"));
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -35,8 +34,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
-
-    options.SignIn.RequireConfirmedEmail = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
@@ -67,43 +64,30 @@ services.AddScoped<DbFactory>();
 services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services
-    .AddScoped<MailSettings>()
-    .AddScoped<MimeMessage>()
-    .AddScoped<SmtpClient>();
-
 //service
-builder.Services
-    .AddScoped<IAuthenticationService, AuthenticationService>()
-    .AddScoped<IVerifyAccountService, VerifyAccountService>()
-    .AddScoped<ITokenService, TokenService>()
-    .AddScoped<ICustomerService, CustomerService>()
-    .AddScoped<IVendorService, VendorService>()
-    .AddScoped<IProductService, ProductService>()
-    .AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+services.AddScoped<IProductService, ProductService>();
+services.AddScoped<ICartService, CartService>();
+services.AddScoped<IOrderService, OrderService>();
+services.AddScoped<ICartDetailService, CartDetailService>();
 //repo
-builder.Services
-    .AddScoped<IRoleRepository, RoleRepository>()
-    //.AddScoped<Profile, MapperProfile>()
-    .AddScoped<IMapper, Mapper>()
-    .AddScoped<ISendMailRepository, SendMailRepository>()
-    .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
-    .AddScoped<IRoleRepository, RoleRepository>()
-    .AddScoped<ITokenRepository, TokenRepository>()
-    .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
-    .AddScoped<IVendorRepository, VendorRepository>()
-    .AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>()
+.AddScoped<Profile, MapperProfile>()
+//.AddScoped<IMapper, Mapper>()
+.AddScoped<IAuthenticationRepository, AuthenticationRepository>()
+.AddScoped<ITokenRepository, TokenRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
-services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<ICartRepository, CartRepository>();
-services.AddScoped<ICartDetailRepository, CartDetailRepository>();
+services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
-
-
-
+services.AddScoped<ICartDetailRepository, CartDetailRepository>();
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

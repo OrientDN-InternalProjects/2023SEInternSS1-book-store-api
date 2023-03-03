@@ -9,16 +9,15 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class CartRepository : Repository<Cart>, ICartRepository
+    public class OrderDetailRepository : Repository<OrderDetail>, IOrderDetailRepository
     {
-        public CartRepository(DbFactory dbFactory) : base(dbFactory)
+        public OrderDetailRepository(DbFactory dbFactory) : base(dbFactory)
         {
         }
 
-
-        public async Task<Cart> GetCartByCustomerId(Guid? id)
+        public async Task<List<OrderDetail>> GetOrderDetailsByOrderId(Guid orderId)
         {
-            return await GetQuery(crt => crt.CustomerId.Equals(id)).SingleAsync();
+            return await GetQuery(ord => ord.OrderId.Equals(orderId)).ToListAsync();
         }
     }
 }

@@ -15,6 +15,19 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
         }
 
+        public async Task<double> GetPriceByProductVariant(Guid productVariantId)
+        {
+            var productPrice = await GetQuery(pp => pp.ProductVariantId.Equals(productVariantId)).SingleAsync();
+            if(productPrice.ExpirationDate > DateTime.Now)
+            {
+                return productPrice.PruductVariantSalePrice;
+            }
+            else
+            {
+                return productPrice.ProductVariantDefaultPrice;
+            }
+        }
+
         public async Task<ProductPrice> GetProductPriceByProductVariantId(Guid productVariantId)
         {
             return await GetQuery(pp => pp.ProductVariantId.Equals(productVariantId)).SingleAsync();

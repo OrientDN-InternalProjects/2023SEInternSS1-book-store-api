@@ -21,6 +21,6 @@ namespace BookEcommerce.Models.Entities
         public int Quantity { get; set; }
         public Guid? CartId { get; set; }
         public virtual Cart Cart { get; set; }
-        public virtual ProductVariant ProductVariants { get; set; }
+        public virtual ICollection<ProductVariant> ProductVariants { get; set; }
     }
 }

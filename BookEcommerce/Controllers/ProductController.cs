@@ -12,25 +12,31 @@ namespace BookEcommerce.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService productService;
-        public ProductController(IProductService productService)
+        private readonly ILogger<ProductController> logger;
+        public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             this.productService = productService;
+            this.logger = logger;
         }
 
         [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductById(Guid productId)
-        { 
+        {
+            logger.LogInformation("Start Get Product! ");
             var res = await productService.GetProductById(productId);
-            if(res.IsSuccess)
+            if (res.IsSuccess)
             {
+                logger.LogInformation("Can find product! ");
                 return Ok(res);
             }
-            return BadRequest(res);
+            logger.LogError("Get product fail!");
+            return NotFound(res.Message);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProduct()
         {
+            logger.LogInformation("Start All Product! ");
             var res = await productService.GetAllProduct();
             return Ok(res);
         }
@@ -39,11 +45,13 @@ namespace BookEcommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] ProductRequest request)
         {
+            logger.LogInformation("Start Get Product! ");
             var res = await productService.AddProduct(request);
             if(res.IsSuccess)
             {
-                return Ok("Add Product Success!!");
+                return StatusCode(StatusCodes.Status201Created,Ok(res.Message));
             }
+            logger.LogError("Add Product was fail!");
             return BadRequest(res.Message);
         }
     }

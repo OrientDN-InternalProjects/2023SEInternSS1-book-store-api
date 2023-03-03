@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,8 +23,7 @@ namespace BookEcommerce.Models.Entities
         public virtual Product? Product { get; set; }
         public virtual CartDetail? CartDetail { get; set; }
         public virtual ProductPrice? ProductPrice  { get; set; }
-        public string? OrderDetailId { get; set; }
-        public virtual OrderDetail? OrderDetail { get; set; }
+        public virtual IEnumerable<OrderDetail>? OrderDetails { get; set; }
 
     }
 }

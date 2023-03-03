@@ -18,22 +18,18 @@ namespace BookEcommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCart([FromBody]CartRequest cartRequest)
         {
-            var req = await cartService.AddCart(cartRequest, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
-            if (req.IsSuccess)
+            var res = await cartService.AddCart(cartRequest, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
+            if (res.IsSuccess)
             {
-                return Ok(req.Message);
+                return Ok(res.Message);
             }
-            return BadRequest(req.Message);
+            return BadRequest(res.Message);
         }
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetCartByIdCustomer(Guid customerId)
         {
-            var res = await cartService.GetCart(new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
-            if (res.Count > 0)
-            {
-                return Ok(res);
-            }
-            return BadRequest(res);
+            var res = await cartService.GetCart(customerId);
+            return Ok(res);
         }
     }
 }
