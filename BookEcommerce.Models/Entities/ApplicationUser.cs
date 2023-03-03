@@ -11,13 +11,14 @@ namespace BookEcommerce.Models.Entities
 {
     public class ApplicationUser : IdentityUser
     {
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
         public Customer? Customer { get; set; }
-
         public Guid? VendorId { get; set; }
         public Vendor? Vendor { get; set; }
-
         public Guid? AdminId { get; set; }
         public Admin? Admin { get; set; }
+
+        public Guid? RefreshTokenId { get; set; }
+        public RefreshToken? RefreshToken { get; set; }
     }
 }

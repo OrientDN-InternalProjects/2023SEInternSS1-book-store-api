@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.DTOs.Request;
+﻿using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Services.Interfaces;
@@ -12,65 +12,96 @@ namespace BookEcommerce.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthenticationService? authenticationService;
-        
-        public AuthController(IAuthenticationService authenticationService)
+        private readonly IVerifyAccountService? verifyAccountService;
+
+        public AuthController(IAuthenticationService authenticationService, IVerifyAccountService verifyAccountService)
         {
             this.authenticationService = authenticationService;
+            this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost("CreateCustomer")]
-        public async Task<IActionResult> CustomerRegister([FromBody] AccountDTO AccountDTO)
+        [HttpPost("register/customer")]
+        public async Task<IActionResult> CustomerRegister([FromForm] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.CustomerRegister(AccountDTO);
             if (!result.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
+                return BadRequest(new ResponseBase
                 {
                     IsSuccess = false,
                     Message = "Bad Request"
                 });
             }
-            return StatusCode(StatusCodes.Status200OK, new ResponseBase
+            return Ok(new ResponseBase
             {
-                IsSuccess = true,
-                Message = "OK"
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
             });
         }
-        [HttpPost("Verify")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO LoginDTO)
+        [HttpPost("verify")]
+        public async Task<IActionResult> Login([FromForm] LoginViewModel LoginDTO)
         {
             var result = await this.authenticationService!.Login(LoginDTO);
             if (!result.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
+                return BadRequest(new ResponseBase
                 {
                     IsSuccess = false,
-                    Message = "Bad Request"
+                    Message = "Failed to verify account"
                 });
             }
-            return StatusCode(StatusCodes.Status200OK, new TokenResponse
+            return Ok(new TokenResponse
             {
-                IsSuccess = true,
-                Message = "OK",
+                IsSuccess = result.IsSuccess,
+                Message = result.Message,
                 Token = result.Token
             });
         }
-        [HttpPost("CreateVendor")]
-        public async Task<IActionResult> VendorRegister([FromBody] AccountDTO AccountDTO)
+        [HttpPost("register/vendor")]
+        public async Task<IActionResult> VendorRegister([FromForm] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.VendorRegister(AccountDTO);
             if (!result.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new ResponseBase
+                return BadRequest(new ResponseBase
                 {
                     IsSuccess = false,
                     Message = "Bad Request"
                 });
             }
-            return StatusCode(StatusCodes.Status200OK, new ResponseBase
+            return Ok(new ResponseBase
+            {
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
+            });
+        }
+        [HttpPost("create/admin")]
+        public async Task<IActionResult> AdminRegister([FromForm] AccountViewModel AccountDTO)
+        {
+            var result = await this.authenticationService!.AdminRegister(AccountDTO);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "Bad Request"
+                });
+            }
+            return Ok(new ResponseBase
+            {
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
+            });
+        }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromBody] TokenViewModel TokenDTO)
+        {
+            await this.authenticationService!.RefreshToken(Email, TokenDTO);
+            return Ok(new ResponseBase
             {
                 IsSuccess = true,
-                Message = "OK"
+                Message = "Token refreshed"
             });
         }
     }
 }
+

@@ -11,10 +11,6 @@ namespace BookEcommerce.Models.DAL
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext() : base()
-        {
-
-        }
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
             
@@ -23,7 +19,6 @@ namespace BookEcommerce.Models.DAL
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
         }
 
         //public virtual DbSet<UserAccountRole> UserAccountRoles { get; set; }

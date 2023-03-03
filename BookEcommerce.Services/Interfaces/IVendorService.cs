@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICustomerService
+    public interface IVendorService
     {
-        public Task<ResponseBase> CreateCustomer(CustomerViewModel CustomerDTO, string Token);
+        public Task<ResponseBase> CreateVendor(VendorCreateViewModel CreateVendorDTO, string Token);
     }
 }

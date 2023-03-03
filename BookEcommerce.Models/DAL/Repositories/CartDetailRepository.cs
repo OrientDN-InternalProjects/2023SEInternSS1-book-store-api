@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
