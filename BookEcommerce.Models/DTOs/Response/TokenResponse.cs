@@ -11,6 +11,7 @@ namespace BookEcommerce.Models.DTOs.Response
     {
         public string? AccessToken { get; set; }
         public string? RefreshToken { get; set; }
+        public bool? IsActive { get; set; }
         public TokenResponse() : base()
         {
 

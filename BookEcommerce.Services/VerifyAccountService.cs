@@ -4,6 +4,7 @@ using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,49 +18,65 @@ namespace BookEcommerce.Services
         private readonly ISendMailRepository sendMailRepository;
         private readonly IVerifyAccountRepository verifyAccountRepository;
         private readonly IMapper mapper;
+        private readonly ILogger logger;
         public VerifyAccountService(
             ISendMailRepository sendMailRepository,
             IMapper mapper,
-            IVerifyAccountRepository verifyAccountRepository
+            IVerifyAccountRepository verifyAccountRepository,
+            ILogger logger
         )
         {
             this.sendMailRepository = sendMailRepository;
             this.mapper = mapper;
             this.verifyAccountRepository = verifyAccountRepository;
+            this.logger = logger;
         }
 
-        public async Task<ResponseBase> ConfirmMail(string Email)
-        {
-            ApplicationUser user = new()
-            {
-                Email = Email
-            };
-            var getUser = await this.verifyAccountRepository.GetUser(user);
-            string Token = await this.verifyAccountRepository.CreateToken(getUser);
-            var result = await this.verifyAccountRepository.ConfirmEmail(getUser, Token);
-            if (!result.Succeeded) return new ResponseBase
-            {
-                IsSuccess = false,
-                Message = "Invalid Mail"
-            };
-            return new ResponseBase
-            {
-                IsSuccess = true,
-                Message = "Confirmed"
-            };
-        }
-
-        public async Task<string> GenerateConfirmationLink(ApplicationUser User)
-        {
-            string link = await this.verifyAccountRepository.GenerateConfirmationLink(User);
-            return link;
-        }
-
-        public async Task<ResponseBase> SendVerificationMail(string Email)
+        public async Task<ResponseBase> ConfirmMail(string email)
         {
             try
             {
-                if (Email == null)
+                ApplicationUser user = new()
+                {
+                    Email = email
+                };
+                var getUser = await this.verifyAccountRepository.GetUser(user);
+                string token = await this.verifyAccountRepository.CreateToken(getUser);
+                var result = await this.verifyAccountRepository.ConfirmEmail(getUser, token);
+                if (!result.Succeeded) return new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "Invalid Mail"
+                };
+                return new ResponseBase
+                {
+                    IsSuccess = true,
+                    Message = "Confirmed"
+                };
+            }
+            catch(Exception e)
+            {
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
+                return new ResponseBase
+                {
+                    IsSuccess = true,
+                    Message = "Invalid confirmation, please reconfirm!"
+                };
+            }
+        }
+
+        public async Task<string> GenerateConfirmationLink(ApplicationUser user)
+        {
+            string link = await this.verifyAccountRepository.GenerateConfirmationLink(user);
+            return link;
+        }
+
+        public async Task<ResponseBase> SendVerificationMail(string email)
+        {
+            try
+            {
+                if (email == null)
                 {
                     return new ResponseBase
                     {
@@ -69,12 +86,12 @@ namespace BookEcommerce.Services
                 }
                 ApplicationUser User = new()
                 {
-                    Email = Email
+                    Email = email
                 };
                 var link = await this.GenerateConfirmationLink(User);
                 MailSendingViewModel SendMailDTO = new()
                 {
-                    Email = Email,
+                    Email = email,
                     Subject = "Verification",
                     HtmlMessage = link
                 };
@@ -85,12 +102,13 @@ namespace BookEcommerce.Services
                     Message = "Mail sent"
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                logger.LogError($"{ex.Message}. Detail {ex.StackTrace}");
                 return new ResponseBase
                 {
                     IsSuccess = false,
-                    Message = e.Message,
+                    Message = "failed to send mail",
                 };
                 
             }

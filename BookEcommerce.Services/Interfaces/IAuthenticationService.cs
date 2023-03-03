@@ -16,6 +16,7 @@ namespace BookEcommerce.Services.Interfaces
         public Task<ResponseBase> CustomerRegister(AccountViewModel AccountDTO);
         public Task<ResponseBase> VendorRegister(AccountViewModel AccountDTO);
         public Task<ResponseBase> AdminRegister(AccountViewModel AccountDTO);
-        public Task<ResponseBase> RefreshToken(string Email, TokenViewModel TokenDTO);
+        public Task<TokenResponse> RefreshToken(string Email, TokenViewModel TokenDTO);
+        public UserLoggedResponse GetUserLogged(string token);
     }
 }

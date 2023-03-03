@@ -29,8 +29,8 @@ namespace BookEcommerce.Models.Entities
         public virtual Customer? Customer { get; set; }
         public Guid? VendorId { get; set; }
         public virtual Vendor? Vendor { get; set; }
-
         public virtual IEnumerable<OrderDetail>? OrderDetails { get; set; }
+        public virtual PaymentHistory PaymentHistory { get; set; }
 
     }
 }

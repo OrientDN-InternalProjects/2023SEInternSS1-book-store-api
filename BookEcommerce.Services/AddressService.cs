@@ -4,6 +4,7 @@ using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,21 +19,23 @@ namespace BookEcommerce.Services
         private readonly ICustomerService customerService;
         private readonly IMapper mapper;
         private readonly IUnitOfWork unitOfWork;
-        public AddressService(IAddressRepository addressRepository, ICustomerService customerService, IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly ILogger logger;
+        public AddressService(IAddressRepository addressRepository, ICustomerService customerService, IMapper mapper, IUnitOfWork unitOfWork, ILogger logger)
         {
             this.addressRepository = addressRepository;
             this.customerService = customerService;
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
+            this.logger = logger;
         }
-        public async Task<ResponseBase> CreateAddress(AddressViewModel AddressViewModel, string Token)
+        public async Task<ResponseBase> CreateAddress(AddressViewModel addressViewModel, string token)
         {
             try
             {
-                var AddressMapper = this.mapper.Map<AddressViewModel, Address>(AddressViewModel);
-                Guid? CustomerId = await this.customerService.GetCustomerIdFromToken(Token);
-                AddressMapper.CustomerId = CustomerId;
-                await this.addressRepository.AddAsync(AddressMapper);
+                var addressMapper = this.mapper.Map<AddressViewModel, Address>(addressViewModel);
+                var customerId = await this.customerService.GetCustomerIdFromToken(token);
+                addressMapper.CustomerId = customerId;
+                await this.addressRepository.AddAsync(addressMapper);
                 await unitOfWork.CommitTransaction();
                 return new ResponseBase
                 {
@@ -42,6 +45,7 @@ namespace BookEcommerce.Services
             }
             catch (Exception ex)
             {
+                logger.LogError($"{ex.Message}. Detail {ex.StackTrace}");
                 return new ResponseBase
                 {
                     IsSuccess = false,

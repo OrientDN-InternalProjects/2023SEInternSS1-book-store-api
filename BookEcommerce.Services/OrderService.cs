@@ -22,10 +22,11 @@ namespace BookEcommerce.Services
         private readonly IProductRepository productRepository;
         private readonly ICartDetailRepository cartDetailRepository;
         private readonly ICartRepository cartRepository;
+        private readonly ICartDetailService cartDetailService;
         private readonly ILogger<OrderService> logger;
-        public OrderService(IUnitOfWork unitOfWork, IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
+        public OrderService(IUnitOfWork unitOfWork, IOrderRepository orderRepository,IOrderDetailRepository orderDetailRepository,
                             IProductVariantRepository productVariantRepository, IProductPriceRepository productPriceRepository, IProductRepository productRepository,
-                            ICartDetailRepository cartDetailRepository, ICartRepository cartRepository, ILogger<OrderService> logger) : base(unitOfWork)
+                            ICartDetailRepository cartDetailRepository, ICartRepository cartRepository, ILogger<OrderService> logger, ICartDetailService cartDetailService) : base(unitOfWork)
         {
             this.orderRepository = orderRepository;
             this.orderDetailRepository = orderDetailRepository;
@@ -35,25 +36,27 @@ namespace BookEcommerce.Services
             this.cartDetailRepository = cartDetailRepository;
             this.cartRepository = cartRepository;
             this.logger = logger;
+            this.cartDetailService = cartDetailService;
         }
         public async Task<OrderResponse> AddOrder(OrderRequest req, Guid cusId)
         {
             try
             {
-                foreach (var item in req.Details)
+                var orderLoading = new Order();
+                foreach (var item in req.Details!)
                 {
                     var order = new Order
                     {
                         CustomerId = cusId,
                         TransferAddress = req.TransferAddress,
-                        PaymentId = req.PaymentId,
                         Message = req.Message,
                         OrderDate = DateTime.Now,
                         StatusOrder = "Pending",
                         VendorId = item.ShopId,
                         TotalPrice = 0
                     };
-                    foreach (var ordt in item.OrderDetailRequests)
+                    await orderRepository.AddAsync(order);
+                    foreach (var ordt in item.OrderDetailRequests!)
                     {
                         var priceProduct = await productPriceRepository.GetPriceByProductVariant(ordt.ProductVariantId);
                         var findProductVariant = await productVariantRepository.GetProductVariantById(ordt.ProductVariantId);
@@ -67,9 +70,28 @@ namespace BookEcommerce.Services
                         await orderDetailRepository.AddAsync(orderDetail);
                         order.TotalPrice += orderDetail.Price;
                         findProductVariant.Quantity -= ordt.Quantity;
+                        if(findProductVariant.Quantity < 0)
+                        {
+                            return new OrderResponse
+                            {
+                                IsSuccess = false,
+                                Message = "Can't order more than avilable Quantity!"
+                            };
+                        }
                         productVariantRepository.Update(findProductVariant);
                     }
-                    await orderRepository.AddAsync(order);
+                    await _unitOfWork.CommitTransaction();
+                    orderRepository.Update(order);
+                    orderLoading = order;
+                }
+                await _unitOfWork.CommitTransaction();
+                var findOrder = await orderRepository.GetOrderByOrderId(orderLoading.OrderId.Value);
+                var listOrderDetails = await orderDetailRepository.GetOrderDetailsByOrderId(orderLoading.OrderId.Value);
+                foreach (var or in listOrderDetails)
+                {
+                    var findCart = cartRepository.GetCartByCustomerId(findOrder.CustomerId);
+                    var findCartDetail = await cartDetailRepository.GetCartDetailByCartIdAndProductVariantId(findCart.Result.CartId, or.ProductVariantId);
+                    cartDetailRepository.Delete(findCartDetail);
                 }
                 await _unitOfWork.CommitTransaction();
                 return new OrderResponse
@@ -86,7 +108,7 @@ namespace BookEcommerce.Services
                     Message = "Some properties is valid !",
                 };
             }
-            catch (Exception)
+            catch(Exception)
             {
                 logger.LogError("System error and Exception was not found when Customer Add Order! ");
                 return new OrderResponse
@@ -106,7 +128,7 @@ namespace BookEcommerce.Services
                 var findOrderDetail = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
                 foreach (var item in findOrderDetail)
                 {
-                    var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
+                    var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId); 
                     findProductVariant.Quantity += item.Quantity;
                     productVariantRepository.Update(findProductVariant);
                 }
@@ -152,8 +174,8 @@ namespace BookEcommerce.Services
                 }
                 orderRepository.Update(findOrder);
                 await _unitOfWork.CommitTransaction();
-                return new OrderResponse
-                {
+                return new OrderResponse 
+                { 
                     IsSuccess = true,
                     Message = "Change Status Order is success!"
                 };
@@ -161,8 +183,8 @@ namespace BookEcommerce.Services
             catch (NullReferenceException)
             {
                 logger.LogError("Some properties is Null when Vendor Update Order! ");
-                return new OrderResponse
-                {
+                return new OrderResponse 
+                { 
                     IsSuccess = false,
                     Message = "Some properties is Null!"
                 };

@@ -1,4 +1,5 @@
-﻿using BookEcommerce.Models.DTOs.Response.Base;
+﻿using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,11 @@ namespace BookEcommerce.Controllers
         {
             this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost("send-mail")]
-        public async Task<IActionResult> SendMail([FromBody] string Email)
+
+        [HttpPost("/send-mail")]
+        public async Task<IActionResult> SendMail([FromBody] SendMailRequest email)
         {
-            var result = await this.verifyAccountService.SendVerificationMail(Email);
+            var result = await this.verifyAccountService.SendVerificationMail(email.Email!);
             if(result.IsSuccess)
             {
                 return Ok(new ResponseBase
@@ -28,15 +30,17 @@ namespace BookEcommerce.Controllers
             }
             return BadRequest(result.Message);
         }
-        [HttpGet("submit")]
+
+        [HttpGet("/submit")]
         public async Task<IActionResult> ConfirmMail([FromQuery] string token, string email)
         {
             var result = await this.verifyAccountService.ConfirmMail(email);
-            if (!result.IsSuccess) return StatusCode(StatusCodes.Status404NotFound, new ResponseBase
-            {
-                IsSuccess = false,
-                Message = "submit failed"
-            });
+            if (!result.IsSuccess) 
+                return BadRequest(new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "submit failed"
+                });
             return Ok(new ResponseBase
             {
                 IsSuccess = result.IsSuccess,

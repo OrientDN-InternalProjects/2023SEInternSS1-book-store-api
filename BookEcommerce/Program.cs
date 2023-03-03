@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using BookEcommerce.Services.Interfaces;
 using BookEcommerce.Services;
 using System.Text;
-using BookEcommerce.Services.Map;
+using BookEcommerce.Services.Mapper;
 using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DAL.Repositories;
 using AutoMapper;
@@ -18,9 +18,10 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.DataProtection;
+using BookEcommerce.Services.Map;
+using BookEcommerce.Models.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOptions();
 var services = builder.Services;
 // Add services to the container.
 
@@ -29,14 +30,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("mycors", policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyOrigin();
+    });
+});
 builder.Services.AddSession(options => {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
-    options.Cookie.Name = "paypal-session";
+    options.Cookie.Name = "payment";
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
+var localConnectionString = string.Empty;
+localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("default"), b => b.MigrationsAssembly("BookEcommerce"));
@@ -48,8 +57,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
-
-    options.SignIn.RequireConfirmedEmail = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
@@ -98,6 +105,7 @@ services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped<ILogger, Logger<PaymentService>>();
 
+
 builder.Services
     .AddScoped<MailSettings>()
     .AddScoped<MimeMessage>()
@@ -114,12 +122,15 @@ builder.Services
     .AddScoped<ICartService, CartService>()
     .AddScoped<IAddressService, AddressService>()
     .AddScoped<IOrderService, OrderService>()
-    .AddScoped<IPaymentService, PaymentService>();
+    .AddScoped<IPaymentService, PaymentService>()
+    .AddScoped<IPaypalContextService, PaypalContextService>();
+
+services.AddScoped<ICartDetailService, CartDetailService>();
 //repo
 builder.Services
     .AddScoped<IRoleRepository, RoleRepository>()
     //.AddScoped<Profile, MapperProfile>()
-    .AddScoped<IMapper, Mapper>()
+    .AddScoped<IMapper, AutoMapper.Mapper>()
     .AddScoped<ISendMailRepository, SendMailRepository>()
     .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
     .AddScoped<IRoleRepository, RoleRepository>()
@@ -129,20 +140,22 @@ builder.Services
     .AddScoped<ICustomerRepository, CustomerRepository>()
     .AddScoped<IAddressRepository, AddressRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
-services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<ICartRepository, CartRepository>();
-services.AddScoped<ICartDetailRepository, CartDetailRepository>();
+services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 services.AddScoped<IOrderRepository, OrderRepository>();
 services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 services.AddScoped<IPaymentRepository, PaymentRepository>();
+services.AddScoped<ICartDetailRepository, CartDetailRepository>();
+
+//configure
+builder.Services.AddTransient<PaypalContext>();
+
 var app = builder.Build();
 
 app.UseHttpLogging();
-
-//app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -150,6 +163,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("mycors");
 
 app.UseHttpsRedirection();
 
