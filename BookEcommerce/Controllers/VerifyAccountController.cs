@@ -14,7 +14,8 @@ namespace BookEcommerce.Controllers
         {
             this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost("send-mail")]
+
+        [HttpPost("/send-mail")]
         public async Task<IActionResult> SendMail([FromBody] string Email)
         {
             var result = await this.verifyAccountService.SendVerificationMail(Email);
@@ -28,15 +29,17 @@ namespace BookEcommerce.Controllers
             }
             return BadRequest(result.Message);
         }
-        [HttpGet("submit")]
+
+        [HttpGet("/submit")]
         public async Task<IActionResult> ConfirmMail([FromQuery] string token, string email)
         {
             var result = await this.verifyAccountService.ConfirmMail(email);
-            if (!result.IsSuccess) return StatusCode(StatusCodes.Status404NotFound, new ResponseBase
-            {
-                IsSuccess = false,
-                Message = "submit failed"
-            });
+            if (!result.IsSuccess) 
+                return BadRequest(new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "submit failed"
+                });
             return Ok(new ResponseBase
             {
                 IsSuccess = result.IsSuccess,

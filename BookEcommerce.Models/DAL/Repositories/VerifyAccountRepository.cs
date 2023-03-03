@@ -21,38 +21,36 @@ namespace BookEcommerce.Models.DAL.Repositories
             this.sendMailRepository = sendMailRepository;
         }
 
-        public async Task<ApplicationUser> GetUser(ApplicationUser User)
+        public async Task<ApplicationUser> GetUser(ApplicationUser user)
         {
-            var user = await this.userManager.FindByEmailAsync(User.Email);
-            return user;
+            var indicatedUser = await this.userManager.FindByEmailAsync(user.Email);
+            return indicatedUser;
         }
 
-        public async Task<IdentityResult> ConfirmEmail(ApplicationUser User, string Token)
+        public async Task<IdentityResult> ConfirmEmail(ApplicationUser user, string token)
         {
-            var user = await this.GetUser(User);
-            var result = await this.userManager.ConfirmEmailAsync(user, Token);
+            var indicatedUser = await this.GetUser(user);
+            var result = await this.userManager.ConfirmEmailAsync(indicatedUser, token);
             return result;
         }
 
-        public async Task<string> CreateToken(ApplicationUser User)
+        public async Task<string> CreateToken(ApplicationUser user)
         {
-            string Token = await this.userManager!.GenerateEmailConfirmationTokenAsync(User);
-            return Token;
+            var token = await this.userManager!.GenerateEmailConfirmationTokenAsync(user);
+            return token;
         }
 
-        public async Task<string> GenerateConfirmationLink(ApplicationUser User)
+        public async Task<string> GenerateConfirmationLink(ApplicationUser user)
         {
-            string Token = await this.userManager!.GenerateEmailConfirmationTokenAsync(User);
-            string EncodeToken = HttpUtility.UrlEncode(Token);
-            string ConfirmationLink = $"https://localhost:7018/api/VerifyAccount/submit?token={EncodeToken}&email={User.Email}";
-            return ConfirmationLink;
+            var token = await this.userManager!.GenerateEmailConfirmationTokenAsync(user);
+            var encodeToken = HttpUtility.UrlEncode(token);
+            var confirmationLink = $"https://localhost:7018/api/VerifyAccount/submit?token={encodeToken}&email={user.Email}";
+            return confirmationLink;
         }
 
-        public async Task SendVerificationMail(MailSendingViewModel SendMailDTO)
+        public async Task SendVerificationMail(MailSendingViewModel sendMailDTO)
         {
-            await this.sendMailRepository.SendMailAsync(SendMailDTO);
+            await this.sendMailRepository.SendMailAsync(sendMailDTO);
         }
-
-
     }
 }

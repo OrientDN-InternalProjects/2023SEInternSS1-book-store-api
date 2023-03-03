@@ -22,17 +22,15 @@ namespace BookEcommerce.Controllers
         [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductById(Guid productId)
         {
-            try
+            logger.LogInformation("Start Get Product! ");
+            var res = await productService.GetProductById(productId);
+            if (res.IsSuccess)
             {
-                logger.LogInformation("Start Get Product! ");
-                var res = await productService.GetProductById(productId);
+                logger.LogInformation("Can find product! ");
                 return Ok(res);
             }
-            catch (Exception e)
-            {
-                logger.LogError("Get Product Fail!");
-                return NotFound(e.Message);
-            }
+            logger.LogError("Get product fail!");
+            return NotFound(res.Message);
         }
 
         [HttpGet]
@@ -48,11 +46,11 @@ namespace BookEcommerce.Controllers
         public async Task<IActionResult> AddItem([FromBody] ProductRequest request)
         {
             logger.LogInformation("Start Get Product! ");
-            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var res = await productService.AddProduct(request, AuthHeader);
-            if(res.IsSuccess)
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var res = await productService.AddProduct(request, authHeader);
+            if (res.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status201Created,Ok("Add Product Success!!"));
+                return StatusCode(StatusCodes.Status201Created, Ok("Add Product Success!!"));
             }
             return BadRequest(res.Message);
         }
