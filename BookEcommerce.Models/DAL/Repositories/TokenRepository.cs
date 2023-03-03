@@ -30,12 +30,12 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public string CreateToken(List<Claim> claims)
         {
-            SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
+            SymmetricSecurityKey symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
             SigningCredentials signingCredentials = new SigningCredentials(
-                SymmetricSecurityKey,
+                symmetricSecurityKey,
                 SecurityAlgorithms.HmacSha256
             );
-            JwtSecurityToken Token = new JwtSecurityToken(
+            JwtSecurityToken token = new JwtSecurityToken(
                 configuration["JWT:Issuer"],
                 configuration["JWT:Audience"],
                 claims: claims,
@@ -43,36 +43,17 @@ namespace BookEcommerce.Models.DAL.Repositories
                 expires: DateTime.Now.AddSeconds(30)
             );
 
-            var result = new JwtSecurityTokenHandler().WriteToken(Token);
+            var result = new JwtSecurityTokenHandler().WriteToken(token);
             return result;
         }
 
-        //public string CreateAccessToken(List<Claim> claims)
-        //{
-        //    SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
-        //    SigningCredentials signingCredentials = new SigningCredentials(
-        //        SymmetricSecurityKey,
-        //        SecurityAlgorithms.HmacSha256
-        //    );
-        //    JwtSecurityToken Token = new JwtSecurityToken(
-        //        configuration["JWT:Issuer"],
-        //        configuration["JWT:Audience"],
-        //        claims: claims,
-        //        signingCredentials: signingCredentials,
-        //        expires: DateTime.Now.AddSeconds(30)
-        //    );
-
-        //    var result = new JwtSecurityTokenHandler().WriteToken(Token);
-        //    return result;
-        //}
-
         public string CreateRefreshToken()
         {
-            var RandomNumber = new byte[64];
-            var Generator = RandomNumberGenerator.Create();
-            Generator.GetBytes(RandomNumber);
-            string Token = Convert.ToBase64String(RandomNumber);
-            return Token;
+            var randomNumber = new byte[64];
+            var generator = RandomNumberGenerator.Create();
+            generator.GetBytes(randomNumber);
+            string token = Convert.ToBase64String(randomNumber);
+            return token;
         }
 
         public async Task StoreRefreshToken(RefreshToken RefreshToken)
@@ -83,27 +64,26 @@ namespace BookEcommerce.Models.DAL.Repositories
         public string RefreshToken(string AccessToken)
         {
             ClaimsPrincipal principal = GetClaimsPrincipal(AccessToken);
-            string Email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
-            if (Email == null)
+            string email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (email == null)
             {
                 return String.Empty;
             }
-            var NewAccessToken = CreateToken(principal.Claims.ToList());
-            return NewAccessToken;
+            var newAccessToken = CreateToken(principal.Claims.ToList());
+            return newAccessToken;
         }
 
-        public Guid GetUserIdFromToken(string Token)
+        public Guid GetUserIdFromToken(string token)
         {
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
-            Guid UserId = new Guid(TokenString!.Claims.First(token => token.Type == "nameid").Value);
-            Console.WriteLine(Token);
-            return UserId;
+            var tokenString = handler.ReadToken(token) as JwtSecurityToken;
+            Guid userId = new Guid(tokenString!.Claims.First(token => token.Type == "nameid").Value);
+            return userId;
         }
 
         public ClaimsPrincipal GetClaimsPrincipal(string Token)
         {
-            TokenValidationParameters TokenValidationParameters = new TokenValidationParameters
+            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -114,9 +94,9 @@ namespace BookEcommerce.Models.DAL.Repositories
                 RequireExpirationTime = true,
             };
 
-            var TokenHandler = new JwtSecurityTokenHandler();
-            var principal = TokenHandler.ValidateToken(Token, TokenValidationParameters, out SecurityToken SecurityToken);
-            if (SecurityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(Token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
 
             return principal;

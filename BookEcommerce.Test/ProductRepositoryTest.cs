@@ -1,5 +1,8 @@
+using BookEcommerce.Models.DAL;
 using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace BookEcommerce.Test
@@ -9,6 +12,8 @@ namespace BookEcommerce.Test
     {
         private IEnumerable<Product>? products;
         Mock<IProductRepository>? productRepositoryMock;
+        Mock<ApplicationDbContext>? applicationDbContextMock;
+        private DbContextOptions<ApplicationDbContext> dbContextOptions;
         [SetUp]
         public void Setup()
         {
@@ -31,6 +36,7 @@ namespace BookEcommerce.Test
                     IsActive= true
                 }
             };
+
             productRepositoryMock = new Mock<IProductRepository>();
             productRepositoryMock.Setup(pm => pm.GetProductById(It.IsAny<Guid>())).ReturnsAsync((Guid id) => products.Single(x=> x.ProductId.Equals(id)));
         }
@@ -40,8 +46,10 @@ namespace BookEcommerce.Test
         {
             var productMockRepo = productRepositoryMock.Object;
             var res = await Task.FromResult(productMockRepo.GetProductById(new Guid("65a1b197-d51e-4fc5-a0d1-08db188c5303")));
-            Assert.IsNotNull(res);
-            Assert.That("productNameDemo",Is.EqualTo(res.Result.ProductName));
+            NUnit.Framework.Assert.IsNotNull(res);
+            NUnit.Framework.Assert.That("productNameDemo",Is.EqualTo(res.Result.ProductName));
         }
+        //[TestMethod]
+        //public void 
     }
 }

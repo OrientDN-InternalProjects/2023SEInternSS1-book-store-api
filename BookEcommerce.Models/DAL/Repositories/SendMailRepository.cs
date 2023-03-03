@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
@@ -16,14 +17,20 @@ namespace BookEcommerce.Models.DAL.Repositories
         private readonly MailSettings mailSettings;
         private readonly MimeMessage mimeMessage;
         private readonly SmtpClient smtpClient;
+        private readonly ILogger<SendMailRepository> logger;
         public SendMailRepository(
             MailSettings mailSettings,
-            MimeMessage mimeMessage, SmtpClient smtpClient)
+            MimeMessage mimeMessage, 
+            SmtpClient smtpClient,
+            ILogger<SendMailRepository> logger
+        )
         {
             this.mailSettings = mailSettings;
             this.mimeMessage = mimeMessage;
             this.smtpClient = smtpClient;
+            this.logger = logger;
         }
+
         public async Task SendMailAsync(MailSendingViewModel SendMailDTO)
         {
             this.mimeMessage.Sender = new MailboxAddress(
@@ -58,6 +65,8 @@ namespace BookEcommerce.Models.DAL.Repositories
             }
             catch (Exception ex)
             {
+                logger.LogError(ex.Message);
+                logger.LogError(ex.StackTrace);
                 throw new Exception("fail to send mail");
             }
         }

@@ -16,14 +16,15 @@ namespace BookEcommerce.Controllers
         {
             this.addressService = addressService;
         }
+
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
-        [HttpPost("create-address")]
+        [HttpPost("/create-address")]
         public async Task<IActionResult> CreateAddress([FromBody] AddressViewModel addressViewModel)
         {
             try
             {
-                var AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-                var result = await this.addressService.CreateAddress(addressViewModel, AuthHeader);
+                var authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+                var result = await this.addressService.CreateAddress(addressViewModel, authHeader);
                 return Ok(new ResponseBase
                 {
                     IsSuccess = result.IsSuccess,

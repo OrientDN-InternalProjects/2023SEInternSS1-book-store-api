@@ -21,7 +21,8 @@ namespace BookEcommerce.Controllers
             this.authenticationService = authenticationService;
             this.verifyAccountService = verifyAccountService;
         }
-        [HttpPost("register/customer")]
+
+        [HttpPost("/register/customer")]
         public async Task<IActionResult> CustomerRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.CustomerRegister(AccountDTO);
@@ -39,7 +40,8 @@ namespace BookEcommerce.Controllers
                 Message = result.Message
             });
         }
-        [HttpPost("verify")]
+
+        [HttpPost("/verify")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel LoginDTO)
         {
             var result = await this.authenticationService!.Login(LoginDTO);
@@ -61,7 +63,8 @@ namespace BookEcommerce.Controllers
                 RefreshToken = result.RefreshToken
             });
         }
-        [HttpPost("register/vendor")]
+
+        [HttpPost("/register/vendor")]
         public async Task<IActionResult> VendorRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.VendorRegister(AccountDTO);
@@ -79,7 +82,8 @@ namespace BookEcommerce.Controllers
                 Message = result.Message
             });
         }
-        [HttpPost("create/admin")]
+
+        [HttpPost("/create/admin")]
         public async Task<IActionResult> AdminRegister([FromBody] AccountViewModel AccountDTO)
         {
             var result = await this.authenticationService!.AdminRegister(AccountDTO);
@@ -97,7 +101,8 @@ namespace BookEcommerce.Controllers
                 Message = result.Message
             });
         }
-        [HttpPost("refresh")]
+
+        [HttpPost("/refresh")]
         public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromBody] TokenViewModel TokenDTO)
         {
             await this.authenticationService!.RefreshToken(Email, TokenDTO);

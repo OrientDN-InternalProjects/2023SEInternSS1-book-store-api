@@ -15,7 +15,7 @@ namespace BookEcommerce.Controllers
 
         }
 
-        [HttpGet("authorize")]
+        [HttpGet("/authorize")]
         public async Task<IActionResult> Authorize()
         {
             return Ok(new

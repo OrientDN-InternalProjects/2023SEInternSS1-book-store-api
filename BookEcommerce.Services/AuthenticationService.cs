@@ -9,6 +9,7 @@ using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Interfaces;
 using BookEcommerce.Services.Mapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,168 +24,211 @@ namespace BookEcommerce.Services
         private readonly ITokenService tokenService;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly ILogger logger;
 
         public AuthenticationService(
             IUnitOfWork unitOfWork,
             IAuthenticationRepository authenticationRepository,
             IMapper mapper,
-            ITokenService tokenService
-            )
+            ITokenService tokenService,
+            ILogger logger
+        )
         {
             this.unitOfWork = unitOfWork;
             this.authenticationRepository = authenticationRepository;
             this.mapper = mapper;
             this.tokenService = tokenService;
+            this.logger = logger;
         }
 
         public async Task<ResponseBase> AdminRegister(AccountViewModel accountViewModel)
         {
-            var Admin = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
-            var Result = await this.authenticationRepository!.CreateAdmin(Admin, accountViewModel.Password!);
-            if (!Result.Succeeded)
+            try
             {
+                var admin = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
+                var result = await this.authenticationRepository!.CreateAdmin(admin, accountViewModel.Password!);
+                if (!result.Succeeded)
+                {
+                    return new ResponseBase
+                    {
+                        IsSuccess = false,
+                        Message = "Somethings went wrong!"
+                    };
+                }
+                return new ResponseBase
+                {
+                    IsSuccess = true,
+                    Message = "Create account successfully"
+                };
+            }
+            catch(Exception e)
+            {
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
                 return new ResponseBase
                 {
                     IsSuccess = false,
-                    Message = "Somethings went wrong!"
+                    Message = "Cannot create account, please try again"
                 };
             }
-            return new ResponseBase
-            {
-                IsSuccess = true,
-                Message = "Create a new vendor"
-            };
         }
 
         public async Task<ResponseBase> CustomerRegister(AccountViewModel accountViewModel)
         {
-            var User = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
-            //ApplicationUser User = new ApplicationUser
-            //{
-            //    UserName = accountViewModel.UserName,
-            //    Email = accountViewModel.Email,
-            //};
-
-            var result = await this.authenticationRepository!.RegisterCustomer(User, accountViewModel.Password!);
-            //await this.unitOfWork!.CommitTransaction();
-            if (result.Succeeded)
+            try
             {
-                return new ResponseBase
+                var user = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
+                var result = await this.authenticationRepository!.RegisterCustomer(user, accountViewModel.Password!);
+                await this.unitOfWork!.CommitTransaction();
+                if (result.Succeeded)
                 {
-                    IsSuccess = true,
-                    Message = "Create a new user"
-                };
-            }
-            else
-            {
+                    return new ResponseBase
+                    {
+                        IsSuccess = true,
+                        Message = "Create account successfully"
+                    };
+                }
                 return new ResponseBase
                 {
                     IsSuccess = false,
-                    Message = "Somethings went wrong!"
+                    Message = "Cannot create account, please try again"
+                };
+            }
+            catch(Exception e)
+            {
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
+                return new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "Cannot create account, please try again"
                 };
             }
         }
+
         public async Task<TokenResponse> Login(LoginViewModel loginViewModel)
         {
             try
             {
-                var Token = await this.authenticationRepository!.Login(loginViewModel);
-                var User = await this.authenticationRepository.GetUserByEmail(loginViewModel.Email!);
+                var token = await this.authenticationRepository!.Login(loginViewModel);
+                var user = await this.authenticationRepository.GetUserByEmail(loginViewModel.Email!);
 
-                if (User == null) return new TokenResponse
+                if (user == null) return new TokenResponse
                 {
                     IsSuccess = false,
                     Message = "Non user existed",
-                    AccessToken = null,
-                    RefreshToken = null
                 };
 
-                if (!User.EmailConfirmed)
+                if (!user.EmailConfirmed)
                 {
                     return new TokenResponse
                     {
                         IsSuccess = false,
                         Message = "Account did not confirmed",
-                        AccessToken = null,
-                        RefreshToken = null
                     };
                 }
                 string id = await this.tokenService.StoreRefreshToken();
-                User.RefreshTokenId = Guid.Parse(id);
-                authenticationRepository.Update(User);
+                user.RefreshTokenId = Guid.Parse(id);
+                authenticationRepository.Update(user);
                 await unitOfWork.CommitTransaction();
-            if (Token == null) 
+                if (token == null) 
+                    return new TokenResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Email or Password got wrong",
+                        AccessToken = null,
+                        RefreshToken = null
+                    };
                 return new TokenResponse
                 {
-                    IsSuccess = false,
-                    Message = "Email or Password got wrong",
-                    AccessToken = null,
-                    RefreshToken = null
+                    IsSuccess = true,
+                    Message = "Welcome back",
+                    AccessToken = token.AccessToken,
+                    RefreshToken = token.RefreshToken
                 };
-            return new TokenResponse
-            {
-                IsSuccess = true,
-                Message = "Welcome back",
-                AccessToken = Token.AccessToken,
-                RefreshToken = Token.RefreshToken
-            };
-
             }
             catch(Exception e)
             {
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
                 return new TokenResponse
                 {
                     IsSuccess = false,
-                    Message = e.Message
+                    Message = "Somethings went wrong, please try again"
                 };
             }
         }
 
         public async Task<ResponseBase> VendorRegister(AccountViewModel accountViewModel)
         {
-            var Vendor = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
-            var Result = await this.authenticationRepository.RegisterVendor(Vendor, accountViewModel.Password!);
-            if (!Result.Succeeded)
+            try
             {
+                var vendor = mapper.Map<AccountViewModel, ApplicationUser>(accountViewModel);
+                var result = await this.authenticationRepository.RegisterVendor(vendor, accountViewModel.Password!);
+                if (!result.Succeeded)
+                {
+                    return new ResponseBase
+                    {
+                        IsSuccess = false,
+                        Message = "Email or Password got wrong"
+                    };
+                }
                 return new ResponseBase
                 {
-                    IsSuccess = false,
-                    Message = "Somethings went wrong!"
+                    IsSuccess = true,
+                    Message = "Create account successfully"
                 };
             }
-            return new ResponseBase
+            catch (Exception e)
             {
-                IsSuccess = true,
-                Message = "Create a new vendor"
-            };
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
+                return new TokenResponse
+                {
+                    IsSuccess = false,
+                    Message = "Somethings went wrong, please try again"
+                };
+            }
         }
 
         public async Task<ResponseBase> RefreshToken(string Email, TokenViewModel tokenViewModel)
         {
-            var EmailToUpdateToken = await this.authenticationRepository.GetUserByEmail(Email);
-            if (EmailToUpdateToken == null)
+            try
             {
+                var emailToUpdateToken = await this.authenticationRepository.GetUserByEmail(Email);
+                if (emailToUpdateToken == null)
+                {
+                    return new ResponseBase
+                    {
+                        IsSuccess = false,
+                        Message = "Non user exist"
+                    };
+                }
+                var Token = await this.authenticationRepository.RefreshToken(emailToUpdateToken.Email, tokenViewModel);
+                if (Token == null)
+                {
+                    return new ResponseBase
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to refresh"
+                    };
+                }
                 return new ResponseBase
                 {
-                    IsSuccess = false,
-                    Message = "Non user exist"
+                    IsSuccess = true,
+                    Message = "Refreshed"
                 };
             }
-            var Token = await this.authenticationRepository.RefreshToken(EmailToUpdateToken.Email, tokenViewModel);
-
-            if (Token == null)
+            catch(Exception e)
             {
-                return new ResponseBase
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
+                return new TokenResponse
                 {
                     IsSuccess = false,
-                    Message = "Failed to refresh"
+                    Message = "Somethings went wrong, please try again"
                 };
             }
-            return new ResponseBase
-            {
-                IsSuccess = true,
-                Message = "Refreshed"
-            };
         }
     }
 }

@@ -12,30 +12,32 @@ using Payment = PayPal.Api.Payment;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class PaymentRepository : IPaymentRepository
+    public class PaymentRepository : Repository<Payment>, IPaymentRepository
     {
         public PayPal.Api.Payment? Payment;
         private readonly ILogger<PaymentRepository> logger;
-        public PaymentRepository(ILogger<PaymentRepository> logger)
+        public PaymentRepository(DbFactory dbFactory, ILogger<PaymentRepository> logger) : base(dbFactory)
         {
             this.logger = logger;
         }
+        
         public ItemList GetItemList(Order order)
         {
-            var ItemList = new ItemList();
+            var itemList = new ItemList();
             foreach (var item in order.OrderDetails!)
             {
-                ItemList.items.Add(new Item
+                itemList.items.Add(new Item
                 {
                     name = item.ProductVariant!.ProductVariantName,
                     currency = "USD",
-                    price = Convert.ToString(item.ProductVariant.ProductPrice!.ProductVariantDefaultPrice),
-                    quantity = Convert.ToString(item.ToString()),
+                    price = Convert.ToString(item.Price),
+                    quantity = Convert.ToString(item.Quantity.ToString()),
                     sku = "sku"
                 });
             };
-            return ItemList;
+            return itemList;
         }
+        
         public Payer GetPayer()
         {
             var payer = new Payer()
@@ -48,6 +50,7 @@ namespace BookEcommerce.Models.DAL.Repositories
             };
             return payer;
         }
+        
         public Amount GetAmount(Order order)
         {
             var amount = new Amount
@@ -57,9 +60,10 @@ namespace BookEcommerce.Models.DAL.Repositories
             };
             return amount;
         }
+        
         public List<Transaction> CreateTransactionList(Order order)
         {
-            var itemlist = GetItemList(order);
+            //var itemlist = GetItemList(order);
             var amount = GetAmount(order);
             var transactionList = new List<Transaction>();
             transactionList.Add(new Transaction
@@ -67,10 +71,11 @@ namespace BookEcommerce.Models.DAL.Repositories
                 description = "Paypal payment transaction",
                 invoice_number = Guid.NewGuid().ToString(),
                 amount = amount,
-                item_list = itemlist
+                //item_list = itemlist
             });
             return transactionList;
         }
+        
         public PayPal.Api.Payment CreatePayment(APIContext apiContext, string redirectURL, Order order)
         {
             var payer = GetPayer();
@@ -87,13 +92,13 @@ namespace BookEcommerce.Models.DAL.Repositories
                 transactions = transactions,
                 redirect_urls = RedirUrls
             };
-            var PaymentCreation = this.Payment.Create(apiContext);
-            return PaymentCreation;
+            var paymentCreation = this.Payment.Create(apiContext);
+            return paymentCreation;
         }
 
         public PayPal.Api.Payment ExecutePayment(APIContext ApiContext, string PayerId, string PaymentId)
         {
-            var PaymentExecution = new PaymentExecution()
+            var paymentExecution = new PaymentExecution()
             {
                 payer_id = PayerId,
             };
@@ -101,7 +106,7 @@ namespace BookEcommerce.Models.DAL.Repositories
             {
                 id = PaymentId
             };
-            return this.Payment.Execute(ApiContext, PaymentExecution);
+            return this.Payment.Execute(ApiContext, paymentExecution);
         }
     }
 }

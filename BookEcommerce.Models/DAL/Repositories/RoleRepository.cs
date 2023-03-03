@@ -25,9 +25,9 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<bool> CheckRole(string RoleName)
         {
-            var RoleExist = await this.roleManager.RoleExistsAsync(RoleName);
-            if (!RoleExist) return false;
-            else return true;
+            var roleExist = await this.roleManager.RoleExistsAsync(RoleName);
+            var existed = !roleExist ? false : true;
+            return existed;
         }
 
         public async Task CreateRole(IdentityRole IdentityRole)

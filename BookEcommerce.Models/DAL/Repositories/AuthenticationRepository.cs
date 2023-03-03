@@ -48,15 +48,15 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<IdentityResult> CreateAdmin(ApplicationUser ApplicationUser, string password)
         {
-            var Result = await this.userManager!.CreateAsync(ApplicationUser, password);
-            if (!Result.Succeeded) return Result;
-            var RoleExisted = await this.roleRepository!.CheckRole(Roles.ADMIN);
-            if (!RoleExisted)
+            var result = await this.userManager!.CreateAsync(ApplicationUser, password);
+            if (!result.Succeeded) return result;
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.ADMIN);
+            if (!roleExisted)
             {
                 await this.roleRepository.CreateRole(new IdentityRole(Roles.ADMIN));
             }
             await this.roleRepository.AddToRole(ApplicationUser, Roles.ADMIN);
-            return Result;
+            return result;
         }
 
         //public async Task<IdentityResult> CreateAdmin(ApplicationUser ApplicationUser)
@@ -65,32 +65,32 @@ namespace BookEcommerce.Models.DAL.Repositories
         //    var Admin = await this.userManager.CreateAsync(ApplicationUser, Password.PASSWORD);
         //}
 
-        public async Task<TokenViewModel> Login(LoginViewModel LoginDTO)
+        public async Task<TokenViewModel> Login(LoginViewModel loginDTO)
         {
-            var User = await this.GetUserByEmail(LoginDTO.Email!);
-            if (User == null) return null!;
+            var user = await this.GetUserByEmail(loginDTO.Email!);
+            if (user == null) return null!;
             //if (!await this.userManager.CheckPasswordAsync(User, LoginDTO.Password)) return null;
-            SignInResult result = await this.signInManager!.PasswordSignInAsync(User, LoginDTO.Password, false, false);
+            SignInResult result = await this.signInManager!.PasswordSignInAsync(user, loginDTO.Password, false, false);
             if (!result.Succeeded) return null!;
 
             List<Claim> claims = new List<Claim>
             {
-            new Claim(JwtRegisteredClaimNames.NameId, User.Id),
-            new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, loginDTO.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var RoleManager = await this.userManager!.GetRolesAsync(User);
-            foreach (var role in RoleManager)
+            var roleManager = await this.userManager!.GetRolesAsync(user);
+            foreach (var role in roleManager)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-            var AccessToken = tokenRepository!.CreateToken(claims);
-            var RefreshToken = tokenRepository!.CreateRefreshToken();
+            var accessToken = tokenRepository!.CreateToken(claims);
+            var refreshToken = tokenRepository!.CreateRefreshToken();
             return new TokenViewModel
             {
-                AccessToken = AccessToken,
-                RefreshToken = RefreshToken
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
         }
 
@@ -98,8 +98,8 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
             if (!result.Succeeded) return result;
-            var RoleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
-            if (!RoleExisted)
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
+            if (!roleExisted)
             {
                 await this.roleRepository.CreateRole(new IdentityRole(Roles.CUSTOMER));
             }
@@ -111,8 +111,8 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
             if (!result.Succeeded) return result;
-            var RoleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
-            if (!RoleExisted)
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
+            if (!roleExisted)
             {
                 await this.roleRepository.CreateRole(new IdentityRole(Roles.VENDOR));
             }
@@ -127,9 +127,9 @@ namespace BookEcommerce.Models.DAL.Repositories
             {
                 return null!;
             }
-            if (user.RefreshTokenId != Guid.Parse(tokenViewModel.RefreshToken)) return null!;
-            string Token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
-            return Token;            
+            if (user.RefreshTokenId != Guid.Parse(tokenViewModel.RefreshToken!)) return null!;
+            string token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
+            return token;            
         }
 
         public async Task<ApplicationUser> GetUserByEmail(string Email)

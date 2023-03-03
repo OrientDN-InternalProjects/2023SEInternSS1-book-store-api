@@ -22,28 +22,25 @@ namespace BookEcommerce.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
-        [HttpPost("create")]
+        [HttpPost("/create/customer")]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerViewModel CustomerDTO)
-        {
-            try
+        {       
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            Console.WriteLine(authHeader);
+            var result = await this.customerService.CreateCustomer(CustomerDTO, authHeader);
+            if (result.IsSuccess)
             {
-                string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-                Console.WriteLine(AuthHeader);
-                var result = await this.customerService.CreateCustomer(CustomerDTO, AuthHeader);
                 return Ok(new ResponseBase
                 {
-                   IsSuccess = result.IsSuccess,
-                   Message = result.Message
-                });     
-            }
-            catch(Exception ex)
-            {
-                return NotFound(new ResponseBase
-                {
-                    IsSuccess = false,
-                    Message = "failed to execute"
+                    IsSuccess = result.IsSuccess,
+                    Message = result.Message
                 });
             }
+            return Ok(new ResponseBase
+            {
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
+            });
         }
     }
 }

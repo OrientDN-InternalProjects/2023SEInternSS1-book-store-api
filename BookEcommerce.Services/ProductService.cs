@@ -5,6 +5,7 @@ using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Base;
 using BookEcommerce.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace BookEcommerce.Services
         private readonly IProductCategoryRepository productCategoryRepository;
         private readonly ITokenRepository tokenRepository;
         private readonly IVendorRepository vendorRepository;
+        private readonly ILogger<ProductService> logger;
         public ProductService
             (IUnitOfWork unitOfWork,
             IProductRepository productRepository,
@@ -30,7 +32,8 @@ namespace BookEcommerce.Services
             IImageRepository imageRepository,
             IProductCategoryRepository productCategoryRepository,
             ITokenRepository tokenRepository,
-            IVendorRepository vendorRepository
+            IVendorRepository vendorRepository,
+            ILogger<ProductService> logger
             ) : base(unitOfWork)
         {
             this.productRepository = productRepository;
@@ -40,6 +43,7 @@ namespace BookEcommerce.Services
             this.productCategoryRepository = productCategoryRepository;
             this.tokenRepository = tokenRepository;
             this.vendorRepository = vendorRepository;
+            this.logger = logger;
         }
         public async Task<ProductResponse> AddProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
         {
@@ -47,6 +51,7 @@ namespace BookEcommerce.Services
             {
                 if (proVariant.Quantity == 0 || proVariant.ProductDefautPrice == 0 || proVariant.ProductSalePrice == 0)
                 {
+                    logger.LogError("Vendor enter value 0 when adding product");
                     return new ProductResponse
                     {
                         IsSuccess = false,
@@ -119,14 +124,25 @@ namespace BookEcommerce.Services
                 return new ProductResponse
                 {
                     IsSuccess = true,
+                    Message = "Add Order Success and you can view Product in Link: https://localhost:7018/api/product/" + product.ProductId.ToString() 
                 };
             }
-            catch (Exception e)
+            catch (NullReferenceException)
             {
+                logger.LogError("Some properties is Null when Vendor Update Order! ");
                 return new ProductResponse
                 {
                     IsSuccess = false,
-                    Message = e.Message
+                    Message = "Can't find Product! "
+                };
+            }
+            catch (Exception)
+            {
+                logger.LogError("System error and Exception was not found when Add Product! ");
+                return new ProductResponse
+                {
+                    IsSuccess = false,
+                    Message = "System error, Add Product was fasle and please try again later! "
                 };
             }
         }
@@ -153,6 +169,7 @@ namespace BookEcommerce.Services
                 }
                 var productViewModel = new ProductViewModel
                 {
+                    ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     ProductDescription = item.ProductDecription,
                     ProductVariants = listProductVariants
@@ -167,14 +184,6 @@ namespace BookEcommerce.Services
             try
             {
                 var findProduct = await productRepository.GetProductById(productId);
-                if (findProduct == null)
-                {
-                    return new ProductViewModel
-                    {
-                        IsSuccess = false,
-                        Message = "Can't find Product!"
-                    };
-                }
                 var findProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(findProduct.ProductId);
                 var findImageProduct = await imageRepository.GetImagesByProductId(findProduct.ProductId);
                 var imageProduct = new List<ImageViewModel>();
@@ -210,12 +219,31 @@ namespace BookEcommerce.Services
                     Images = imageProduct,
                 };
             }
-            catch (Exception e)
+            catch (NullReferenceException)
             {
+                logger.LogError("Some properties is Null when Get Product Detail! ");
+                return new ProductViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Can't find Product! "
+                };
+            }
+            catch (InvalidOperationException)
+            {
+                logger.LogError("ProductId is valid when Get Product Detail! ");
+                return new ProductViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Can't find Product in our System! "
+                };
+            }
+            catch (Exception)
+            {
+                logger.LogError("System error and Exception was not found when Get Details Product! ");
                 return new ProductViewModel 
                 { 
                     IsSuccess = false, 
-                    Message = e.Message 
+                    Message = "System error, Add Product was fasle and please try again later! "
                 };
             }
         }

@@ -1,5 +1,4 @@
-﻿using BookEcommerce.Models.DAL.Interfaces;
-using BookEcommerce.Models.Entities;
+﻿using BookEcommerce.Models.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Interfaces
 {
-    public interface ICartDetailService
+    public interface IPaypalContextService
     {
+        public PaypalContext GetPaypalContext();
     }
 }

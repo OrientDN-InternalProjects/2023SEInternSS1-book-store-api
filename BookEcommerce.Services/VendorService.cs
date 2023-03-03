@@ -4,6 +4,7 @@ using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,22 +19,24 @@ namespace BookEcommerce.Services
         private readonly ITokenRepository tokenRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-        public VendorService(IVendorRepository vendorRepository, IUnitOfWork unitOfWork, ITokenRepository tokenRepository, IMapper mapper)
+        private readonly ILogger logger;
+        public VendorService(IVendorRepository vendorRepository, IUnitOfWork unitOfWork, ITokenRepository tokenRepository, IMapper mapper, ILogger logger)
         {
             this.vendorRepository = vendorRepository;
             this.unitOfWork = unitOfWork;
             this.tokenRepository = tokenRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
-        public async Task<ResponseBase> CreateVendor(VendorCreateViewModel CreateVendorDTO, string Token)
+        public async Task<ResponseBase> CreateVendor(VendorCreateViewModel createVendorDTO, string token)
         {
             try
             {
-                Guid UserId = tokenRepository.GetUserIdFromToken(Token);
-                var VendorMapper = this.mapper.Map<VendorCreateViewModel, Vendor>(CreateVendorDTO);
-                VendorMapper.AccountId = UserId.ToString();
-                await this.vendorRepository.AddAsync(VendorMapper);
+                Guid userId = tokenRepository.GetUserIdFromToken(token);
+                var vendorMapper = this.mapper.Map<VendorCreateViewModel, Vendor>(createVendorDTO);
+                vendorMapper.AccountId = userId.ToString();
+                await this.vendorRepository.AddAsync(vendorMapper);
                 await this.unitOfWork.CommitTransaction();
                 return new ResponseBase
                 {
@@ -43,7 +46,13 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                throw e;
+                logger.LogError(e.Message);
+                logger.LogError(e.StackTrace);
+                return new ResponseBase
+                {
+                    IsSuccess = false,
+                    Message = "create vendor failed"
+                };
             }
         }
     }
