@@ -1,5 +1,6 @@
 ﻿using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Models.DTOs.Response.Base;
+using PayPal.Api;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace BookEcommerce.Services.Interfaces
 {
     public interface IPaymentService
     {
-        public Task<PaymentResponse> CreatePaymentWithPaypal(Guid orderId, string? PayerId, string Cancel = null);
+        public Task<PaymentResponse> CreatePaymentWithPaypal(Guid orderId, string paymentId, string? payerId, string Cancel = null);
+        public Task<PaymentResponse> ExecutePayment(Guid orderId, string payerId, string paymentId);
     }
 }

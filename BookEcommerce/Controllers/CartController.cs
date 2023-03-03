@@ -33,11 +33,7 @@ namespace BookEcommerce.Controllers
         public async Task<IActionResult> GetCartByIdCustomer(Guid customerId)
         {
             var res = await cartService.GetCart(customerId);
-            if (res.Count > 0)
-            {
-                return Ok(res);
-            }
-            return BadRequest(res);
+            return Ok(res);
         }
     }
 }

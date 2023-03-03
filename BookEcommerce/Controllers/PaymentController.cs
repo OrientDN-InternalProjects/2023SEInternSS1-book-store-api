@@ -13,32 +13,38 @@ namespace BookEcommerce.Controllers
     {
         private readonly IPaymentService paymentService;
         private readonly ICustomerService customerService;
-        public PaymentController(IPaymentService paymentService, ICustomerService customerService)
+        private readonly ILogger<PaymentController> logger;
+        public PaymentController(IPaymentService paymentService, ICustomerService customerService, ILogger<PaymentController> logger)
         {
             this.paymentService = paymentService;
             this.customerService = customerService;
+            this.logger = logger;
         }
+
         [HttpGet("/payment")]
-        [Authorize(Roles = "CUSTOMER", AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> Payment([FromQuery] Guid orderId)
+        public async Task<IActionResult> Payment([FromQuery] Guid orderId, string? paymentId)
         {
             //string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
             //var email = await this.customerService.GetCustomerEmailFromToken(AuthHeader);
-            var result = await this.paymentService.CreatePaymentWithPaypal(orderId, null);
-            if (result.IsSuccess)
+            if (paymentId == null)
             {
-                return Ok(new PaymentResponse
-                {
-                    IsSuccess = result.IsSuccess,
-                    Message = result.Message,
-                    RedirectUrl = result.RedirectUrl
-                });
+                var res = await this.paymentService.CreatePaymentWithPaypal(orderId, paymentId!, null);
+                return Ok(res);
             }
-            return NotFound(new ResponseBase
+            return BadRequest();
+        }
+        [HttpGet("/execute")]
+        public async Task<IActionResult> Execute([FromQuery] Guid orderId, string? payerId, string? paymentId)
+        {
+            var result = await this.paymentService.ExecutePayment(orderId, payerId!, paymentId!);
+            logger.LogInformation(paymentId);
+            return Ok(new PaymentResponse
             {
                 IsSuccess = result.IsSuccess,
-                Message = result.Message
+                Message = result.Message,
+                Transaction = result.Transaction
             });
         }
     }
 }
+

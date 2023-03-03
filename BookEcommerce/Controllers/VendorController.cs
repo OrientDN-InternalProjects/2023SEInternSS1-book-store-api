@@ -22,9 +22,9 @@ namespace BookEcommerce.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateVendor([FromBody] VendorCreateViewModel CreateVendorDTO)
         {
-            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            Console.WriteLine(AuthHeader);
-            var result = await this.vendorService.CreateVendor(CreateVendorDTO, AuthHeader);
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            Console.WriteLine(authHeader);
+            var result = await this.vendorService.CreateVendor(CreateVendorDTO, authHeader);
             if (result.IsSuccess)
                 return Ok(new ResponseBase
                 {

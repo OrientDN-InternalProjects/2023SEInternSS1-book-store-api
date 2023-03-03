@@ -26,14 +26,14 @@ namespace BookEcommerce.Services
             this.mapper = mapper;
         }
 
-        public async Task<ResponseBase> CreateVendor(VendorCreateViewModel CreateVendorDTO, string Token)
+        public async Task<ResponseBase> CreateVendor(VendorCreateViewModel createVendorDTO, string token)
         {
             try
             {
-                Guid UserId = tokenRepository.GetUserIdFromToken(Token);
-                var VendorMapper = this.mapper.Map<VendorCreateViewModel, Vendor>(CreateVendorDTO);
-                VendorMapper.AccountId = UserId.ToString();
-                await this.vendorRepository.AddAsync(VendorMapper);
+                Guid userId = tokenRepository.GetUserIdFromToken(token);
+                var vendorMapper = this.mapper.Map<VendorCreateViewModel, Vendor>(createVendorDTO);
+                vendorMapper.AccountId = userId.ToString();
+                await this.vendorRepository.AddAsync(vendorMapper);
                 await this.unitOfWork.CommitTransaction();
                 return new ResponseBase
                 {

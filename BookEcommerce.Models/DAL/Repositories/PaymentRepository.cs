@@ -22,19 +22,19 @@ namespace BookEcommerce.Models.DAL.Repositories
         }
         public ItemList GetItemList(Order order)
         {
-            var ItemList = new ItemList();
+            var itemList = new ItemList();
             foreach (var item in order.OrderDetails!)
             {
-                ItemList.items.Add(new Item
+                itemList.items.Add(new Item
                 {
                     name = item.ProductVariant!.ProductVariantName,
                     currency = "USD",
-                    price = Convert.ToString(item.ProductVariant.ProductPrice!.ProductVariantDefaultPrice),
-                    quantity = Convert.ToString(item.ToString()),
+                    price = Convert.ToString(item.Price),
+                    quantity = Convert.ToString(item.Quantity.ToString()),
                     sku = "sku"
                 });
             };
-            return ItemList;
+            return itemList;
         }
         public Payer GetPayer()
         {
@@ -59,7 +59,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         }
         public List<Transaction> CreateTransactionList(Order order)
         {
-            var itemlist = GetItemList(order);
+            //var itemlist = GetItemList(order);
             var amount = GetAmount(order);
             var transactionList = new List<Transaction>();
             transactionList.Add(new Transaction
@@ -67,7 +67,7 @@ namespace BookEcommerce.Models.DAL.Repositories
                 description = "Paypal payment transaction",
                 invoice_number = Guid.NewGuid().ToString(),
                 amount = amount,
-                item_list = itemlist
+                //item_list = itemlist
             });
             return transactionList;
         }
