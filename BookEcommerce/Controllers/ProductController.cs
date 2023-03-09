@@ -49,7 +49,7 @@ namespace BookEcommerce.Controllers
             {
                 return StatusCode(StatusCodes.Status201Created,Ok(res.Message));
             }
-            logger.LogError("Add Product was fail!");
+            logger.LogError("Add Product was failed!");
             return BadRequest(res.Message);
         }
     }

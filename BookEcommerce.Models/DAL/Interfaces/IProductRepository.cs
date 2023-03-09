@@ -10,6 +10,7 @@ namespace BookEcommerce.Models.DAL.Interfaces
     public interface IProductRepository : IRepository<Product>
     {
         Task<Product> GetProductById(Guid id);
-
+        Task<List<Product>> SearchProduct(string name);
+        Task<List<Product>> SearchProductWithLike(string name);
     }
 }

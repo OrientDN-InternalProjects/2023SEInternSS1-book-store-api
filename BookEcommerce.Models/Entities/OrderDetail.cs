@@ -21,9 +21,9 @@ namespace BookEcommerce.Models.Entities
         public int Quantity { get; set; }
         public double Price { get; set; }
         public Guid? OrderId { get; set; }
-        public Order? Order { get; set; }
+        public Order Order { get; set; }
         public Guid? ProductVariantId { get; set; }
-        public ProductVariant? ProductVariant { get; set; }
+        public ProductVariant ProductVariant { get; set; }
 
     }
 }

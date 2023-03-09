@@ -64,18 +64,18 @@ namespace BookEcommerce.Services
                     Message = "Add Product To Cart Success!"
                 };
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
-                logger.LogError("Some properties is valid when user add to Cart! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new CartResponse
                 {
                     IsSuccess = false,
                     Message = "Some properties is valid !",
                 };
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                logger.LogError("System error and Exception was not found when Add Cart! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new CartResponse 
                 { 
                     IsSuccess = false,

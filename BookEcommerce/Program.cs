@@ -26,7 +26,11 @@ var localConnectionString = string.Empty;
 localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(localConnectionString, b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer(localConnectionString, b =>
+    {
+        b.MigrationsAssembly("BookEcommerce");
+    });
+    //options.UseLazyLoadingProxies();
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -43,7 +47,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -54,14 +58,13 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
-
 //DB
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
 //.AddScoped<DbFactory>();
 
 services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()));
 services.AddScoped<DbFactory>();
-services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+services.AddScoped(typeof(BookEcommerce.Models.DAL.Interfaces.IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //service
@@ -70,9 +73,10 @@ services.AddScoped<IProductService, ProductService>();
 services.AddScoped<ICartService, CartService>();
 services.AddScoped<IOrderService, OrderService>();
 services.AddScoped<ICartDetailService, CartDetailService>();
+services.AddScoped<ISearchService, SearchService>();
 //repo
 builder.Services.AddScoped<IRoleRepository, RoleRepository>()
-.AddScoped<Profile, MapperProfile>()
+.AddScoped<AutoMapper.Profile, MapperProfile>()
 //.AddScoped<IMapper, Mapper>()
 .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
 .AddScoped<ITokenRepository, TokenRepository>();
@@ -85,6 +89,9 @@ services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 services.AddScoped<ICartDetailRepository, CartDetailRepository>();
 services.AddScoped<IOrderRepository, OrderRepository>();
 services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+
 var app = builder.Build();
 
 app.UseHttpLogging();

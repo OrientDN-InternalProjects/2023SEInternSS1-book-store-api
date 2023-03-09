@@ -25,9 +25,9 @@ namespace BookEcommerce.Controllers
             if (res.IsSuccess)
             {
                 logger.LogInformation("Add Order Success!");
-                return StatusCode(StatusCodes.Status201Created, Ok("Add Order Success!!"));
+                return StatusCode(StatusCodes.Status201Created, Ok(res.Message));
             }
-            logger.LogError("Add Order was Faild!");
+            logger.LogError("Add Order was failed!");
             return BadRequest(res.Message);
         }
         [HttpPut("{orderId}")]
@@ -40,20 +40,20 @@ namespace BookEcommerce.Controllers
                 logger.LogInformation("Order status has been updated");
                 return Ok(res.Message);
             }
-            logger.LogError("Status Order was Faild!");
+            logger.LogError("Status Order was failed!");
             return BadRequest(res.Message);
         }
-        [HttpPut("cancel/{orderId}")]
-        public async Task<IActionResult> CancelOrder(Guid orderId)
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetOrder(Guid orderId)
         {
-            logger.LogInformation("Start To Cancel Status Order");
-            var res = await orderService.CancelOrder(orderId);
-            if (res.IsSuccess == true)
+            logger.LogInformation("Start To Get Order!");
+            var res = await orderService.GetOrder(orderId);
+            if (res.IsSuccess)
             {
-                logger.LogInformation("Order status has been cancel!");
-                return Ok("Cancel Order success!");
+                logger.LogInformation("Get Order Success!");
+                return Ok(res);
             }
-            logger.LogError("Cancel Order was Faild!");
+            logger.LogError("Get Order was failed!");
             return BadRequest(res.Message);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace BookEcommerce.Models.DAL
             DbSet.Remove(entity);
         }
 
-        public async Task<T> FindAsync(Expression<Func<T, bool>> expression)
+        public async Task<T> FindAsync(Expression<Func<T, bool>> expression)  
         {
             return await DbSet.FirstOrDefaultAsync(expression);
         }
@@ -50,6 +51,18 @@ namespace BookEcommerce.Models.DAL
         public void Update(T entity)
         {
             DbSet.Update(entity);
+        }
+
+        public async Task<List<T>> Find(string keywordSearch, string keywordExist)
+        {
+            var l = dbFactory.DbContext;
+            throw new NotImplementedException();
+            //return await dbFactory.DbContext..Where(e => dbFactory.DbContext.FuzzySearch(keywordSearch).Equals(dbFactory.DbContext.FuzzySearch(keywordExist))).ToListAsync();
+        }
+
+        public ApplicationDbContext GetDbContext()
+        {
+            return dbFactory.DbContext;
         }
     }
 }

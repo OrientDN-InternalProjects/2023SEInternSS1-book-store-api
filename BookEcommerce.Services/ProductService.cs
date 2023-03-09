@@ -33,62 +33,6 @@ namespace BookEcommerce.Services
             this.productCategoryRepository = productCategoryRepository;
             this.logger = logger;
         }
-        public async Task<ProductResponse> AddProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
-        {
-            foreach (var proVariant in listProductsVariant)
-            {
-                if (proVariant.Quantity == 0 || proVariant.ProductDefautPrice == 0 || proVariant.ProductSalePrice == 0)
-                {
-                    logger.LogError("Vendor enter value 0 when adding product");
-                    return new ProductResponse
-                    {
-                        IsSuccess = false,
-                        Message = "Can't enter value 0 when adding product"
-                    };
-                }
-                else
-                {
-                    var productVariant = new ProductVariant
-                    {
-                        ProductVariantName = proVariant.ProductVariantName,
-                        Quantity = proVariant.Quantity,
-                        ProductId = product.ProductId
-                    };
-                    await productVariantRepository.AddAsync(productVariant);
-                    var productPrice = new ProductPrice
-                    {
-                        ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
-                        PruductVariantSalePrice = proVariant.ProductSalePrice,
-                        ActivationDate = proVariant.ActivationDate,
-                        ExpirationDate = proVariant.ExpirationDate,
-                        ProductVariantId = productVariant.ProductVariantId,
-                    };
-                    await productPriceRepository.AddAsync(productPrice);
-                }
-            }
-            return new ProductResponse
-            {
-                IsSuccess = true
-            };
-        }
-        public async Task AddImageAndProductCategory(ProductRequest req , Product product)
-        {
-            foreach (var path in req.Paths)
-            {
-                var img = new Image
-                {
-                    ImageURL = path,
-                    ProductId = product.ProductId
-                };
-                await imageRepository.AddAsync(img);
-            }
-            var cate = new ProductCategory
-            {
-                CategoryId = req.CategoryId,
-                ProductId = product.ProductId
-            };
-            await productCategoryRepository.AddAsync(cate);
-        }
         public async Task<ProductResponse> AddProduct(ProductRequest req)
         {
             try
@@ -101,30 +45,27 @@ namespace BookEcommerce.Services
                     IsActive = true,
                 };
                 await productRepository.AddAsync(product);
-                await AddImageAndProductCategory(req, product);
-                if(!AddProductVariant(req.ProductVariants, product).Result.IsSuccess)
-                {
-                    return await AddProductVariant(req.ProductVariants, product);
-                };
+                await addImageAndProductCategory(req, product);
+                await addProductVariant(req.ProductVariants!, product);
                 await _unitOfWork.CommitTransaction();
                 return new ProductResponse
                 {
                     IsSuccess = true,
-                    Message = "Add Order Success and you can view Product in Link: https://localhost:7018/api/product/" + product.ProductId.ToString() 
+                    Message = "Add Product Success and you can view Product in Link: https://localhost:7018/api/product/" + product.ProductId.ToString() 
                 };
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException e)
             {
-                logger.LogError("Some properties is Null when Vendor Update Order! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new ProductResponse
                 {
                     IsSuccess = false,
                     Message = "Can't find Product! "
                 };
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                logger.LogError("System error and Exception was not found when Add Product! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new ProductResponse
                 {
                     IsSuccess = false,
@@ -192,6 +133,7 @@ namespace BookEcommerce.Services
                         ProductVariantName = item.ProductVariantName,
                         ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
                         ProductSalePrice = productPrice.PruductVariantSalePrice,
+                        Quantity = item.Quantity,
                     };
                     listProductVariant.Add(productVariant);
                 }
@@ -205,33 +147,89 @@ namespace BookEcommerce.Services
                     Images = imageProduct,
                 };
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException e)
             {
-                logger.LogError("Some properties is Null when Get Product Detail! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new ProductViewModel
                 {
                     IsSuccess = false,
-                    Message = "Can't find Product! "
+                    Message = "Some properties is Null! "
                 };
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
-                logger.LogError("ProductId is valid when Get Product Detail! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new ProductViewModel
                 {
                     IsSuccess = false,
                     Message = "Can't find Product in our System! "
                 };
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                logger.LogError("System error and Exception was not found when Get Details Product! ");
+                logger.LogError(e.Message + "\n" + e.StackTrace);
                 return new ProductViewModel 
                 { 
                     IsSuccess = false, 
-                    Message = "System error, Add Product was fasle and please try again later! "
+                    Message = "System error, Get Product was fasle and please try again later! "
                 };
             }
+        }
+        private async Task<ProductResponse> addProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
+        {
+            foreach (var proVariant in listProductsVariant)
+            {
+                if (proVariant.Quantity == 0 || proVariant.ProductDefautPrice == 0 || proVariant.ProductSalePrice == 0)
+                {
+                    logger.LogError("Vendor enter value 0 when adding product");
+                    return new ProductResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Can't enter value 0 when adding product"
+                    };
+                }
+                else
+                {
+                    var productVariant = new ProductVariant
+                    {
+                        ProductVariantName = proVariant.ProductVariantName,
+                        Quantity = proVariant.Quantity,
+                        ProductId = product.ProductId
+                    };
+                    await productVariantRepository.AddAsync(productVariant);
+                    var productPrice = new ProductPrice
+                    {
+                        ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
+                        PruductVariantSalePrice = proVariant.ProductSalePrice,
+                        ActivationDate = proVariant.ActivationDate,
+                        ExpirationDate = proVariant.ExpirationDate,
+                        ProductVariantId = productVariant.ProductVariantId,
+                    };
+                    await productPriceRepository.AddAsync(productPrice);
+                }
+            }
+            return new ProductResponse
+            {
+                IsSuccess = true
+            };
+        }
+        private async Task addImageAndProductCategory(ProductRequest req, Product product)
+        {
+            foreach (var path in req.Paths!)
+            {
+                var img = new Image
+                {
+                    ImageURL = path,
+                    ProductId = product.ProductId
+                };
+                await imageRepository.AddAsync(img);
+            }
+            var cate = new ProductCategory
+            {
+                CategoryId = req.CategoryId,
+                ProductId = product.ProductId
+            };
+            await productCategoryRepository.AddAsync(cate);
         }
     }
 }
