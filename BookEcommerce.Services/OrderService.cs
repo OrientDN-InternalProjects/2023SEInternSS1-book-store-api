@@ -6,11 +6,6 @@ using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookEcommerce.Services
 {
@@ -39,77 +34,35 @@ namespace BookEcommerce.Services
             this.logger = logger;
             this.cartDetailService = cartDetailService;
         }
+
         public async Task<OrderResponse> AddOrder(OrderRequest req, Guid cusId)
         {
             try
             {
-                var order = new Order
-                {
-                    CustomerId = cusId,
-                    TransferAddress = req.TransferAddress,
-                    PaymentId = req.PaymentId,
-                    Message = req.Message,
-                    OrderDate = DateTime.Now,
-                    StatusOrder = "Pending",
-                    VendorId = req.ShopId,
-                    TotalPrice = 0
-                };
-                await orderRepository.AddAsync(order);
-                foreach (var item in req.Details!)
-                {
-                    var priceProduct = await productPriceRepository.GetPriceByProductVariant(item.ProductVariantId);
-                    var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
-                    var orderDetail = new OrderDetail
-                    {
-                        OrderId = order.OrderId,
-                        ProductVariantId = item.ProductVariantId,
-                        Quantity = item.Quantity,
-                        Price = ((double)priceProduct) * item.Quantity
-                    };
-                    await orderDetailRepository.AddAsync(orderDetail);
-                    order.TotalPrice += orderDetail.Price;
-                    findProductVariant.Quantity -= item.Quantity;
-                    if(findProductVariant.Quantity < 0)
-                    {
-                        logger.LogError("Can't order more than avilable Quantity!");
-                        return new OrderResponse
-                        {
-                            IsSuccess = false,
-                            Message = "Can't order more than avilable Quantity!"
-                        };
-                    }
-                    productVariantRepository.Update(findProductVariant);
-                    //await _unitOfWork.CommitTransaction();
-                }
-                //await _unitOfWork.CommitTransaction();
-                foreach (var orde in req.Details)
-                {
-                    var findCart = await cartRepository.GetCartByCustomerId(order.CustomerId);
-                    var findCartDetail = await cartDetailRepository.GetCartDetailByCartIdAndProductVariantId(findCart.CartId, orde.ProductVariantId);
-                    if (findCartDetail != null)
-                    {
-                        cartDetailRepository.Delete(findCartDetail);
-                    }
-                }
+                var order = await createNewOrder(req, cusId);
+                var res = await addOrderDetails(req,order);
+                if (!res.IsSuccess) return res;
+                await deleteProductInCart(order, req);
                 await _unitOfWork.CommitTransaction();
                 return new OrderResponse
                 {
                     IsSuccess = true,
-                    Message = "Add Order Success and you can view Product in Link: https://localhost:7018/api/order/" + order.OrderId.ToString()
+                    Message = "Add order success! " ,
+                    Link = "https://localhost:7018/api/order/" + order.OrderId.ToString()
                 };
             }
             catch (InvalidOperationException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderResponse
                 {
                     IsSuccess = false,
                     Message = "Some properties is valid !",
                 };
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderResponse
                 {
                     IsSuccess = false,
@@ -123,13 +76,13 @@ namespace BookEcommerce.Services
             try
             {
                 var findOrder = await orderRepository.GetOrderByOrderId(orderId);
-                if (statusReq.StatusOrder.Equals("Cancel"))
+                if (statusReq.StatusOrder!.Equals("Cancel"))
                 {
                     findOrder.StatusOrder = statusReq.StatusOrder;
                     var findOrderDetail = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
                     foreach (var item in findOrderDetail)
                     {
-                        var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
+                        var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId); 
                         findProductVariant.Quantity += item.Quantity;
                         productVariantRepository.Update(findProductVariant);
                     }
@@ -140,24 +93,24 @@ namespace BookEcommerce.Services
                     orderRepository.Update(findOrder);
                 }
                 await _unitOfWork.CommitTransaction();
-                return new OrderResponse 
-                { 
+                return new OrderResponse
+                {
                     IsSuccess = true,
                     Message = "Change Status Order is success!"
                 };
             }
             catch (NullReferenceException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
-                return new OrderResponse 
-                { 
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new OrderResponse
+                {
                     IsSuccess = false,
                     Message = "Some properties is Null!"
                 };
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderResponse
                 {
                     IsSuccess = false,
@@ -169,7 +122,7 @@ namespace BookEcommerce.Services
         public async Task<OrderViewModel> GetOrder(Guid orderId)
         {
             try
-            { 
+            {
                 var findOrder = await orderRepository.GetOrderByOrderId(orderId);
                 var findOrderDetails = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
                 var listOrderDetails = new List<OrderDetailViewModel>();
@@ -177,28 +130,28 @@ namespace BookEcommerce.Services
                 {
                     var findProduct = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
                     var orderDetail = new OrderDetailViewModel
-                    {
+                {
                         ProductVariantId = item.ProductVariantId,
-                        ProductName = findProduct.ProductVariantName,
+                        ProductName = findProduct.ProductVariantName!,
                         Price = item.Price,
                         Quantity = item.Quantity
                     };
                     listOrderDetails.Add(orderDetail);
                 }
                 return new OrderViewModel
-                {
+                { 
                     IsSuccess = true,
-                    TransferAddress = findOrder.TransferAddress,
-                    Message = findOrder.Message,
+                    TransferAddress = findOrder.TransferAddress!,
+                    Message = findOrder.Message!,
                     OrderDate = findOrder.OrderDate,
-                    OrderStatus = findOrder.StatusOrder,
+                    OrderStatus = findOrder.StatusOrder!,
                     TotalPrice = findOrder.TotalPrice,
                     OrderDetails = listOrderDetails
                 };
             }
             catch (NullReferenceException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderViewModel
                 {
                     IsSuccess = false,
@@ -207,22 +160,85 @@ namespace BookEcommerce.Services
             }
             catch (InvalidOperationException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderViewModel
-                {
+                { 
                     IsSuccess = false,
                     Message = "Can't find your Order in our System! "
                 };
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new OrderViewModel
                 {
                     IsSuccess = false,
-                    Message = "System error, Add Product was fasle and please try again later! "
+                    Message = "System error, Add Order was false and please try again later! "
                 };
             }
         }
+        private async Task<Order> createNewOrder(OrderRequest req, Guid cusId)
+        {
+            var order = new Order
+            {
+                CustomerId = cusId,
+                TransferAddress = req.TransferAddress,
+                PaymentId = req.PaymentMethodId,
+                Message = req.Message,
+                OrderDate = DateTime.Now,
+                StatusOrder = "Pending",
+                VendorId = req.ShopId,
+                TotalPrice = 0
+            };
+            await orderRepository.AddAsync(order);
+            return order;
+        }
+
+        private async Task<OrderResponse> addOrderDetails(OrderRequest req, Order order)
+        {
+            foreach (var item in req.Details)
+            {
+                var priceProduct = await productPriceRepository.GetPriceByProductVariant(item.ProductVariantId);
+                var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.OrderId,
+                    ProductVariantId = item.ProductVariantId,
+                    Quantity = item.Quantity,
+                    Price = ((double)priceProduct) * item.Quantity
+                };
+                await orderDetailRepository.AddAsync(orderDetail);
+                order.TotalPrice += orderDetail.Price;
+                findProductVariant.Quantity -= item.Quantity;
+                if (findProductVariant.Quantity < 0)
+                {
+                    logger.LogError("Can't order more than available quantity!");
+                    return new OrderResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Can't order more than available quantity!"
+                    };
+                }
+                productVariantRepository.Update(findProductVariant);
+            }
+            return new OrderResponse
+            {
+                IsSuccess = true
+            };
+        }
+
+        private async Task deleteProductInCart(Order order, OrderRequest req)
+        {
+            foreach (var orde in req.Details)
+            {
+                var findCart = await cartRepository.GetCartByCustomerId(order.CustomerId);
+                var findCartDetail = await cartDetailRepository.GetCartDetailByCartIdAndProductVariantId(findCart.CartId, orde.ProductVariantId);
+                if (findCartDetail != null)
+                {
+                    cartDetailRepository.Delete(findCartDetail);
+                }
+            }
+        }
+
     }
 }

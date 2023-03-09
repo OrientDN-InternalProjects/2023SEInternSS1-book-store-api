@@ -13,29 +13,50 @@ using BookEcommerce.Models.DTOs.Request;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using BookEcommerce.Models.DAL.Constants;
+using BookEcommerce.Models.DTOs;
+using System.Web;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class AuthenticationRepository : IAuthenticationRepository
+    public class AuthenticationRepository : Repository<ApplicationUser>, IAuthenticationRepository
     {
         private readonly UserManager<ApplicationUser>? userManager;
         private readonly ITokenRepository? tokenRepository;
         private readonly IRoleRepository? roleRepository;
+        private readonly SignInManager<ApplicationUser>? signInManager;
+        //private readonly ISendMailRepository sendMailRepository;
+        //private readonly ApplicationDbContext? applicationDbContext;
+        //private readonly ISendMailRepository sendMailRepository;
 
         public AuthenticationRepository(
             UserManager<ApplicationUser> userManager,
             ITokenRepository tokenRepository,
-            IRoleRepository roleRepository
-        )
+            IRoleRepository roleRepository,
+            SignInManager<ApplicationUser>? signInManager,
+            //ISendMailRepository sendMailRepository
+            DbFactory dbFactory
+            //ISendMailRepository sendMailRepository
+        ) : base(dbFactory)
         {
             this.userManager = userManager;
             this.tokenRepository = tokenRepository;
             this.roleRepository = roleRepository;
+            this.signInManager = signInManager;
+            //this.sendMailRepository = sendMailRepository;
+            //this.sendMailRepository = sendMailRepository;
         }
 
-        public Task<IdentityResult> CreateAdmin(ApplicationUser applicationUser)
+        public async Task<IdentityResult> CreateAdmin(ApplicationUser admin, string password)
         {
-            throw new NotImplementedException();
+            var result = await this.userManager!.CreateAsync(admin, password);
+            if (!result.Succeeded) return result;
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.ADMIN);
+            if (!roleExisted)
+            {
+                await this.roleRepository.CreateRole(new IdentityRole(Roles.ADMIN));
+            }
+            await this.roleRepository.AddToRole(admin, Roles.ADMIN);
+            return result;
         }
 
         //public async Task<IdentityResult> CreateAdmin(ApplicationUser ApplicationUser)
@@ -44,66 +65,86 @@ namespace BookEcommerce.Models.DAL.Repositories
         //    var Admin = await this.userManager.CreateAsync(ApplicationUser, Password.PASSWORD);
         //}
 
-        public async Task<string> Login(LoginDTO LoginDTO)
+        public async Task<TokenViewModel> Login(LoginViewModel loginDTO)
         {
-            var User = await this.userManager!.FindByEmailAsync(LoginDTO.Email);
-            if (User == null) return "User does not exist";
-            if (!await this.userManager.CheckPasswordAsync(User, LoginDTO.Password)) return "Username or Password invalid";
+            var user = await this.GetUserByEmail(loginDTO.Email!);
+            if (user == null) return null!;
+            //if (!await this.userManager.CheckPasswordAsync(User, LoginDTO.Password)) return null;
+            SignInResult result = await this.signInManager!.PasswordSignInAsync(user, loginDTO.Password, false, false);
+            if (!result.Succeeded) return null!;
 
             List<Claim> claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Email, LoginDTO.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, loginDTO.Email!),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var RoleManager = await this.userManager.GetRolesAsync(User);
-            foreach (var role in RoleManager)
+            var roleManager = await this.userManager!.GetRolesAsync(user);
+            foreach (var role in roleManager)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
-            var token = tokenRepository!.CreateAccessToken(claims);
-            return token;
+            var accessToken = tokenRepository!.CreateToken(claims);
+            var refreshToken = tokenRepository!.CreateRefreshToken();
+            return new TokenViewModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
         }
 
-        public async Task<IdentityResult> RegisterCustomer(ApplicationUser ApplicationUser, string password)
+        public async Task<IdentityResult> RegisterCustomer(ApplicationUser applicationUser, string password)
         {
-            try
+            IdentityResult result = await this.userManager!.CreateAsync(applicationUser, password);
+            if (!result.Succeeded) return result;
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
+            if (!roleExisted)
             {
-                IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
-                if (!result.Succeeded) return result;
-                var RoleExisted = await this.roleRepository!.CheckRole(Roles.CUSTOMER);
-                if (!RoleExisted)
-                {
-                    await this.roleRepository.CreateRole(new IdentityRole(Roles.CUSTOMER));
-                }
-                await this.roleRepository.AddToRole(ApplicationUser, Roles.CUSTOMER);
-                return result;
+                await this.roleRepository.CreateRole(new IdentityRole(Roles.CUSTOMER));
             }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            await this.roleRepository.AddToRole(applicationUser, Roles.CUSTOMER);
+            return result;
         }
 
-        public async Task<IdentityResult> RegisterVendor(ApplicationUser ApplicationUser, string password)
+        public async Task<IdentityResult> RegisterVendor(ApplicationUser applicationUser, string password)
         {
-            try
+            IdentityResult result = await this.userManager!.CreateAsync(applicationUser, password);
+            if (!result.Succeeded) return result;
+            var roleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
+            if (!roleExisted)
             {
-                IdentityResult result = await this.userManager!.CreateAsync(ApplicationUser, password);
-                if (!result.Succeeded) return result;
-                var RoleExisted = await this.roleRepository!.CheckRole(Roles.VENDOR);
-                if (!RoleExisted)
-                {
-                    await this.roleRepository.CreateRole(new IdentityRole(Roles.VENDOR));
-                }
-                await this.roleRepository.AddToRole(ApplicationUser, password);
-                return result;
+                await this.roleRepository.CreateRole(new IdentityRole(Roles.VENDOR));
             }
-            catch(Exception e)
+            await this.roleRepository.AddToRole(applicationUser, Roles.VENDOR);
+            return result;      
+        }
+
+        public async Task<string> RefreshToken(string email, TokenViewModel tokenViewModel)
+        {           
+            var user = await this.userManager!.FindByEmailAsync(email);
+            if (user == null)
             {
-                throw e;
+                return null!;
             }
+            if (user.RefreshTokenId != Guid.Parse(tokenViewModel.RefreshToken!)) return null!;
+            string token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
+            return token;            
+        }
+
+        public async Task<ApplicationUser> GetUserByEmail(string email)
+        {           
+            var result = await this.userManager!.FindByEmailAsync(email);
+            return result;           
+        }
+
+        public async Task Revoke(string email)
+        {        
+            var user = await this.userManager!.FindByEmailAsync(email);
+            if (user != null)
+            {
+                user.RefreshTokenId = null;
+            }   
         }
     }
 }

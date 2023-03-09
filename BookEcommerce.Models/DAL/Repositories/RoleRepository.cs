@@ -18,21 +18,19 @@ namespace BookEcommerce.Models.DAL.Repositories
             this.userManager = userManager;
             this.roleManager = roleManager;
         }
-        public async Task AddToRole(ApplicationUser ApplicationUser, string Role)
+        public async Task AddToRole(ApplicationUser applicationUser, string role)
         {
-            await this.userManager.AddToRoleAsync(ApplicationUser, Role);
+            await this.userManager.AddToRoleAsync(applicationUser, role);
         }
 
-        public async Task<bool> CheckRole(string RoleName)
+        public async Task<bool> CheckRole(string roleName)
         {
-            var RoleExist = await this.roleManager.RoleExistsAsync(RoleName);
-            if (!RoleExist) return false;
-            else return true;
+            return await this.roleManager.RoleExistsAsync(roleName);
         }
 
-        public async Task CreateRole(IdentityRole IdentityRole)
+        public async Task CreateRole(IdentityRole identityRole)
         {
-            await this.roleManager.CreateAsync(IdentityRole);
+            await this.roleManager.CreateAsync(identityRole);
         }
     }
 }

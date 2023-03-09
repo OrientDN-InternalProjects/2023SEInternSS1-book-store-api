@@ -18,7 +18,7 @@ namespace BookEcommerce.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid? PhoneNumberId { get; set; }
         public string? PhoneNum { get; set; }
-        public Guid? CustomerId { get; set; }
-        public Customer? Customer { get; set; }
+        public virtual Guid? CustomerId { get; set; }
+        public virtual Customer? Customer { get; set; }
     }
 }

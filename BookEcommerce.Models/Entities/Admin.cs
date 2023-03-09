@@ -18,8 +18,8 @@ namespace BookEcommerce.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid AdminId { get; set; }
         public Guid? BankAccountId { get; set; }
-        public BankAccount? BankAccount { get; set; }
-        public Guid? AccountId { get; set; }
-        public ApplicationUser? Account { get; set; }
+        public virtual BankAccount? BankAccount { get; set; }
+        public virtual string? AccountId { get; set; }
+        public virtual ApplicationUser? Account { get; set; }
     }
 }

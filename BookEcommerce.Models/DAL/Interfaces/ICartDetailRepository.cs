@@ -1,4 +1,4 @@
-﻿using BookEcommerce.Models.Entities;
+using BookEcommerce.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

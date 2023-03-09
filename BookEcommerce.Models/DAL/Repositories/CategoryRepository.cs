@@ -1,5 +1,6 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.Entities;
+using FuzzySharp;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,17 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<List<Category>> SearchCategory(string name)
         {
-            return await GetQuery(pr => pr.CategoryName.ToLower().Contains(name.ToLower())).OrderBy(pr => pr.CategoryName).ToListAsync();
+            var categories = await GetAll();
+            var listProducts = new List<Category>();
+            foreach (var item in categories)
+            {
+                var ratio = Fuzz.Ratio(name, item.CategoryName);
+                if (ratio > 35)
+                {
+                    listProducts.Add(item);
+                };
+            }
+            return listProducts;
         }
     }
 }

@@ -9,14 +9,16 @@ namespace BookEcommerce.Models.DTOs.Response
 {
     public class TokenResponse : ResponseBase
     {
-        public string? Token { get; set; }
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
         public TokenResponse() : base()
         {
 
         }
-        public TokenResponse(bool IsSuccess, string Message, string Token) : base(IsSuccess, Message)
+        public TokenResponse(bool IsSuccess, string Message, string AccessToken, string RefreshToken) : base(IsSuccess, Message)
         {
-            this.Token = Token;
+            this.AccessToken = AccessToken;
+            this.RefreshToken = RefreshToken;
         }
     }
 }

@@ -66,7 +66,7 @@ namespace BookEcommerce.Services
             }
             catch (InvalidOperationException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new CartResponse
                 {
                     IsSuccess = false,
@@ -75,7 +75,7 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new CartResponse 
                 { 
                     IsSuccess = false,

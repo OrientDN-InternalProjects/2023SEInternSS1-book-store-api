@@ -8,11 +8,10 @@ namespace BookEcommerce.Models.DTOs.Request
 {
     public class OrderRequest
     {
-        public string TransferAddress { get; set; }
-        public Guid PaymentId { get; set; }
-        public string Message { get; set; }
-        public string StatusOrder { get; set; }
+        public string? TransferAddress { get; set; }
+        public Guid PaymentMethodId { get; set; }
+        public string? Message { get; set; }
         public Guid ShopId { get; set; }
-        public List<OrderDetailRequest> Details{ get; set; }
+        public List<OrderDetailRequest> Details { get; set; }
     }
 }

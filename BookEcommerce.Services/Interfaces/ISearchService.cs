@@ -11,7 +11,6 @@ namespace BookEcommerce.Services.Interfaces
 {
     public interface ISearchService
     {
-        public Task<List<Product>> SearchProduct(string name);
         Task<List<ProductViewModel>> SearchProductByNameAndType(SearchRequest searchRequest);
     }
 }

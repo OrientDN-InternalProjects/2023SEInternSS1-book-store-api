@@ -9,6 +9,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface IOrderDetailRepository : IRepository<OrderDetail>
     {
-        public Task<List<OrderDetail>> GetOrderDetailsByOrderId(Guid orderId);
+        Task<List<OrderDetail>> GetOrderDetailsByOrderId(Guid orderId);
     }
 }

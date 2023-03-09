@@ -9,5 +9,6 @@ namespace BookEcommerce.Models.DTOs.Response
 {
     public class OrderResponse : ResponseBase
     {
+        public string Link { get; set; }
     }
 }
