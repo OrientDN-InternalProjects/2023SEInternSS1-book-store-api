@@ -20,10 +20,10 @@ namespace BookEcommerce.Models.Entities
         public Guid? OrderDetailId { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
-        public Guid? OrderId { get; set; }
-        public Order? Order { get; set; }
-        public Guid? ProductVariantId { get; set; }
-        public ProductVariant? ProductVariant { get; set; }
+        public virtual Guid? OrderId { get; set; }
+        public virtual Order? Order { get; set; }
+        public virtual Guid? ProductVariantId { get; set; }
+        public virtual ProductVariant? ProductVariant { get; set; }
 
     }
 }

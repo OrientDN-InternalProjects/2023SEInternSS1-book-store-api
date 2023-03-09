@@ -18,6 +18,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
         public Task StoreRefreshToken(RefreshToken RefreshToken);
         public string RefreshToken(string AccessToken);
         public ClaimsPrincipal GetClaimsPrincipal(string Token);
-        public string GetUserIdFromToken(string Token);
+        public Guid GetUserIdFromToken(string Token);
     }
 }

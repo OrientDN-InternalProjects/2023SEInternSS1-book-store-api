@@ -23,8 +23,8 @@ namespace BookEcommerce.Models.Entities
         public string? ProductDecription { get; set; }
         public Guid? VendorId { get; set; }
         public bool IsActive { get; set; }
-        public  Vendor? Vendor { get; set; }
-        public  ICollection<Image>? Images { get; set; }
+        public virtual Vendor? Vendor { get; set; }
+        public virtual ICollection<Image>? Images { get; set; }
         public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
         public virtual ICollection<ProductVariant>? ProductVariants { get; set; }
 }

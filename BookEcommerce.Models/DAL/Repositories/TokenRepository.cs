@@ -30,12 +30,12 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public string CreateToken(List<Claim> claims)
         {
-            SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
-            SigningCredentials signingCredentials = new SigningCredentials(
-                SymmetricSecurityKey,
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration!["JWT:Key"]));
+            var signingCredentials = new SigningCredentials(
+                symmetricSecurityKey,
                 SecurityAlgorithms.HmacSha256
             );
-            JwtSecurityToken Token = new JwtSecurityToken(
+            var token = new JwtSecurityToken(
                 configuration["JWT:Issuer"],
                 configuration["JWT:Audience"],
                 claims: claims,
@@ -43,82 +43,61 @@ namespace BookEcommerce.Models.DAL.Repositories
                 expires: DateTime.Now.AddSeconds(30)
             );
 
-            var result = new JwtSecurityTokenHandler().WriteToken(Token);
+            var result = new JwtSecurityTokenHandler().WriteToken(token);
             return result;
         }
 
-        //public string CreateAccessToken(List<Claim> claims)
-        //{
-        //    SymmetricSecurityKey SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
-        //    SigningCredentials signingCredentials = new SigningCredentials(
-        //        SymmetricSecurityKey,
-        //        SecurityAlgorithms.HmacSha256
-        //    );
-        //    JwtSecurityToken Token = new JwtSecurityToken(
-        //        configuration["JWT:Issuer"],
-        //        configuration["JWT:Audience"],
-        //        claims: claims,
-        //        signingCredentials: signingCredentials,
-        //        expires: DateTime.Now.AddSeconds(30)
-        //    );
-
-        //    var result = new JwtSecurityTokenHandler().WriteToken(Token);
-        //    return result;
-        //}
-
         public string CreateRefreshToken()
         {
-            var RandomNumber = new byte[64];
-            var Generator = RandomNumberGenerator.Create();
-            Generator.GetBytes(RandomNumber);
-            string Token = Convert.ToBase64String(RandomNumber);
-            return Token;
+            var randomNumber = new byte[64];
+            var generator = RandomNumberGenerator.Create();
+            generator.GetBytes(randomNumber);
+            var token = Convert.ToBase64String(randomNumber);
+            return token;
         }
 
-        public async Task StoreRefreshToken(RefreshToken RefreshToken)
+        public async Task StoreRefreshToken(RefreshToken refreshToken)
         {
-            await this.applicationDbContext.RefreshTokens.AddAsync(RefreshToken);
+            await this.applicationDbContext.RefreshTokens.AddAsync(refreshToken);
         }
 
-        public string RefreshToken(string AccessToken)
+        public string RefreshToken(string accessToken)
         {
-            ClaimsPrincipal principal = GetClaimsPrincipal(AccessToken);
-            string Email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
-            if (Email == null)
+            var principal = GetClaimsPrincipal(accessToken);
+            var email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
+            if (email == null)
             {
                 return String.Empty;
             }
-            var NewAccessToken = CreateToken(principal.Claims.ToList());
-            return NewAccessToken;
+            var newAccessToken = CreateToken(principal.Claims.ToList());
+            return newAccessToken;
         }
 
-        public string GetUserIdFromToken(string Token)
+        public Guid GetUserIdFromToken(string token)
         {
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            var TokenString = handler.ReadToken(Token) as JwtSecurityToken;
-            string UserId = TokenString!.Claims.First(token => token.Type == "nameid").Value;
-            Console.WriteLine(Token);
-            return UserId;
+            var handler = new JwtSecurityTokenHandler();
+            var tokenString = handler.ReadToken(token) as JwtSecurityToken;
+            var userId = new Guid(tokenString!.Claims.First(token => token.Type == "nameid").Value);
+            return userId;
         }
 
-        public ClaimsPrincipal GetClaimsPrincipal(string Token)
+        public ClaimsPrincipal GetClaimsPrincipal(string token)
         {
-            TokenValidationParameters TokenValidationParameters = new TokenValidationParameters
+            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["JWT:Issuer"],
+                ValidIssuer = configuration!["JWT:Issuer"],
                 ValidAudience = configuration["JWT:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]!)),
                 RequireExpirationTime = true,
             };
 
-            var TokenHandler = new JwtSecurityTokenHandler();
-            var principal = TokenHandler.ValidateToken(Token, TokenValidationParameters, out SecurityToken SecurityToken);
-            if (SecurityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
-
             return principal;
         }
     }

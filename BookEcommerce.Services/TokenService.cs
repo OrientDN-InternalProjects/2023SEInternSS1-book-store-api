@@ -3,22 +3,20 @@ using BookEcommerce.Models.DAL.Interfaces;
 using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace BookEcommerce.Services
 {
     public class TokenService : ITokenService
     {
         private readonly ITokenRepository tokenRepository;
-        private readonly IMapper Mapper;
-        public TokenService(ITokenRepository tokenRepository, IMapper Mapper)
+        private readonly IMapper mapper;
+        private readonly ILogger logger;
+        public TokenService(ITokenRepository tokenRepository, IMapper mapper, ILogger logger)
         {
             this.tokenRepository = tokenRepository;
-            this.Mapper = Mapper;
+            this.mapper = mapper;
+            this.logger = logger;
         }
         public string CreateRefreshToken()
         {
@@ -33,14 +31,22 @@ namespace BookEcommerce.Services
 
         public async Task<string> StoreRefreshToken()
         {
-            string Token = this.CreateRefreshToken();
-            RefreshTokenStoreViewModel StoreRefreshTokenDTO = new RefreshTokenStoreViewModel
+            try
             {
-                Token = Token
-            };
-            var MapRefreshToken = Mapper.Map<RefreshTokenStoreViewModel, RefreshToken>(StoreRefreshTokenDTO);
-            await this.tokenRepository.StoreRefreshToken(MapRefreshToken);
-            return MapRefreshToken.RefreshTokenId.ToString()!;
+                string token = this.CreateRefreshToken();
+                var storeRefreshTokenViewModel = new RefreshTokenStoreViewModel
+                {
+                    Token = token
+                };
+                var mapRefreshToken = mapper.Map<RefreshTokenStoreViewModel, RefreshToken>(storeRefreshTokenViewModel);
+                await this.tokenRepository.StoreRefreshToken(mapRefreshToken);
+                return mapRefreshToken.RefreshTokenId.ToString()!;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{ex.Message}. Detail {ex.StackTrace}");
+                return null!;
+            }
         }
     }
 }

@@ -21,16 +21,28 @@ namespace BookEcommerce.Services
         private readonly IProductPriceRepository productPriceRepository;
         private readonly IImageRepository imageRepository;
         private readonly IProductCategoryRepository productCategoryRepository;
+        private readonly ITokenRepository tokenRepository;
+        private readonly IVendorRepository vendorRepository;
         private readonly ILogger<ProductService> logger;
-        public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IProductPriceRepository productPriceRepository
-                              , IProductVariantRepository productVariantRepository, IImageRepository imageRepository, IProductCategoryRepository productCategoryRepository,
-                                ILogger<ProductService> logger) : base(unitOfWork)
+        public ProductService
+            (IUnitOfWork unitOfWork,
+            IProductRepository productRepository,
+            IProductPriceRepository productPriceRepository,
+            IProductVariantRepository productVariantRepository,
+            IImageRepository imageRepository,
+            IProductCategoryRepository productCategoryRepository,
+            ITokenRepository tokenRepository,
+            IVendorRepository vendorRepository,
+            ILogger<ProductService> logger
+            ) : base(unitOfWork)
         {
             this.productRepository = productRepository;
             this.productVariantRepository = productVariantRepository;
             this.productPriceRepository = productPriceRepository;
             this.imageRepository = imageRepository;
             this.productCategoryRepository = productCategoryRepository;
+            this.tokenRepository = tokenRepository;
+            this.vendorRepository = vendorRepository;
             this.logger = logger;
         }
         public async Task<ProductResponse> AddProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
@@ -89,15 +101,17 @@ namespace BookEcommerce.Services
             };
             await productCategoryRepository.AddAsync(cate);
         }
-        public async Task<ProductResponse> AddProduct(ProductRequest req)
+        public async Task<ProductResponse> AddProduct(ProductRequest req, string token)
         {
             try
             {
+                var userId = this.tokenRepository.GetUserIdFromToken(token);
+                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
                 var product = new Product
                 {
                     ProductName = req.ProductName,
                     ProductDecription = req.ProductDescription,
-                    VendorId = req.VendorId,
+                    VendorId = vendor.VendorId,
                     IsActive = true,
                 };
                 await productRepository.AddAsync(product);

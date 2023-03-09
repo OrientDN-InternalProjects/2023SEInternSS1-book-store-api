@@ -9,8 +9,6 @@ namespace BookEcommerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
-    [Authorize(Roles = "VENDOR", AuthenticationSchemes = "Bearer")]
     public class VendorController : ControllerBase
     {
         private readonly IVendorService vendorService;
@@ -18,13 +16,14 @@ namespace BookEcommerce.Controllers
         {
             this.vendorService = vendorService;
         }
+
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "VENDOR")]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateVendor([FromForm] VendorCreateViewModel CreateVendorDTO)
+        [HttpPost("/create/vendor")]
+        public async Task<IActionResult> CreateVendor([FromBody] VendorCreateViewModel CreateVendorDTO)
         {
-            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            Console.WriteLine(AuthHeader);
-            var result = await this.vendorService.CreateVendor(CreateVendorDTO, AuthHeader);
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            Console.WriteLine(authHeader);
+            var result = await this.vendorService.CreateVendor(CreateVendorDTO, authHeader);
             if (result.IsSuccess)
                 return Ok(new ResponseBase
                 {

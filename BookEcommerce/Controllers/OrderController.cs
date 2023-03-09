@@ -12,23 +12,26 @@ namespace BookEcommerce.Controllers
     {
         private readonly IOrderService orderService;
         private readonly ILogger<OrderController> logger;
-        public OrderController(IOrderService orderService, ILogger<OrderController> logger)
+        private readonly ICustomerService customerService;
+        public OrderController(IOrderService orderService, ILogger<OrderController> logger, ICustomerService customerService)
         {
             this.orderService = orderService;
             this.logger = logger;
+            this.customerService = customerService;
         }
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] OrderRequest orderRequest)
-        {
+        {     
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var customerId = await this.customerService.GetCustomerIdFromToken(authHeader);
             logger.LogInformation("Start To Add Order");
-            var res = await orderService.AddOrder(orderRequest, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
+            var res = await orderService.AddOrder(orderRequest, customerId);
             if (res.IsSuccess)
-            {
-                logger.LogInformation("Add Order Success!");
+            { 
                 return StatusCode(StatusCodes.Status201Created, Ok("Add Order Success!!"));
             }
             logger.LogError("Add Order was Faild!");
-            return BadRequest(res.Message);
+            return BadRequest(res.Message);    
         }
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateStatus([FromBody] StatusRequest status, Guid orderId)

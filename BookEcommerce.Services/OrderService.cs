@@ -43,13 +43,12 @@ namespace BookEcommerce.Services
             try
             {
                 var orderLoading = new Order();
-                foreach (var item in req.Details)
+                foreach (var item in req.Details!)
                 {
                     var order = new Order
                     {
                         CustomerId = cusId,
                         TransferAddress = req.TransferAddress,
-                        PaymentId = req.PaymentId,
                         Message = req.Message,
                         OrderDate = DateTime.Now,
                         StatusOrder = "Pending",
@@ -57,7 +56,7 @@ namespace BookEcommerce.Services
                         TotalPrice = 0
                     };
                     await orderRepository.AddAsync(order);
-                    foreach (var ordt in item.OrderDetailRequests)
+                    foreach (var ordt in item.OrderDetailRequests!)
                     {
                         var priceProduct = await productPriceRepository.GetPriceByProductVariant(ordt.ProductVariantId);
                         var findProductVariant = await productVariantRepository.GetProductVariantById(ordt.ProductVariantId);
@@ -165,7 +164,14 @@ namespace BookEcommerce.Services
             try
             {
                 var findOrder = await orderRepository.GetOrderByOrderId(orderId);
+                var listOrderDetails = await orderDetailRepository.GetOrderDetailsByOrderId(orderId);
                 findOrder.StatusOrder = statusReq.StatusOrder;
+                foreach (var item in listOrderDetails)
+                {
+                    var findCart = cartRepository.GetCartByCustomerId(findOrder.CustomerId);
+                    var findCartDetail = await cartDetailRepository.GetCartDetailByCartIdAndProductVariantId(findCart.Result.CartId, item.ProductVariantId);
+                    cartDetailRepository.Delete(findCartDetail);
+                }
                 orderRepository.Update(findOrder);
                 await _unitOfWork.CommitTransaction();
                 return new OrderResponse 

@@ -4,7 +4,7 @@
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _0103202310h54 : Migration
+    public partial class _020320232 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

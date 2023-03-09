@@ -18,9 +18,9 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         public string? FullName { get; set; }
-        public Guid? AccountId { get; set; }
+        public string? AccountId { get; set; }
         public virtual ApplicationUser? Account { get; set; }
         public virtual ICollection<Address>? Addresses { get; set; }
         //public Guid? ImageId { get; set; }

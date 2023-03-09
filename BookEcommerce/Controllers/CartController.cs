@@ -10,15 +10,19 @@ namespace BookEcommerce.Controllers
     public class CartController : Controller
     {
         private readonly ICartService cartService;
-        public CartController(ICartService cartService)
+        private readonly ICustomerService customerService;
+        public CartController(ICartService cartService, ICustomerService customerService)
         {
             this.cartService = cartService;
+            this.customerService = customerService;
         }
 
         [HttpPost]
         public async Task<IActionResult> AddCart([FromBody]CartRequest cartRequest)
         {
-            var res = await cartService.AddCart(cartRequest, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"));
+            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var customerId = await this.customerService.GetCustomerIdFromToken(AuthHeader);
+            var res = await cartService.AddCart(cartRequest, customerId);
             if (res.IsSuccess)
             {
                 return Ok(res.Message);
