@@ -23,6 +23,11 @@ namespace BookEcommerce.Models.DAL
         {
             this.dbFactory = dbFactory;
         }
+
+        public Repository()
+        {
+        }
+
         public async Task<T> AddAsync(T entity)
         {
             await DbSet.AddAsync(entity);
@@ -53,16 +58,9 @@ namespace BookEcommerce.Models.DAL
             DbSet.Update(entity);
         }
 
-        public async Task<List<T>> Find(string keywordSearch, string keywordExist)
+        public IQueryable<T> FindAll()
         {
-            var l = dbFactory.DbContext;
-            throw new NotImplementedException();
-            //return await dbFactory.DbContext..Where(e => dbFactory.DbContext.FuzzySearch(keywordSearch).Equals(dbFactory.DbContext.FuzzySearch(keywordExist))).ToListAsync();
-        }
-
-        public ApplicationDbContext GetDbContext()
-        {
-            return dbFactory.DbContext;
+            return DbSet;
         }
     }
 }

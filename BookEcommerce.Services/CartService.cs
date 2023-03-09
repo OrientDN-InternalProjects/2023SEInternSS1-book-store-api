@@ -66,7 +66,7 @@ namespace BookEcommerce.Services
             }
             catch (InvalidOperationException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new CartResponse
                 {
                     IsSuccess = false,
@@ -75,7 +75,7 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new CartResponse 
                 { 
                     IsSuccess = false,
@@ -97,6 +97,7 @@ namespace BookEcommerce.Services
                 {
                     var createCartViewModel = new CartViewModel
                     {
+                        ProductName = findProductVariant.Product!.ProductName,
                         IsSuccess = true,
                         ProductVariantId = item.ProductVariantId,
                         ProductVariantName = findProductVariant.ProductVariantName,
@@ -109,11 +110,12 @@ namespace BookEcommerce.Services
                 {
                     var createCartViewModel = new CartViewModel
                     {
+                        ProductName = findProductVariant.Product!.ProductName,
                         IsSuccess = true,
                         ProductVariantId = item.ProductVariantId,
                         ProductVariantName = findProductVariant.ProductVariantName,
                         Quantity = item.Quantity,
-                        Total = findProductPrice.PruductVariantSalePrice * item.Quantity,
+                        Total = findProductPrice.ProductVariantSalePrice * item.Quantity,
                     };
                     cart.Add(createCartViewModel);
                 }

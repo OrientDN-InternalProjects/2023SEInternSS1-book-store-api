@@ -14,42 +14,18 @@ namespace BookEcommerce.Controllers
         private readonly ISearchService searchService;
         private ILogger<SearchController> logger;
 
-        private readonly IProductRepository productRepository;
-        public SearchController(ISearchService searchService, ILogger<SearchController> logger, IProductRepository productRepository)
+        public SearchController(ISearchService searchService, ILogger<SearchController> logger)
         {
             this.searchService = searchService;
             this.logger = logger;
-            this.productRepository = productRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProductById([FromBody] SearchRequest searchRequest)
+        public async Task<IActionResult> SearchProduct([FromQuery] SearchRequest searchRequest)
         {
             logger.LogInformation("Start Search Product! ");
             var res = await searchService.SearchProductByNameAndType(searchRequest);
-            //if (res.IsSuccess)
-            //{
-            //    logger.LogInformation("Can find product! ");
-            //    return Ok(res);
-            //}
-            //logger.LogError("Get product fail!");
-            //return NotFound(res.Message);
             return Ok(res);
         }
-
-        //[HttpGet]
-        //public async Task<IActionResult> Search([FromQuery] string name)
-        //{
-        //    logger.LogInformation("Start Search Product! ");
-        //    var res = await searchService.SearchProduct(name);
-        //    //if (res.IsSuccess)
-        //    //{
-        //    //    logger.LogInformation("Can find product! ");
-        //    //    return Ok(res);
-        //    //}
-        //    //logger.LogError("Get product fail!");
-        //    //return NotFound(res.Message);
-        //    return Ok(res);
-        //}
     }
 }

@@ -13,6 +13,8 @@ namespace BookEcommerce.Models.DTOs
         public Guid ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? ProductDescription { get; set; }
+        public int Sold { get; set; }
+        public DateTime? Created { get; set; }
         public List<ImageViewModel>? Images { get; set; }
         public List<ProductVariantViewModel>? ProductVariants { get; set; }
     }

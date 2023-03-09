@@ -50,13 +50,17 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("BankAccountId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("AdminId");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique()
+                        .HasFilter("[AccountId] IS NOT NULL");
 
                     b.HasIndex("BankAccountId");
 
@@ -71,15 +75,9 @@ namespace BookEcommerce.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("AdminId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -111,6 +109,9 @@ namespace BookEcommerce.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("RefreshTokenId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -121,17 +122,7 @@ namespace BookEcommerce.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid?>("VendorId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("AdminId")
-                        .IsUnique()
-                        .HasFilter("[AdminId] IS NOT NULL");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -141,9 +132,9 @@ namespace BookEcommerce.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("VendorId")
+                    b.HasIndex("RefreshTokenId")
                         .IsUnique()
-                        .HasFilter("[VendorId] IS NOT NULL");
+                        .HasFilter("[RefreshTokenId] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -254,17 +245,21 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Customer", b =>
                 {
-                    b.Property<Guid?>("CustomerId")
+                    b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique()
+                        .HasFilter("[AccountId] IS NOT NULL");
 
                     b.ToTable("Customers");
                 });
@@ -311,11 +306,11 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Order", b =>
                 {
-                    b.Property<Guid>("OrderId")
+                    b.Property<Guid?>("OrderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Message")
@@ -324,19 +319,19 @@ namespace BookEcommerce.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("PaymentId")
+                    b.Property<Guid?>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("StatusOrder")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("TotalPrice")
+                    b.Property<double?>("TotalPrice")
                         .HasColumnType("float");
 
                     b.Property<string>("TransferAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("VendorId")
+                    b.Property<Guid?>("VendorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("OrderId");
@@ -394,6 +389,26 @@ namespace BookEcommerce.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.Property<Guid>("PaymentHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PaymentHistoryId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentHistory");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
                 {
                     b.Property<Guid?>("PhoneNumberId")
@@ -419,6 +434,9 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -427,6 +445,9 @@ namespace BookEcommerce.Migrations
 
                     b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Sold")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("VendorId")
                         .HasColumnType("uniqueidentifier");
@@ -477,7 +498,7 @@ namespace BookEcommerce.Migrations
                     b.Property<Guid?>("ProductVariantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("PruductVariantSalePrice")
+                    b.Property<double>("ProductVariantSalePrice")
                         .HasColumnType("float");
 
                     b.HasKey("ProductPriceId");
@@ -536,8 +557,8 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("BankAccountId")
                         .HasColumnType("uniqueidentifier");
@@ -555,6 +576,10 @@ namespace BookEcommerce.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("VendorId");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique()
+                        .HasFilter("[AccountId] IS NOT NULL");
 
                     b.HasIndex("BankAccountId");
 
@@ -705,34 +730,26 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Admin", b =>
                 {
+                    b.HasOne("BookEcommerce.Models.Entities.ApplicationUser", "Account")
+                        .WithOne("Admin")
+                        .HasForeignKey("BookEcommerce.Models.Entities.Admin", "AccountId");
+
                     b.HasOne("BookEcommerce.Models.Entities.BankAccount", "BankAccount")
                         .WithMany()
                         .HasForeignKey("BankAccountId");
+
+                    b.Navigation("Account");
 
                     b.Navigation("BankAccount");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("BookEcommerce.Models.Entities.Admin", "Admin")
-                        .WithOne("Account")
-                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "AdminId");
+                    b.HasOne("BookEcommerce.Models.Entities.RefreshToken", "RefreshToken")
+                        .WithOne("ApplicationUser")
+                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "RefreshTokenId");
 
-                    b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
-                        .WithOne("Account")
-                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookEcommerce.Models.Entities.Vendor", "Vendor")
-                        .WithOne("Account")
-                        .HasForeignKey("BookEcommerce.Models.Entities.ApplicationUser", "VendorId");
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Vendor");
+                    b.Navigation("RefreshToken");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.BankAccount", b =>
@@ -771,6 +788,15 @@ namespace BookEcommerce.Migrations
                     b.Navigation("Vendor");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.Customer", b =>
+                {
+                    b.HasOne("BookEcommerce.Models.Entities.ApplicationUser", "Account")
+                        .WithOne("Customer")
+                        .HasForeignKey("BookEcommerce.Models.Entities.Customer", "AccountId");
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.Image", b =>
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Category", "Category")
@@ -802,21 +828,15 @@ namespace BookEcommerce.Migrations
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
                         .WithMany("Orders")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.HasOne("BookEcommerce.Models.Entities.Payment", "Payment")
                         .WithMany("Orders")
-                        .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PaymentId");
 
                     b.HasOne("BookEcommerce.Models.Entities.Vendor", "Vendor")
                         .WithMany("Orders")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VendorId");
 
                     b.Navigation("Customer");
 
@@ -838,6 +858,17 @@ namespace BookEcommerce.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.HasOne("BookEcommerce.Models.Entities.Order", "Order")
+                        .WithOne("PaymentHistory")
+                        .HasForeignKey("BookEcommerce.Models.Entities.PaymentHistory", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
@@ -903,9 +934,15 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Vendor", b =>
                 {
+                    b.HasOne("BookEcommerce.Models.Entities.ApplicationUser", "Account")
+                        .WithOne("Vendor")
+                        .HasForeignKey("BookEcommerce.Models.Entities.Vendor", "AccountId");
+
                     b.HasOne("BookEcommerce.Models.Entities.BankAccount", "BankAccount")
                         .WithMany()
                         .HasForeignKey("BankAccountId");
+
+                    b.Navigation("Account");
 
                     b.Navigation("BankAccount");
                 });
@@ -961,9 +998,13 @@ namespace BookEcommerce.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BookEcommerce.Models.Entities.Admin", b =>
+            modelBuilder.Entity("BookEcommerce.Models.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("Account");
+                    b.Navigation("Admin");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Cart", b =>
@@ -985,11 +1026,10 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Customer", b =>
                 {
-                    b.Navigation("Account");
-
                     b.Navigation("Addresses");
 
-                    b.Navigation("Cart");
+                    b.Navigation("Cart")
+                        .IsRequired();
 
                     b.Navigation("Image");
 
@@ -1001,6 +1041,9 @@ namespace BookEcommerce.Migrations
             modelBuilder.Entity("BookEcommerce.Models.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PaymentHistory")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Payment", b =>
@@ -1024,10 +1067,13 @@ namespace BookEcommerce.Migrations
                     b.Navigation("ProductPrice");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.RefreshToken", b =>
+                {
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.Vendor", b =>
                 {
-                    b.Navigation("Account");
-
                     b.Navigation("Categories");
 
                     b.Navigation("Image");

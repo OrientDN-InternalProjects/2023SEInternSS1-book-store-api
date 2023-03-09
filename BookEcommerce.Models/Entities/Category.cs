@@ -16,10 +16,10 @@ namespace BookEcommerce.Models.Entities
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CategoryId { get; set; }
-        public string? CategoryName { get; set; }
-        public string? SubCategory { get; set; }
-        public Guid? VendorId { get; set; }
+        public virtual Guid CategoryId { get; set; }
+        public virtual string? CategoryName { get; set; }
+        public virtual string? SubCategory { get; set; }
+        public virtual Guid? VendorId { get; set; }
         public virtual Vendor? Vendor { get; set; }
         public virtual Image? Image { get; set; }
         public virtual ICollection<ProductCategory>? ProductCategories { get; set; }

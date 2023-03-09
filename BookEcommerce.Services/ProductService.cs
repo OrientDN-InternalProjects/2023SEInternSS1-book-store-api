@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Repositories;
 using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.DTOs.Response;
@@ -6,11 +7,6 @@ using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookEcommerce.Services
 {
@@ -21,28 +17,46 @@ namespace BookEcommerce.Services
         private readonly IProductPriceRepository productPriceRepository;
         private readonly IImageRepository imageRepository;
         private readonly IProductCategoryRepository productCategoryRepository;
+        private readonly ITokenRepository tokenRepository;
+        private readonly IVendorRepository vendorRepository;
         private readonly ILogger<ProductService> logger;
-        public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IProductPriceRepository productPriceRepository
-                              , IProductVariantRepository productVariantRepository, IImageRepository imageRepository, IProductCategoryRepository productCategoryRepository,
-                                ILogger<ProductService> logger) : base(unitOfWork)
+        private readonly IMapperCustom mapper;
+        public ProductService
+            (IUnitOfWork unitOfWork,
+            IProductRepository productRepository,
+            IProductPriceRepository productPriceRepository,
+            IProductVariantRepository productVariantRepository,
+            IImageRepository imageRepository,
+            IProductCategoryRepository productCategoryRepository,
+            ITokenRepository tokenRepository,
+            IVendorRepository vendorRepository,
+            ILogger<ProductService> logger,
+            IMapperCustom mapper
+            ) : base(unitOfWork)
         {
             this.productRepository = productRepository;
             this.productVariantRepository = productVariantRepository;
             this.productPriceRepository = productPriceRepository;
             this.imageRepository = imageRepository;
             this.productCategoryRepository = productCategoryRepository;
+            this.tokenRepository = tokenRepository;
+            this.vendorRepository = vendorRepository;
             this.logger = logger;
+            this.mapper = mapper;
         }
-        public async Task<ProductResponse> AddProduct(ProductRequest req)
+        public async Task<ProductResponse> AddProduct(ProductRequest req, string token)
         {
             try
             {
+                var userId = this.tokenRepository.GetUserIdFromToken(token);
+                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
                 var product = new Product
                 {
                     ProductName = req.ProductName,
                     ProductDecription = req.ProductDescription,
-                    VendorId = req.VendorId,
+                    VendorId = vendor.VendorId,
                     IsActive = true,
+                    DateCreated = DateTime.Now,
                 };
                 await productRepository.AddAsync(product);
                 await addImageAndProductCategory(req, product);
@@ -51,12 +65,13 @@ namespace BookEcommerce.Services
                 return new ProductResponse
                 {
                     IsSuccess = true,
-                    Message = "Add Product Success and you can view Product in Link: https://localhost:7018/api/product/" + product.ProductId.ToString() 
+                    Message = "Add Product Success and you can view Product",
+                    Link = "https://localhost:7018/api/product/" + product.ProductId.ToString()
                 };
             }
             catch (NullReferenceException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new ProductResponse
                 {
                     IsSuccess = false,
@@ -65,7 +80,7 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new ProductResponse
                 {
                     IsSuccess = false,
@@ -77,33 +92,7 @@ namespace BookEcommerce.Services
         public async Task<List<ProductViewModel>> GetAllProduct()
         {
             var listProducts = await productRepository.GetAll();
-            var listProductsViewModel = new List<ProductViewModel>();
-            foreach (var item in listProducts)
-            {
-                var listProductVariants = new List<ProductVariantViewModel>();
-                var listProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(item.ProductId);
-                foreach (var pv in listProductVariant)
-                {
-                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(pv.ProductVariantId);
-                    var productVariantViewModel = new ProductVariantViewModel
-                    {
-                        ProductVariantId = pv.ProductVariantId,
-                        ProductVariantName = pv.ProductVariantName,
-                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
-                        ProductSalePrice = productPrice.PruductVariantSalePrice,
-                    };
-                    listProductVariants.Add(productVariantViewModel);
-                }
-                var productViewModel = new ProductViewModel
-                {
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
-                    ProductDescription = item.ProductDecription,
-                    ProductVariants = listProductVariants
-                };
-                listProductsViewModel.Add(productViewModel);
-            }
-            return listProductsViewModel;
+            return mapper.MapProducts(listProducts);
         }
 
         public async Task<ProductViewModel> GetProductById(Guid productId)
@@ -113,43 +102,21 @@ namespace BookEcommerce.Services
                 var findProduct = await productRepository.GetProductById(productId);
                 var findProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(findProduct.ProductId);
                 var findImageProduct = await imageRepository.GetImagesByProductId(findProduct.ProductId);
-                var imageProduct = new List<ImageViewModel>();
-                foreach (var img in findImageProduct)
-                {
-                    var imgProduct = new ImageViewModel
-                    {
-                        ImageId = img.ImageId.ToString(),
-                        Path = img.ImageURL,
-                    };
-                    imageProduct.Add(imgProduct);
-                }
-                var listProductVariant = new List<ProductVariantViewModel>();
-                foreach (var item in findProductVariant)
-                {
-                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(item.ProductVariantId);
-                    var productVariant = new ProductVariantViewModel
-                    {
-                        ProductVariantId = item.ProductVariantId,
-                        ProductVariantName = item.ProductVariantName,
-                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
-                        ProductSalePrice = productPrice.PruductVariantSalePrice,
-                        Quantity = item.Quantity,
-                    };
-                    listProductVariant.Add(productVariant);
-                }
                 return new ProductViewModel
                 {
                     IsSuccess = true,
                     ProductId = findProduct.ProductId,
                     ProductName = findProduct.ProductName,
                     ProductDescription = findProduct.ProductDecription,
-                    ProductVariants = listProductVariant,
-                    Images = imageProduct,
+                    Sold = findProduct.Sold,
+                    Created = findProduct.DateCreated,
+                    ProductVariants = mapper.MapProductVariant(findProductVariant),
+                    Images = mapper.MapImages(findImageProduct),
                 };
             }
             catch (NullReferenceException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new ProductViewModel
                 {
                     IsSuccess = false,
@@ -158,7 +125,7 @@ namespace BookEcommerce.Services
             }
             catch (InvalidOperationException e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new ProductViewModel
                 {
                     IsSuccess = false,
@@ -167,7 +134,7 @@ namespace BookEcommerce.Services
             }
             catch (Exception e)
             {
-                logger.LogError(e.Message + "\n" + e.StackTrace);
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
                 return new ProductViewModel 
                 { 
                     IsSuccess = false, 
@@ -200,7 +167,7 @@ namespace BookEcommerce.Services
                     var productPrice = new ProductPrice
                     {
                         ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
-                        PruductVariantSalePrice = proVariant.ProductSalePrice,
+                        ProductVariantSalePrice = proVariant.ProductSalePrice,
                         ActivationDate = proVariant.ActivationDate,
                         ExpirationDate = proVariant.ExpirationDate,
                         ProductVariantId = productVariant.ProductVariantId,
@@ -230,6 +197,18 @@ namespace BookEcommerce.Services
                 ProductId = product.ProductId
             };
             await productCategoryRepository.AddAsync(cate);
+        }
+
+        public async Task<List<ProductViewModel>> GetProductMostSellProduct()
+        {
+            var listProduct = await productRepository.GetProductsMostSeller();
+            return mapper.MapProducts(listProduct);
+        }
+
+        public async Task<List<ProductViewModel>> GetProductTopNew()
+        {
+            var listProducts = await productRepository.GetProductsTopNew();
+            return mapper.MapProducts(listProducts);
         }
     }
 }

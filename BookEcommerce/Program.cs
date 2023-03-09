@@ -1,17 +1,20 @@
+using AutoMapper;
 using BookEcommerce.Models.DAL;
+using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Repositories;
 using BookEcommerce.Models.Entities;
+using BookEcommerce.Models.Options;
+using BookEcommerce.Services;
+using BookEcommerce.Services.Interfaces;
+using BookEcommerce.Services.Map;
+using BookEcommerce.Services.Mapper;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using BookEcommerce.Services.Interfaces;
-using BookEcommerce.Services;
+using MimeKit;
 using System.Text;
-using BookEcommerce.Services.Mapper;
-using BookEcommerce.Models.DAL.Interfaces;
-using BookEcommerce.Models.DAL.Repositories;
-using AutoMapper;
-using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -21,6 +24,20 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("HuyGap", policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyOrigin();
+    });
+});
+builder.Services.AddSession(options => {
+    options.Cookie.HttpOnly = true;
+    options.Cookie.Name = "payment";
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddAutoMapper(options => options.AddProfile(typeof(MapperProfile)));
 var localConnectionString = string.Empty;
 localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
@@ -30,7 +47,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         b.MigrationsAssembly("BookEcommerce");
     });
-    //options.UseLazyLoadingProxies();
+    options.UseLazyLoadingProxies();
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -58,6 +75,24 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = true,
     };
 });
+
+//builder.Services.AddHttpLogging(logging =>
+//{
+//    logging.LoggingFields = HttpLoggingFields.All;
+//    logging.RequestHeaders.Add("sec-ch-ua");
+//    logging.ResponseHeaders.Add("MyResponseHeader");
+//    logging.MediaTypeOptions.AddText("application/javascript");
+//    logging.RequestBodyLogLimit = 4096;
+//    logging.ResponseBodyLogLimit = 4096;
+//});
+
+//builder.Host.ConfigureLogging(logging =>
+//{
+//    logging.AddConsole();
+//    logging.ClearProviders();
+//});
+
+
 //DB
 //builder.Services.AddScoped<IUnitOfWork, UnitOfWork>()
 //.AddScoped<DbFactory>();
@@ -66,8 +101,26 @@ services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provide
 services.AddScoped<DbFactory>();
 services.AddScoped(typeof(BookEcommerce.Models.DAL.Interfaces.IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<ILogger, Logger<PaymentService>>();
+services.AddScoped<IMapperCustom,MapperCustom>();
+
+builder.Services
+    .AddScoped<MailSettings>()
+    .AddScoped<MimeMessage>()
+    .AddScoped<SmtpClient>();
 
 //service
+builder.Services
+    .AddScoped<IAuthenticationService, AuthenticationService>()
+    .AddScoped<IVerifyAccountService, VerifyAccountService>()
+    .AddScoped<ITokenService, TokenService>()
+    .AddScoped<ICustomerService, CustomerService>()
+    .AddScoped<IVendorService, VendorService>()
+    .AddScoped<IAddressService, AddressService>()
+    .AddScoped<IPaymentService, PaymentService>()
+    .AddScoped<IPaypalContextService, PaypalContextService>();
+
+services.AddScoped<ICartDetailService, CartDetailService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<ICartService, CartService>();
@@ -75,6 +128,17 @@ services.AddScoped<IOrderService, OrderService>();
 services.AddScoped<ICartDetailService, CartDetailService>();
 services.AddScoped<ISearchService, SearchService>();
 //repo
+builder.Services
+    .AddScoped<IRoleRepository, RoleRepository>()
+    //.AddScoped<Profile, MapperProfile>()
+    .AddScoped<IMapper, AutoMapper.Mapper>()
+    .AddScoped<ISendMailRepository, SendMailRepository>()
+    .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
+    .AddScoped<ITokenRepository, TokenRepository>()
+    .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
+    .AddScoped<IVendorRepository, VendorRepository>()
+    .AddScoped<ICustomerRepository, CustomerRepository>()
+    .AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>()
 .AddScoped<AutoMapper.Profile, MapperProfile>()
 //.AddScoped<IMapper, Mapper>()
@@ -86,11 +150,15 @@ services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+services.AddScoped<IPaymentRepository, PaymentRepository>();
 services.AddScoped<ICartDetailRepository, CartDetailRepository>();
 services.AddScoped<IOrderRepository, OrderRepository>();
 services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 services.AddScoped<ICategoryRepository, CategoryRepository>();
 
+//configure
+builder.Services.AddTransient<PaypalContext>();
+builder.Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 var app = builder.Build();
 
@@ -102,10 +170,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("HuyGap");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllers();
 

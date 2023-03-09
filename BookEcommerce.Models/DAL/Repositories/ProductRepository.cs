@@ -1,23 +1,24 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.Entities;
+using FuzzySharp;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
     public class ProductRepository : Repository<Product>, IProductRepository
     {
-        private static readonly Regex sWhitespace = new Regex(@"\s+");
-        public ProductRepository(DbFactory dbFactory) : base(dbFactory)
+        private readonly ILogger<ProductRepository> logger;
+        public ProductRepository(DbFactory dbFactory, ILogger<ProductRepository> logger) : base(dbFactory)
         {
+            this.logger = logger;
         }
 
-
+        public IEnumerable<Product> GetProducts(ProductParameters productParameters)
+        {
+            return FindAll().OrderBy(on => on.ProductName).Skip((productParameters.PageNumber - 1) * productParameters.PageSize).Take(productParameters.PageSize).ToList();
+        }
 
         public async Task<Product> GetProductById(Guid id)
         {
@@ -26,12 +27,36 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<List<Product>> SearchProduct(string name)
         {
-            return await GetQuery(pr => pr.ProductName.ToLower().Contains(name.ToLower())).OrderBy(pr => pr.ProductName).ToListAsync();
+            return await GetQuery(pr => pr.ProductName!.ToLower().Contains(name.ToLower())).OrderBy(pr => pr.ProductName).ToListAsync();
         }
-        public async Task<List<Product>> SearchProductWithLike(string name)
+
+        public async Task<List<Product>> SearchProductWithFuzzy(string name)
         {
-            return await GetQuery(p => EF.Functions.Like(sWhitespace.Replace(p.ProductName!,""), sWhitespace.Replace($"%{name}%",""))).ToListAsync();
-            //return await GetQuery(e => GetDbContext().FuzzySearch(e.ProductName.ToLower()) == GetDbContext().FuzzySearch(name.ToLower())).ToListAsync();
+            var products = await GetAll();
+            var listProducts = new List<Product>();
+            foreach(var item in products)
+            {
+                var ratioWeighted = Fuzz.WeightedRatio(name, item.ProductName);
+                if (ratioWeighted > 60)
+                {
+                    listProducts.Add(item);
+                };
+            }
+            return listProducts;
+        }
+
+        public async Task<List<Product>> GetProductsMostSeller()
+        {
+            var products = await GetAll();
+            var topFiveProduct = products.OrderByDescending(p => p.Sold).Take(5).ToList();
+            return topFiveProduct;
+        }
+
+        public async Task<List<Product>> GetProductsTopNew()
+        {
+            var products = await GetAll();
+            var topFiveProduct = products.OrderByDescending(p => p.DateCreated).Take(5).ToList();
+            return topFiveProduct;
         }
     }
 }
