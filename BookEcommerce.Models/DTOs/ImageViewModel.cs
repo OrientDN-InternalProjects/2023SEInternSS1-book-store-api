@@ -9,6 +9,6 @@ namespace BookEcommerce.Models.DTOs
     public class ImageViewModel 
     {
         public string? ImageId { get; set; }
-        public string? Path { get; set; }
+        public string? ImageURL { get; set; }
     }
 }

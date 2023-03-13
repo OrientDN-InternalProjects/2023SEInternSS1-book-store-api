@@ -17,7 +17,12 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<CartDetail> GetCartDetailByCartIdAndProductVariantId(Guid? cartId, Guid? productVariantId)
         {
-            return await GetQuery(cd => cd.CartId == cartId && cd.ProductVariantId == productVariantId).SingleAsync();
+            var req = await GetQuery(cd => cd.CartId == cartId && cd.ProductVariantId == productVariantId).AnyAsync();
+            if (req)
+            {
+                return await GetQuery(cd => cd.CartId == cartId && cd.ProductVariantId == productVariantId).SingleAsync();
+            }
+            return null;
         }
 
         public async Task<List<CartDetail>> GetListCartDetailByCartId(Guid? cartId)

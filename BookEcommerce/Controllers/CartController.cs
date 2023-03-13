@@ -11,8 +11,10 @@ namespace BookEcommerce.Controllers
     {
         private readonly ICartService cartService;
         private readonly ICustomerService customerService;
-        public CartController(ICartService cartService, ICustomerService customerService)
+        private readonly ILogger<CartController> logger;
+        public CartController(ICartService cartService, ICustomerService customerService, ILogger<CartController> logger)
         {
+            this.logger = logger;
             this.cartService = cartService;
             this.customerService = customerService;
         }
@@ -20,8 +22,13 @@ namespace BookEcommerce.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCart([FromBody]CartRequest cartRequest)
         {
-            string AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            var customerId = await this.customerService.GetCustomerIdFromToken(AuthHeader);
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var customerId = await this.customerService.GetCustomerIdFromToken(authHeader);
+            if (cartRequest.Quantity <= 0)
+            {
+                logger.LogError("Enter value 0!");
+                return BadRequest("Can't enter numbers less than 0 when add product to cart!");
+            }
             var res = await cartService.AddCart(cartRequest, customerId);
             if (res.IsSuccess)
             {
