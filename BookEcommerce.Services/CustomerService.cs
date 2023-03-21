@@ -67,5 +67,29 @@ namespace BookEcommerce.Services
             var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
             return customer.Account!.Email;
         }
+
+        public async Task<CustomerResponse> GetCustomerProfile(string token)
+        {
+            try
+            {
+                var userId = this.tokenRepository.GetUserIdFromToken(token);
+                var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
+                return new CustomerResponse
+                {
+                    IsSuccess = true,
+                    Message = "fetched customer profile",
+                    CustomerFullName = customer.FullName,
+                    CustomerId = customer.CustomerId.ToString()
+                };
+            }
+            catch(Exception e)
+            {
+                return new CustomerResponse
+                {
+                    IsSuccess = false,
+                    Message = "failed to fetch profile"
+                };
+            }
+        }
     }
 }

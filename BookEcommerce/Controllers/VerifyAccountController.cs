@@ -1,4 +1,5 @@
-﻿using BookEcommerce.Models.DTOs.Response.Base;
+﻿using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +17,9 @@ namespace BookEcommerce.Controllers
         }
 
         [HttpPost("/send-mail")]
-        public async Task<IActionResult> SendMail([FromBody] string Email)
+        public async Task<IActionResult> SendMail([FromBody] SendMailRequest email)
         {
-            var result = await this.verifyAccountService.SendVerificationMail(Email);
+            var result = await this.verifyAccountService.SendVerificationMail(email.Email!);
             if(result.IsSuccess)
             {
                 return Ok(new ResponseBase

@@ -26,7 +26,6 @@ namespace BookEcommerce.Controllers
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerViewModel CustomerDTO)
         {       
             string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
-            Console.WriteLine(authHeader);
             var result = await this.customerService.CreateCustomer(CustomerDTO, authHeader);
             if (result.IsSuccess)
             {
@@ -37,6 +36,29 @@ namespace BookEcommerce.Controllers
                 });
             }
             return Ok(new ResponseBase
+            {
+                IsSuccess = result.IsSuccess,
+                Message = result.Message
+            });
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
+        [HttpGet("/get-customer")]
+        public async Task<IActionResult> GetCustomerProfile()
+        {
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var result = await this.customerService.GetCustomerProfile(authHeader);
+            if (result.IsSuccess)
+            {
+                return Ok(new CustomerResponse
+                {
+                    IsSuccess = result.IsSuccess,
+                    Message = result.Message,
+                    CustomerFullName = result.CustomerFullName,
+                    CustomerId = result.CustomerId
+                });
+            }
+            return Unauthorized(new ResponseBase
             {
                 IsSuccess = result.IsSuccess,
                 Message = result.Message

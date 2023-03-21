@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _0903202316h34 : Migration
+    public partial class _21032023 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -401,7 +401,9 @@ namespace BookEcommerce.Migrations
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductDecription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     VendorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Sold = table.Column<int>(type: "int", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -568,7 +570,7 @@ namespace BookEcommerce.Migrations
                 {
                     ProductPriceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductVariantDefaultPrice = table.Column<double>(type: "float", nullable: false),
-                    PruductVariantSalePrice = table.Column<double>(type: "float", nullable: false),
+                    ProductVariantSalePrice = table.Column<double>(type: "float", nullable: false),
                     ActivationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)

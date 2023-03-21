@@ -127,7 +127,7 @@ namespace BookEcommerce.Models.DAL.Repositories
             {
                 return null!;
             }
-            if (user.RefreshTokenId != Guid.Parse(tokenViewModel.RefreshToken!)) return null!;
+            if (user.RefreshToken!.Token != tokenViewModel.RefreshToken!) return null!;
             string token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
             return token;            
         }

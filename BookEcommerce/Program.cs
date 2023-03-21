@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("HuyGap", policy =>
+    options.AddPolicy("mycors", policy =>
     {
         policy.AllowAnyHeader().AllowAnyOrigin();
     });
@@ -102,12 +102,13 @@ services.AddScoped<DbFactory>();
 services.AddScoped(typeof(BookEcommerce.Models.DAL.Interfaces.IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped<ILogger, Logger<PaymentService>>();
-services.AddScoped<IMapperCustom,MapperCustom>();
+
 
 builder.Services
     .AddScoped<MailSettings>()
     .AddScoped<MimeMessage>()
     .AddScoped<SmtpClient>();
+services.AddScoped<IMapperCustom,MapperCustom>();
 
 //service
 builder.Services
@@ -116,15 +117,13 @@ builder.Services
     .AddScoped<ITokenService, TokenService>()
     .AddScoped<ICustomerService, CustomerService>()
     .AddScoped<IVendorService, VendorService>()
+    .AddScoped<IProductService, ProductService>()
+    .AddScoped<ICartService, CartService>()
     .AddScoped<IAddressService, AddressService>()
+    .AddScoped<IOrderService, OrderService>()
     .AddScoped<IPaymentService, PaymentService>()
     .AddScoped<IPaypalContextService, PaypalContextService>();
 
-services.AddScoped<ICartDetailService, CartDetailService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-services.AddScoped<IProductService, ProductService>();
-services.AddScoped<ICartService, CartService>();
-services.AddScoped<IOrderService, OrderService>();
 services.AddScoped<ICartDetailService, CartDetailService>();
 services.AddScoped<ISearchService, SearchService>();
 //repo
@@ -134,16 +133,12 @@ builder.Services
     .AddScoped<IMapper, AutoMapper.Mapper>()
     .AddScoped<ISendMailRepository, SendMailRepository>()
     .AddScoped<IAuthenticationRepository, AuthenticationRepository>()
+    .AddScoped<IRoleRepository, RoleRepository>()
     .AddScoped<ITokenRepository, TokenRepository>()
     .AddScoped<IVerifyAccountRepository, VerifyAccountRepository>()
     .AddScoped<IVendorRepository, VendorRepository>()
     .AddScoped<ICustomerRepository, CustomerRepository>()
     .AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>()
-.AddScoped<AutoMapper.Profile, MapperProfile>()
-//.AddScoped<IMapper, Mapper>()
-.AddScoped<IAuthenticationRepository, AuthenticationRepository>()
-.AddScoped<ITokenRepository, TokenRepository>();
 services.AddScoped<IProductRepository, ProductRepository>();
 services.AddScoped<ICartRepository, CartRepository>();
 services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
@@ -170,7 +165,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("HuyGap");
+
+app.UseCors("mycors");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

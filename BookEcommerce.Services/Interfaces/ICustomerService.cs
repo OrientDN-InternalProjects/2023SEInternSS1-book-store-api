@@ -13,5 +13,6 @@ namespace BookEcommerce.Services.Interfaces
         public Task<ResponseBase> CreateCustomer(CustomerViewModel CustomerDTO, string Token);
         public Task<Guid> GetCustomerIdFromToken(string Token);
         public Task<string> GetCustomerEmailFromToken(string Token);
+        public Task<CustomerResponse> GetCustomerProfile(string token);
     }
 }

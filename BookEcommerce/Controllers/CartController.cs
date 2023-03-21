@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,9 +33,17 @@ namespace BookEcommerce.Controllers
             var res = await cartService.AddCart(cartRequest, customerId);
             if (res.IsSuccess)
             {
-                return Ok(res.Message);
+                return Ok(new ResponseBase
+                {
+                    IsSuccess = res.IsSuccess,
+                    Message = res.Message
+                });
             }
-            return BadRequest(res.Message);
+            return BadRequest(new ResponseBase
+            {
+                IsSuccess = res.IsSuccess,
+                Message = res.Message
+            });
         }
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetCartByIdCustomer(Guid customerId)

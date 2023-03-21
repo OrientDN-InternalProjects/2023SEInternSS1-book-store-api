@@ -48,9 +48,10 @@ namespace BookEcommerce.Controllers
             if (!result.IsSuccess)
             {
                 logger.LogError("Wrong credential");
-                return BadRequest(new ResponseBase
+                return Ok(new TokenResponse
                 {
                     IsSuccess = result.IsSuccess,
+                    IsActive = result.IsActive,
                     Message = result.Message
                 });
             }
@@ -58,6 +59,7 @@ namespace BookEcommerce.Controllers
             return Ok(new TokenResponse
             {
                 IsSuccess = result.IsSuccess,
+                IsActive = result.IsActive,
                 Message = result.Message,
                 AccessToken = result.AccessToken,
                 RefreshToken = result.RefreshToken
@@ -105,11 +107,26 @@ namespace BookEcommerce.Controllers
         [HttpPost("/refresh")]
         public async Task<IActionResult> RefreshToken([FromQuery] string Email, [FromBody] TokenViewModel TokenDTO)
         {
-            await this.authenticationService!.RefreshToken(Email, TokenDTO);
-            return Ok(new ResponseBase
+            var result = await this.authenticationService!.RefreshToken(Email, TokenDTO);
+            return Ok(new TokenResponse
             {
                 IsSuccess = true,
-                Message = "Token refreshed"
+                Message = "Token refreshed",
+                AccessToken = result.AccessToken
+            });
+        }
+
+        [HttpGet("/user")]
+        public IActionResult getUser()
+        {
+            var authHeader = this.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            var result = this.authenticationService!.GetUserLogged(authHeader);
+            return Ok(new UserLoggedResponse
+            {
+                IsSuccess = result.IsSuccess,
+                Message = result.Message,
+                UserName = result.UserName,
+                UserId = result.UserId           
             });
         }
     }

@@ -124,6 +124,7 @@ namespace BookEcommerce.Services
                     return new TokenResponse
                     {
                         IsSuccess = false,
+                        IsActive = false,
                         Message = "Account did not confirmed",
                     };
                 }
@@ -142,6 +143,7 @@ namespace BookEcommerce.Services
                 return new TokenResponse
                 {
                     IsSuccess = true,
+                    IsActive = true,
                     Message = "Welcome back",
                     AccessToken = token.AccessToken,
                     RefreshToken = token.RefreshToken
@@ -191,14 +193,14 @@ namespace BookEcommerce.Services
             }
         }
 
-        public async Task<ResponseBase> RefreshToken(string email, TokenViewModel tokenViewModel)
+        public async Task<TokenResponse> RefreshToken(string email, TokenViewModel tokenViewModel)
         {
             try
             {
                 var emailToUpdateToken = await this.authenticationRepository.GetUserByEmail(email);
                 if (emailToUpdateToken == null)
                 {
-                    return new ResponseBase
+                    return new TokenResponse
                     {
                         IsSuccess = false,
                         Message = "Non user exist"
@@ -207,16 +209,17 @@ namespace BookEcommerce.Services
                 var Token = await this.authenticationRepository.RefreshToken(emailToUpdateToken.Email, tokenViewModel);
                 if (Token == null)
                 {
-                    return new ResponseBase
+                    return new TokenResponse
                     {
                         IsSuccess = false,
                         Message = "Failed to refresh"
                     };
                 }
-                return new ResponseBase
+                return new TokenResponse
                 {
                     IsSuccess = true,
-                    Message = "Refreshed"
+                    Message = "Refreshed",
+                    AccessToken = Token
                 };
             }
             catch(Exception ex)
@@ -228,6 +231,19 @@ namespace BookEcommerce.Services
                     Message = "Somethings went wrong, please try again"
                 };
             }
+        }
+
+        public UserLoggedResponse GetUserLogged(string token)
+        {
+            var id = this.tokenService.GetUserIdFromToken(token);
+            var email = this.tokenService.GetUserEmailFromToken(token);
+            return new UserLoggedResponse
+            {
+                IsSuccess = true,
+                Message = "return logged user",
+                UserId = id,
+                UserName = email
+            };
         }
     }
 }

@@ -81,6 +81,14 @@ namespace BookEcommerce.Models.DAL.Repositories
             return userId;
         }
 
+        public string GetUserEmailFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var tokenString = handler.ReadToken(token) as JwtSecurityToken;
+            var email = tokenString!.Claims.First(token => token.Type == "email").Value;
+            return email;
+        }
+
         public ClaimsPrincipal GetClaimsPrincipal(string token)
         {
             TokenValidationParameters tokenValidationParameters = new TokenValidationParameters

@@ -12,5 +12,7 @@ namespace BookEcommerce.Services.Interfaces
         public string CreateRefreshToken();
         public Task<string> StoreRefreshToken();
         //public string RefreshToken(string AccessToken);
+        public string GetUserIdFromToken(string token);
+        public string GetUserEmailFromToken(string token);
     }
 }

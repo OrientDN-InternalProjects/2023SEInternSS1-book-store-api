@@ -84,6 +84,7 @@ namespace BookEcommerce.Services
                     {
                         var findProductVariant = await productVariantRepository.GetProductVariantById(item.ProductVariantId); 
                         findProductVariant.Quantity += item.Quantity;
+                        findProductVariant.Product!.Sold -= item.Quantity;
                         productVariantRepository.Update(findProductVariant);
                     }
                 }
@@ -210,6 +211,7 @@ namespace BookEcommerce.Services
                 await orderDetailRepository.AddAsync(orderDetail);
                 order.TotalPrice += orderDetail.Price;
                 findProductVariant.Quantity -= item.Quantity;
+                findProductVariant.Product!.Sold += item.Quantity;
                 if (findProductVariant.Quantity < 0)
                 {
                     logger.LogError("Can't order more than available quantity!");

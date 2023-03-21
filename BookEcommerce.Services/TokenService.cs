@@ -24,10 +24,17 @@ namespace BookEcommerce.Services
             return token;
         }
 
-        //public string RefreshToken(string AccessToken)
-        //{
-        //    return AccessToken;
-        //}
+        public string GetUserEmailFromToken(string token)
+        {
+            var email = this.tokenRepository.GetUserEmailFromToken(token);
+            return email;
+        }
+
+        public string GetUserIdFromToken(string token)
+        {
+            var id = this.tokenRepository.GetUserIdFromToken(token);
+            return id.ToString();
+        }
 
         public async Task<string> StoreRefreshToken()
         {

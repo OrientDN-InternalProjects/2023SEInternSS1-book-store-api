@@ -20,6 +20,7 @@ namespace BookEcommerce.Controllers
             this.logger = logger;
             this.customerService = customerService;
         }
+
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] OrderRequest orderRequest)
         {     
@@ -33,13 +34,14 @@ namespace BookEcommerce.Controllers
                 return StatusCode(StatusCodes.Status201Created, res);
             }
             logger.LogError("Add Order was failed!");
-            return BadRequest(res.Message);    
+            return BadRequest(res.Message);              
         }
+
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateStatus([FromBody] StatusRequest status, Guid orderId)
         {
             logger.LogInformation("Start To Update Status Order");
-            var res = await orderService.ChangeStatusOrder(status,orderId);
+            var res = await orderService.ChangeStatusOrder(status, orderId);
             if (res.IsSuccess)
             {
                 logger.LogInformation("Order status has been updated");
