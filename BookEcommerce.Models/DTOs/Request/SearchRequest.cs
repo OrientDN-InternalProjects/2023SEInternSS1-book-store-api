@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookEcommerce.Models.DTOs.Response
+namespace BookEcommerce.Models.DTOs.Request
 {
-    public class OrderResponse : ResponseBase
+    public class SearchRequest
     {
-        public string Link { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
     }
 }

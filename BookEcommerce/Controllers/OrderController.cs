@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace BookEcommerce.Controllers
             this.logger = logger;
             this.customerService = customerService;
         }
+
         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody] OrderRequest orderRequest)
         {     
@@ -28,55 +30,37 @@ namespace BookEcommerce.Controllers
             var res = await orderService.AddOrder(orderRequest, customerId);
             if (res.IsSuccess)
             { 
-                return StatusCode(StatusCodes.Status201Created, Ok("Add Order Success!!"));
+                logger.LogInformation("Add Order Success!");
+                return StatusCode(StatusCodes.Status201Created, res);
             }
-            logger.LogError("Add Order was Faild!");
-            return BadRequest(res.Message);    
+            logger.LogError("Add Order was failed!");
+            return BadRequest(res.Message);              
         }
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Add Order was Failed!");
-                return BadRequest(e.Message);
-            }
-        }
+
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateStatus([FromBody] StatusRequest status, Guid orderId)
         {
             logger.LogInformation("Start To Update Status Order");
-        }
+            var res = await orderService.ChangeStatusOrder(status, orderId);
             if (res.IsSuccess)
             {
                 logger.LogInformation("Order status has been updated");
                 return Ok(res.Message);
             }
-            logger.LogError("Status Order was Faild!");
+            logger.LogError("Status Order was failed!");
             return BadRequest(res.Message);
         }
-            try
-            {
-                logger.LogInformation("Start To Update Status Order");
-                var res = await orderService.ChangeStatusOrder(status,orderId);
-                return Ok(res.Message);
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Status Order was Faild!");
-                return BadRequest(e.Message);
-            }
->>>>>>>>> Temporary merge branch 2
-        }
-        [HttpPut("cancel/{orderId}")]
-        public async Task<IActionResult> CancelOrder(Guid orderId)
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetOrder(Guid orderId)
         {
-            logger.LogInformation("Start To Cancel Status Order");
-            var res = await orderService.CancelOrder(orderId);
-            if (res.IsSuccess == true)
+            logger.LogInformation("Start To Get Order!");
+            var res = await orderService.GetOrder(orderId);
+            if (res.IsSuccess)
             {
-                logger.LogInformation("Order status has been cancel!");
-                return Ok("Cancel Order success!");
+                logger.LogInformation("Get Order Success!");
+                return Ok(res);
             }
-            logger.LogError("Cancel Order was Faild!");
+            logger.LogError("Get Order was failed!");
             return BadRequest(res.Message);
         }
     }

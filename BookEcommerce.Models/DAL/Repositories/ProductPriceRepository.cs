@@ -20,7 +20,7 @@ namespace BookEcommerce.Models.DAL.Repositories
             var productPrice = await GetQuery(pp => pp.ProductVariantId.Equals(productVariantId)).SingleAsync();
             if(productPrice.ExpirationDate > DateTime.Now)
             {
-                return productPrice.PruductVariantSalePrice;
+                return productPrice.ProductVariantSalePrice;
             }
             else
             {

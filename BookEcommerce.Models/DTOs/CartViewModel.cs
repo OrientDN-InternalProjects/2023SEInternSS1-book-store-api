@@ -9,6 +9,7 @@ namespace BookEcommerce.Models.DTOs
 {
     public class CartViewModel : ResponseBase
     {
+        public string? ProductName { get; set; }
         public Guid? ProductVariantId { get; set; }
         public string? ProductVariantName { get; set; }
         public int Quantity { get; set; }

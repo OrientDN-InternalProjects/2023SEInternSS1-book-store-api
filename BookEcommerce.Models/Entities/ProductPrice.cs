@@ -18,7 +18,7 @@ namespace BookEcommerce.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid? ProductPriceId { get; set; }
         public double ProductVariantDefaultPrice { get; set; }
-        public double PruductVariantSalePrice { get; set; }
+        public double ProductVariantSalePrice { get; set; }
         public DateTime? ActivationDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public Guid? ProductVariantId { get; set; }

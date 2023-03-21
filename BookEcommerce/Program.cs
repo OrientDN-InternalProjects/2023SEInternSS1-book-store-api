@@ -1,25 +1,20 @@
+using AutoMapper;
 using BookEcommerce.Models.DAL;
+using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Repositories;
 using BookEcommerce.Models.Entities;
+using BookEcommerce.Models.Options;
+using BookEcommerce.Services;
+using BookEcommerce.Services.Interfaces;
+using BookEcommerce.Services.Map;
+using BookEcommerce.Services.Mapper;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using BookEcommerce.Services.Interfaces;
-using BookEcommerce.Services;
-using System.Text;
-using BookEcommerce.Services.Mapper;
-using BookEcommerce.Models.DAL.Interfaces;
-using BookEcommerce.Models.DAL.Repositories;
-using AutoMapper;
 using MimeKit;
-using MailKit.Net.Smtp;
-
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.DataProtection;
-using BookEcommerce.Services.Map;
-using BookEcommerce.Models.Options;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -48,7 +43,10 @@ var localConnectionString = string.Empty;
 localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("default"), b => b.MigrationsAssembly("BookEcommerce"));
+    options.UseSqlServer(localConnectionString, b =>
+    {
+        b.MigrationsAssembly("BookEcommerce");
+    });
     options.UseLazyLoadingProxies();
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -66,7 +64,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -101,7 +99,7 @@ builder.Services.AddAuthentication(options =>
 
 services.AddScoped((Func<IServiceProvider, Func<ApplicationDbContext>>)((provider) => () => provider.GetService<ApplicationDbContext>()));
 services.AddScoped<DbFactory>();
-services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+services.AddScoped(typeof(BookEcommerce.Models.DAL.Interfaces.IRepository<>), typeof(Repository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped<ILogger, Logger<PaymentService>>();
 
@@ -110,6 +108,7 @@ builder.Services
     .AddScoped<MailSettings>()
     .AddScoped<MimeMessage>()
     .AddScoped<SmtpClient>();
+services.AddScoped<IMapperCustom,MapperCustom>();
 
 //service
 builder.Services
@@ -126,6 +125,7 @@ builder.Services
     .AddScoped<IPaypalContextService, PaypalContextService>();
 
 services.AddScoped<ICartDetailService, CartDetailService>();
+services.AddScoped<ISearchService, SearchService>();
 //repo
 builder.Services
     .AddScoped<IRoleRepository, RoleRepository>()
@@ -145,13 +145,15 @@ services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
 services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 services.AddScoped<IImageRepository, ImageRepository>();
 services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
-services.AddScoped<IOrderRepository, OrderRepository>();
-services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 services.AddScoped<IPaymentRepository, PaymentRepository>();
 services.AddScoped<ICartDetailRepository, CartDetailRepository>();
+services.AddScoped<IOrderRepository, OrderRepository>();
+services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 //configure
 builder.Services.AddTransient<PaypalContext>();
+builder.Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 var app = builder.Build();
 
