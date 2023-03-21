@@ -50,6 +50,7 @@ namespace BookEcommerce.Controllers
             logger.LogError("Status Order was failed!");
             return BadRequest(res.Message);
         }
+
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(Guid orderId)
         {
