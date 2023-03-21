@@ -34,7 +34,12 @@ namespace BookEcommerce.Controllers
                 return StatusCode(StatusCodes.Status201Created, res);
             }
             logger.LogError("Add Order was failed!");
-            return BadRequest(res.Message);              
+            return BadRequest(
+                new OrderResponse
+                {
+                    IsSuccess = false,
+                    Message = res.Message
+                });              
         }
 
         [HttpPut("{orderId}")]
@@ -62,7 +67,12 @@ namespace BookEcommerce.Controllers
                 return Ok(res);
             }
             logger.LogError("Get Order was failed!");
-            return BadRequest(res.Message);
+            return BadRequest(
+                new OrderResponse
+                {
+                    IsSuccess = false,
+                    Message = res.Message
+                });
         }
     }
 }
