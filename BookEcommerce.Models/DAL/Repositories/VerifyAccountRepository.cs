@@ -44,7 +44,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             var token = await this.userManager!.GenerateEmailConfirmationTokenAsync(user);
             var encodeToken = HttpUtility.UrlEncode(token);
-            var confirmationLink = $"https://localhost:7018/api/VerifyAccount/submit?token={encodeToken}&email={user.Email}";
+            var confirmationLink = $"https://localhost:7018/submit?token={encodeToken}&email={user.Email}";
             return confirmationLink;
         }
 

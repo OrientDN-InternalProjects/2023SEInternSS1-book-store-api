@@ -1,4 +1,5 @@
 ﻿using BookEcommerce.Models.DAL.Interfaces;
+using BookEcommerce.Models.DAL.Repositories;
 using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Request;
 using BookEcommerce.Models.DTOs.Response;
@@ -6,11 +7,6 @@ using BookEcommerce.Models.Entities;
 using BookEcommerce.Services.Base;
 using BookEcommerce.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookEcommerce.Services
 {
@@ -24,6 +20,7 @@ namespace BookEcommerce.Services
         private readonly ITokenRepository tokenRepository;
         private readonly IVendorRepository vendorRepository;
         private readonly ILogger<ProductService> logger;
+        private readonly IMapperCustom mapper;
         public ProductService
             (IUnitOfWork unitOfWork,
             IProductRepository productRepository,
@@ -33,7 +30,8 @@ namespace BookEcommerce.Services
             IProductCategoryRepository productCategoryRepository,
             ITokenRepository tokenRepository,
             IVendorRepository vendorRepository,
-            ILogger<ProductService> logger
+            ILogger<ProductService> logger,
+            IMapperCustom mapper
             ) : base(unitOfWork)
         {
             this.productRepository = productRepository;
@@ -44,8 +42,107 @@ namespace BookEcommerce.Services
             this.tokenRepository = tokenRepository;
             this.vendorRepository = vendorRepository;
             this.logger = logger;
+            this.mapper = mapper;
         }
-        public async Task<ProductResponse> AddProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
+        public async Task<ProductResponse> AddProduct(ProductRequest req, string token)
+        {
+            try
+            {
+                var userId = this.tokenRepository.GetUserIdFromToken(token);
+                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
+                var product = new Product
+                {
+                    ProductName = req.ProductName,
+                    ProductDecription = req.ProductDescription,
+                    VendorId = vendor.VendorId,
+                    IsActive = true,
+                    DateCreated = DateTime.Now,
+                };
+                await productRepository.AddAsync(product);
+                await addImageAndProductCategory(req, product);
+                await addProductVariant(req.ProductVariants!, product);
+                await _unitOfWork.CommitTransaction();
+                return new ProductResponse
+                {
+                    IsSuccess = true,
+                    Message = "Add Product Success and you can view Product",
+                    Link = "https://localhost:7018/api/product/" + product.ProductId.ToString()
+                };
+            }
+            catch (NullReferenceException e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new ProductResponse
+                {
+                    IsSuccess = false,
+                    Message = "Can't find Product! "
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new ProductResponse
+                {
+                    IsSuccess = false,
+                    Message = "System error, Add Product was fasle and please try again later! "
+                };
+            }
+        }
+
+        public async Task<List<ProductViewModel>> GetAllProduct()
+        {
+            var listProducts = await productRepository.GetAll();
+            return mapper.MapProducts(listProducts);
+        }
+
+        public async Task<ProductViewModel> GetProductById(Guid productId)
+        {
+            try
+            {
+                var findProduct = await productRepository.GetProductById(productId);
+                var findProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(findProduct.ProductId);
+                var findImageProduct = await imageRepository.GetImagesByProductId(findProduct.ProductId);
+                return new ProductViewModel
+                {
+                    IsSuccess = true,
+                    ProductId = findProduct.ProductId,
+                    ProductName = findProduct.ProductName,
+                    ProductDescription = findProduct.ProductDecription,
+                    Sold = findProduct.Sold,
+                    Created = findProduct.DateCreated,
+                    ProductVariants = mapper.MapProductVariant(findProductVariant),
+                    Images = mapper.MapImages(findImageProduct),
+                };
+            }
+            catch (NullReferenceException e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new ProductViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Some properties is Null! "
+                };
+            }
+            catch (InvalidOperationException e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new ProductViewModel
+                {
+                    IsSuccess = false,
+                    Message = "Can't find Product in our System! "
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new ProductViewModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "System error, Get Product was fasle and please try again later! "
+                };
+            }
+        }
+        private async Task<ProductResponse> addProductVariant(List<ProductVariantRequest> listProductsVariant, Product product)
         {
             foreach (var proVariant in listProductsVariant)
             {
@@ -70,7 +167,7 @@ namespace BookEcommerce.Services
                     var productPrice = new ProductPrice
                     {
                         ProductVariantDefaultPrice = proVariant.ProductDefautPrice,
-                        PruductVariantSalePrice = proVariant.ProductSalePrice,
+                        ProductVariantSalePrice = proVariant.ProductSalePrice,
                         ActivationDate = proVariant.ActivationDate,
                         ExpirationDate = proVariant.ExpirationDate,
                         ProductVariantId = productVariant.ProductVariantId,
@@ -83,9 +180,9 @@ namespace BookEcommerce.Services
                 IsSuccess = true
             };
         }
-        public async Task AddImageAndProductCategory(ProductRequest req , Product product)
+        private async Task addImageAndProductCategory(ProductRequest req, Product product)
         {
-            foreach (var path in req.Paths)
+            foreach (var path in req.Paths!)
             {
                 var img = new Image
                 {
@@ -101,151 +198,17 @@ namespace BookEcommerce.Services
             };
             await productCategoryRepository.AddAsync(cate);
         }
-        public async Task<ProductResponse> AddProduct(ProductRequest req, string token)
+
+        public async Task<List<ProductViewModel>> GetProductMostSellProduct()
         {
-            try
-            {
-                var userId = this.tokenRepository.GetUserIdFromToken(token);
-                var vendor = await this.vendorRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
-                var product = new Product
-                {
-                    ProductName = req.ProductName,
-                    ProductDecription = req.ProductDescription,
-                    VendorId = vendor.VendorId,
-                    IsActive = true,
-                };
-                await productRepository.AddAsync(product);
-                await AddImageAndProductCategory(req, product);
-                if(!AddProductVariant(req.ProductVariants, product).Result.IsSuccess)
-                {
-                    return await AddProductVariant(req.ProductVariants, product);
-                };
-                await _unitOfWork.CommitTransaction();
-                return new ProductResponse
-                {
-                    IsSuccess = true,
-                    Message = "Add Order Success and you can view Product in Link: https://localhost:7018/api/product/" + product.ProductId.ToString() 
-                };
-            }
-            catch (NullReferenceException)
-            {
-                logger.LogError("Some properties is Null when Vendor Update Order! ");
-                return new ProductResponse
-                {
-                    IsSuccess = false,
-                    Message = "Can't find Product! "
-                };
-            }
-            catch (Exception)
-            {
-                logger.LogError("System error and Exception was not found when Add Product! ");
-                return new ProductResponse
-                {
-                    IsSuccess = false,
-                    Message = "System error, Add Product was fasle and please try again later! "
-                };
-            }
+            var listProduct = await productRepository.GetProductsMostSeller();
+            return mapper.MapProducts(listProduct);
         }
 
-        public async Task<List<ProductViewModel>> GetAllProduct()
+        public async Task<List<ProductViewModel>> GetProductTopNew()
         {
-            var listProducts = await productRepository.GetAll();
-            var listProductsViewModel = new List<ProductViewModel>();
-            foreach (var item in listProducts)
-            {
-                var listProductVariants = new List<ProductVariantViewModel>();
-                var listProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(item.ProductId);
-                foreach (var pv in listProductVariant)
-                {
-                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(pv.ProductVariantId);
-                    var productVariantViewModel = new ProductVariantViewModel
-                    {
-                        ProductVariantId = pv.ProductVariantId,
-                        ProductVariantName = pv.ProductVariantName,
-                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
-                        ProductSalePrice = productPrice.PruductVariantSalePrice,
-                    };
-                    listProductVariants.Add(productVariantViewModel);
-                }
-                var productViewModel = new ProductViewModel
-                {
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
-                    ProductDescription = item.ProductDecription,
-                    ProductVariants = listProductVariants
-                };
-                listProductsViewModel.Add(productViewModel);
-            }
-            return listProductsViewModel;
-        }
-
-        public async Task<ProductViewModel> GetProductById(Guid productId)
-        {
-            try
-            {
-                var findProduct = await productRepository.GetProductById(productId);
-                var findProductVariant = await productVariantRepository.GetProductVariantsByIdProduct(findProduct.ProductId);
-                var findImageProduct = await imageRepository.GetImagesByProductId(findProduct.ProductId);
-                var imageProduct = new List<ImageViewModel>();
-                foreach (var img in findImageProduct)
-                {
-                    var imgProduct = new ImageViewModel
-                    {
-                        ImageId = img.ImageId.ToString(),
-                        Path = img.ImageURL,
-                    };
-                    imageProduct.Add(imgProduct);
-                }
-                var listProductVariant = new List<ProductVariantViewModel>();
-                foreach (var item in findProductVariant)
-                {
-                    var productPrice = await productPriceRepository.GetProductPriceByProductVariantId(item.ProductVariantId);
-                    var productVariant = new ProductVariantViewModel
-                    {
-                        ProductVariantId = item.ProductVariantId,
-                        ProductVariantName = item.ProductVariantName,
-                        ProductDefaultPrice = productPrice.ProductVariantDefaultPrice,
-                        ProductSalePrice = productPrice.PruductVariantSalePrice,
-                    };
-                    listProductVariant.Add(productVariant);
-                }
-                return new ProductViewModel
-                {
-                    IsSuccess = true,
-                    ProductId = findProduct.ProductId,
-                    ProductName = findProduct.ProductName,
-                    ProductDescription = findProduct.ProductDecription,
-                    ProductVariants = listProductVariant,
-                    Images = imageProduct,
-                };
-            }
-            catch (NullReferenceException)
-            {
-                logger.LogError("Some properties is Null when Get Product Detail! ");
-                return new ProductViewModel
-                {
-                    IsSuccess = false,
-                    Message = "Can't find Product! "
-                };
-            }
-            catch (InvalidOperationException)
-            {
-                logger.LogError("ProductId is valid when Get Product Detail! ");
-                return new ProductViewModel
-                {
-                    IsSuccess = false,
-                    Message = "Can't find Product in our System! "
-                };
-            }
-            catch (Exception)
-            {
-                logger.LogError("System error and Exception was not found when Get Details Product! ");
-                return new ProductViewModel 
-                { 
-                    IsSuccess = false, 
-                    Message = "System error, Add Product was fasle and please try again later! "
-                };
-            }
+            var listProducts = await productRepository.GetProductsTopNew();
+            return mapper.MapProducts(listProducts);
         }
     }
 }

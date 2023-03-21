@@ -434,6 +434,9 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -442,6 +445,9 @@ namespace BookEcommerce.Migrations
 
                     b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Sold")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("VendorId")
                         .HasColumnType("uniqueidentifier");
@@ -492,7 +498,7 @@ namespace BookEcommerce.Migrations
                     b.Property<Guid?>("ProductVariantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("PruductVariantSalePrice")
+                    b.Property<double>("ProductVariantSalePrice")
                         .HasColumnType("float");
 
                     b.HasKey("ProductPriceId");

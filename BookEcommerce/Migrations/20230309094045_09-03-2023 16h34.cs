@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookEcommerce.Migrations
 {
-    public partial class _02032023 : Migration
+    public partial class _0903202316h34 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -414,6 +414,44 @@ namespace BookEcommerce.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CartDetails",
+                columns: table => new
+                {
+                    CartDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CartId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartDetails", x => x.CartDetailId);
+                    table.ForeignKey(
+                        name: "FK_CartDetails_Carts_CartId",
+                        column: x => x.CartId,
+                        principalTable: "Carts",
+                        principalColumn: "CartId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentHistory",
+                columns: table => new
+                {
+                    PaymentHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentHistory", x => x.PaymentHistoryId);
+                    table.ForeignKey(
+                        name: "FK_PaymentHistory_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "OrderId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Images",
                 columns: table => new
                 {
@@ -480,41 +518,22 @@ namespace BookEcommerce.Migrations
                     ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductVariantName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CartDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductVariants", x => x.ProductVariantId);
                     table.ForeignKey(
+                        name: "FK_ProductVariants_CartDetails_CartDetailId",
+                        column: x => x.CartDetailId,
+                        principalTable: "CartDetails",
+                        principalColumn: "CartDetailId");
+                    table.ForeignKey(
                         name: "FK_ProductVariants_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "ProductId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CartDetails",
-                columns: table => new
-                {
-                    CartDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    CartId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CartDetails", x => x.CartDetailId);
-                    table.ForeignKey(
-                        name: "FK_CartDetails_Carts_CartId",
-                        column: x => x.CartId,
-                        principalTable: "Carts",
-                        principalColumn: "CartId");
-                    table.ForeignKey(
-                        name: "FK_CartDetails_ProductVariants_ProductVariantId",
-                        column: x => x.ProductVariantId,
-                        principalTable: "ProductVariants",
-                        principalColumn: "ProductVariantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -638,12 +657,6 @@ namespace BookEcommerce.Migrations
                 column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartDetails_ProductVariantId",
-                table: "CartDetails",
-                column: "ProductVariantId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Carts_CustomerId",
                 table: "Carts",
                 column: "CustomerId",
@@ -714,6 +727,12 @@ namespace BookEcommerce.Migrations
                 column: "VendorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentHistory_OrderId",
+                table: "PaymentHistory",
+                column: "OrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PhoneNumbers_CustomerId",
                 table: "PhoneNumbers",
                 column: "CustomerId");
@@ -739,6 +758,11 @@ namespace BookEcommerce.Migrations
                 name: "IX_Products_VendorId",
                 table: "Products",
                 column: "VendorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariants_CartDetailId",
+                table: "ProductVariants",
+                column: "CartDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductVariants_ProductId",
@@ -782,13 +806,13 @@ namespace BookEcommerce.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CartDetails");
-
-            migrationBuilder.DropTable(
                 name: "Images");
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "PaymentHistory");
 
             migrationBuilder.DropTable(
                 name: "PhoneNumbers");
@@ -803,9 +827,6 @@ namespace BookEcommerce.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Carts");
-
-            migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
@@ -815,28 +836,34 @@ namespace BookEcommerce.Migrations
                 name: "ProductVariants");
 
             migrationBuilder.DropTable(
-                name: "Customers");
+                name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "CartDetails");
 
             migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
+                name: "Carts");
+
+            migrationBuilder.DropTable(
                 name: "Vendors");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "BankAcocunts");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "BankProviders");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
         }
     }
 }

@@ -10,31 +10,73 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Services.Mapper
 {
-    public class Mapper : IMapperCustom
+    public class MapperCustom : IMapperCustom
     {
         private readonly IMapper autoMapper;
-        public Mapper(IMapper autoMapper)
+        public MapperCustom(IMapper autoMapper)
         {
             this.autoMapper = autoMapper;
         }
+
+        public List<ImageViewModel> MapImages(List<Image> images)
+        {
+            return autoMapper.Map<List<Image>, List<ImageViewModel>>(images);
+        }
+
         public List<ProductViewModel> MapProducts(List<Product> products)
         {
             var storeProducts = new List<ProductViewModel>();
-            foreach (var product in products)
+            foreach (var item in products)
             {
-                var item = new ProductViewModel
+                var product = new ProductViewModel
                 {
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    //Price = MapProductVariant(product.ProductVariants.ToList()),
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    ProductDescription = item.ProductDecription,
+                    Sold = item.Sold,
+                    Created = item.DateCreated,
+                    ProductVariants = MapProductVariant((item.ProductVariants!).ToList()),
+                    Images = MapImages((item.Images!).ToList())
                 };
+                storeProducts.Add(product);
             }
-            throw new NotImplementedException();
+            return storeProducts;
         }
 
-        public List<ProductVariantViewModel> MapProductVariant(List<ProductVariant> productsVariant)
+        public List<ProductVariantViewModel> MapProductVariant(List<ProductVariant> productsVariants)
         {
-            return autoMapper.Map<List<ProductVariant>, List<ProductVariantViewModel>>(productsVariant);
+            var storeProductVariants = new List<ProductVariantViewModel>();
+            foreach (var item in productsVariants)
+            {
+                
+                if(item.ProductPrice!.ExpirationDate < DateTime.Now)
+                {
+                    var productVariant = new ProductVariantViewModel
+                    {
+                        ProductVariantId = item.ProductVariantId,
+                        ProductVariantName = item.ProductVariantName,
+                        Quantity = item.Quantity,
+                        ProductDefaultPrice = item.ProductPrice!.ProductVariantDefaultPrice,
+                        ProductSalePrice = item.ProductPrice!.ProductVariantSalePrice,
+                        ProductNowPrice = item.ProductPrice!.ProductVariantDefaultPrice
+                    };
+                    storeProductVariants.Add(productVariant);
+                }
+                else
+                {
+                    var productVariant = new ProductVariantViewModel
+                    {
+                        ProductVariantId = item.ProductVariantId,
+                        ProductVariantName = item.ProductVariantName,
+                        Quantity = item.Quantity,
+                        ProductDefaultPrice = item.ProductPrice!.ProductVariantDefaultPrice,
+                        ProductSalePrice = item.ProductPrice!.ProductVariantSalePrice,
+                        ProductNowPrice = item.ProductPrice!.ProductVariantSalePrice
+                    };
+                    storeProductVariants.Add(productVariant);
+                }
+            }
+            return storeProductVariants;
         }
     }
 }

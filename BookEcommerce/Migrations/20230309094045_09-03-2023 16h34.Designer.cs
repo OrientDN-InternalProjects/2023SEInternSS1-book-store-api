@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230307105645_7-3-2023")]
-    partial class _732023
+    [Migration("20230309094045_09-03-2023 16h34")]
+    partial class _0903202316h34
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

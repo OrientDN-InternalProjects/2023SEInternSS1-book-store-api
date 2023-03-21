@@ -12,5 +12,6 @@ namespace BookEcommerce.Services.Interfaces
     {
         List<ProductViewModel> MapProducts(List<Product> products);
         List<ProductVariantViewModel> MapProductVariant(List<ProductVariant> productsVariant);
+        List<ImageViewModel> MapImages(List<Image> images);
     }
 }

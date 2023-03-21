@@ -22,6 +22,7 @@ namespace BookEcommerce.Services.Map
             CreateMap<Vendor, VendorCreateViewModel>();
             CreateMap<AddressViewModel, Address>();
             CreateMap<Address, AddressViewModel>();
+            CreateMap<Image, ImageViewModel>();
         }
     }
 }

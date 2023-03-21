@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230302084132_02-03-2023")]
-    partial class _02032023
+    [Migration("20230320092419_20-03-2023")]
+    partial class _20032023
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -220,9 +220,6 @@ namespace BookEcommerce.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("ProductVariantId")
-                        .IsUnique();
-
                     b.ToTable("CartDetails");
                 });
 
@@ -250,7 +247,7 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Customer", b =>
                 {
-                    b.Property<Guid?>("CustomerId")
+                    b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -394,6 +391,26 @@ namespace BookEcommerce.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.Property<Guid>("PaymentHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PaymentHistoryId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentHistory");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
                 {
                     b.Property<Guid?>("PhoneNumberId")
@@ -477,7 +494,7 @@ namespace BookEcommerce.Migrations
                     b.Property<Guid?>("ProductVariantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("PruductVariantSalePrice")
+                    b.Property<double>("ProductVariantSalePrice")
                         .HasColumnType("float");
 
                     b.HasKey("ProductPriceId");
@@ -495,6 +512,9 @@ namespace BookEcommerce.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CartDetailId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -505,6 +525,8 @@ namespace BookEcommerce.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ProductVariantId");
+
+                    b.HasIndex("CartDetailId");
 
                     b.HasIndex("ProductId");
 
@@ -750,15 +772,7 @@ namespace BookEcommerce.Migrations
                         .WithMany("CartDetails")
                         .HasForeignKey("CartId");
 
-                    b.HasOne("BookEcommerce.Models.Entities.ProductVariant", "ProductVariants")
-                        .WithOne("CartDetail")
-                        .HasForeignKey("BookEcommerce.Models.Entities.CartDetail", "ProductVariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Cart");
-
-                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Category", b =>
@@ -842,6 +856,17 @@ namespace BookEcommerce.Migrations
                     b.Navigation("ProductVariant");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.HasOne("BookEcommerce.Models.Entities.Order", "Order")
+                        .WithOne("PaymentHistory")
+                        .HasForeignKey("BookEcommerce.Models.Entities.PaymentHistory", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
@@ -888,11 +913,17 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.ProductVariant", b =>
                 {
+                    b.HasOne("BookEcommerce.Models.Entities.CartDetail", "CartDetail")
+                        .WithMany("ProductVariants")
+                        .HasForeignKey("CartDetailId");
+
                     b.HasOne("BookEcommerce.Models.Entities.Product", "Product")
                         .WithMany("ProductVariants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CartDetail");
 
                     b.Navigation("Product");
                 });
@@ -977,6 +1008,11 @@ namespace BookEcommerce.Migrations
                     b.Navigation("CartDetails");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.CartDetail", b =>
+                {
+                    b.Navigation("ProductVariants");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.Category", b =>
                 {
                     b.Navigation("Image");
@@ -1001,6 +1037,9 @@ namespace BookEcommerce.Migrations
             modelBuilder.Entity("BookEcommerce.Models.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PaymentHistory")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Payment", b =>
@@ -1019,8 +1058,6 @@ namespace BookEcommerce.Migrations
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.ProductVariant", b =>
                 {
-                    b.Navigation("CartDetail");
-
                     b.Navigation("OrderDetails");
 
                     b.Navigation("ProductPrice");

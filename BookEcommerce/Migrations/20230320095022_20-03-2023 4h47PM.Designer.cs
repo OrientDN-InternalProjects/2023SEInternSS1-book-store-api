@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookEcommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230302111029_02-03-2023-4")]
-    partial class _020320234
+    [Migration("20230320095022_20-03-2023 4h47PM")]
+    partial class _200320234h47PM
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -391,6 +391,26 @@ namespace BookEcommerce.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.Property<Guid>("PaymentHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PaymentHistoryId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentHistory");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
                 {
                     b.Property<Guid?>("PhoneNumberId")
@@ -424,6 +444,9 @@ namespace BookEcommerce.Migrations
 
                     b.Property<string>("ProductName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Sold")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("VendorId")
                         .HasColumnType("uniqueidentifier");
@@ -474,7 +497,7 @@ namespace BookEcommerce.Migrations
                     b.Property<Guid?>("ProductVariantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("PruductVariantSalePrice")
+                    b.Property<double>("ProductVariantSalePrice")
                         .HasColumnType("float");
 
                     b.HasKey("ProductPriceId");
@@ -836,6 +859,17 @@ namespace BookEcommerce.Migrations
                     b.Navigation("ProductVariant");
                 });
 
+            modelBuilder.Entity("BookEcommerce.Models.Entities.PaymentHistory", b =>
+                {
+                    b.HasOne("BookEcommerce.Models.Entities.Order", "Order")
+                        .WithOne("PaymentHistory")
+                        .HasForeignKey("BookEcommerce.Models.Entities.PaymentHistory", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("BookEcommerce.Models.Entities.PhoneNumber", b =>
                 {
                     b.HasOne("BookEcommerce.Models.Entities.Customer", "Customer")
@@ -1006,6 +1040,9 @@ namespace BookEcommerce.Migrations
             modelBuilder.Entity("BookEcommerce.Models.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PaymentHistory")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookEcommerce.Models.Entities.Payment", b =>
