@@ -131,7 +131,7 @@ namespace BookEcommerce.Services
                 {
                     var findProduct = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
                     var orderDetail = new OrderDetailViewModel
-                {
+                    {
                         ProductVariantId = item.ProductVariantId,
                         ProductName = findProduct.ProductVariantName!,
                         Price = item.Price,
@@ -142,6 +142,7 @@ namespace BookEcommerce.Services
                 return new OrderViewModel
                 { 
                     IsSuccess = true,
+                    CustomerId = findOrder.CustomerId!.Value,
                     TransferAddress = findOrder.TransferAddress!,
                     Message = findOrder.Message!,
                     OrderDate = findOrder.OrderDate,

@@ -1,5 +1,6 @@
 ﻿using BookEcommerce.Models.DTOs;
 using BookEcommerce.Models.DTOs.Request;
+using BookEcommerce.Models.DTOs.Response;
 using BookEcommerce.Services.Interfaces;
 using FuzzySharp;
 using Microsoft.AspNetCore.Authorization;
@@ -72,7 +73,12 @@ namespace BookEcommerce.Controllers
                 return StatusCode(StatusCodes.Status201Created,res);
             }
             logger.LogError("Add Product was failed!");
-            return BadRequest(res.Message);
+            return BadRequest(
+                new ProductResponse
+                {
+                    IsSuccess = false,
+                    Message = res.Message
+                });
         }
     }
 }
