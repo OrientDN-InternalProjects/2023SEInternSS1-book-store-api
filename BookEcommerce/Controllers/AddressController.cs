@@ -25,6 +25,8 @@ namespace BookEcommerce.Controllers
             var result = await this.addressService.CreateAddress(addressViewModel, authHeader);
             if (!result.IsSuccess)
             {
+                var AuthHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+                var result = await this.addressService.CreateAddress(addressViewModel, AuthHeader);
                 return Ok(new ResponseBase
                 {
                     IsSuccess = result.IsSuccess,

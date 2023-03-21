@@ -33,11 +33,18 @@ namespace BookEcommerce.Controllers
             logger.LogError("Add Order was Faild!");
             return BadRequest(res.Message);    
         }
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Add Order was Failed!");
+                return BadRequest(e.Message);
+            }
+        }
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateStatus([FromBody] StatusRequest status, Guid orderId)
         {
             logger.LogInformation("Start To Update Status Order");
-            var res = await orderService.ChangeStatusOrder(status,orderId);
+        }
             if (res.IsSuccess)
             {
                 logger.LogInformation("Order status has been updated");
@@ -45,6 +52,19 @@ namespace BookEcommerce.Controllers
             }
             logger.LogError("Status Order was Faild!");
             return BadRequest(res.Message);
+        }
+            try
+            {
+                logger.LogInformation("Start To Update Status Order");
+                var res = await orderService.ChangeStatusOrder(status,orderId);
+                return Ok(res.Message);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Status Order was Faild!");
+                return BadRequest(e.Message);
+            }
+>>>>>>>>> Temporary merge branch 2
         }
         [HttpPut("cancel/{orderId}")]
         public async Task<IActionResult> CancelOrder(Guid orderId)
