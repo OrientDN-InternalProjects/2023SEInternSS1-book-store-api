@@ -33,6 +33,7 @@ namespace BookEcommerce.Services.Mapper
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     ProductDescription = item.ProductDecription,
+                    VendorId = item.VendorId!.Value,
                     Sold = item.Sold,
                     Created = item.DateCreated,
                     ProductVariants = MapProductVariant((item.ProductVariants!).ToList()),
@@ -54,6 +55,7 @@ namespace BookEcommerce.Services.Mapper
                     var productVariant = new ProductVariantViewModel
                     {
                         ProductVariantId = item.ProductVariantId,
+                        VendorId = item.Product!.Vendor!.VendorId,
                         ProductVariantName = item.ProductVariantName,
                         Quantity = item.Quantity,
                         ProductDefaultPrice = item.ProductPrice!.ProductVariantDefaultPrice,
@@ -67,6 +69,7 @@ namespace BookEcommerce.Services.Mapper
                     var productVariant = new ProductVariantViewModel
                     {
                         ProductVariantId = item.ProductVariantId,
+                        VendorId = item.Product!.Vendor!.VendorId,
                         ProductVariantName = item.ProductVariantName,
                         Quantity = item.Quantity,
                         ProductDefaultPrice = item.ProductPrice!.ProductVariantDefaultPrice,
