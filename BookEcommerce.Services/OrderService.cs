@@ -141,6 +141,7 @@ namespace BookEcommerce.Services
                 }
                 return new OrderViewModel
                 { 
+                    OrderId = orderId,
                     IsSuccess = true,
                     CustomerId = findOrder.CustomerId!.Value,
                     TransferAddress = findOrder.TransferAddress!,

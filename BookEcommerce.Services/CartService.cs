@@ -97,6 +97,7 @@ namespace BookEcommerce.Services
                 {
                     var createCartViewModel = new CartViewModel
                     {
+                        CartId = findCart.CartId,
                         ProductName = findProductVariant.Product!.ProductName,
                         IsSuccess = true,
                         ProductVariantId = item.ProductVariantId,
@@ -110,6 +111,7 @@ namespace BookEcommerce.Services
                 {
                     var createCartViewModel = new CartViewModel
                     {
+                        CartId = findCart.CartId,
                         ProductName = findProductVariant.Product!.ProductName,
                         IsSuccess = true,
                         ProductVariantId = item.ProductVariantId,

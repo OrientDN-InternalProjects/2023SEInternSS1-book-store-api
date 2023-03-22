@@ -57,14 +57,14 @@ namespace BookEcommerce.Services
         public async Task<Guid> GetCustomerIdFromToken(string token)
         {
             var userId = this.tokenRepository.GetUserIdFromToken(token);
-            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
             return customer.CustomerId;
         }
 
         public async Task<string> GetCustomerEmailFromToken(string token)
         {
             var userId = this.tokenRepository.GetUserIdFromToken(token);
-            var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
             return customer.Account!.Email;
         }
 
@@ -73,7 +73,7 @@ namespace BookEcommerce.Services
             try
             {
                 var userId = this.tokenRepository.GetUserIdFromToken(token);
-                var customer = await this.customerRepository.FindAsync(v => v.AccountId.Equals(userId.ToString()));
+                var customer = await this.customerRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
                 return new CustomerResponse
                 {
                     IsSuccess = true,
