@@ -9,6 +9,7 @@ namespace BookEcommerce.Models.DTOs
 {
     public class OrderViewModel : ResponseBase
     {
+        public Guid OrderId { get; set; }
         public Guid CustomerId { get; set; }
         public string? TransferAddress { get; set; }
         public string? Message { get; set; }

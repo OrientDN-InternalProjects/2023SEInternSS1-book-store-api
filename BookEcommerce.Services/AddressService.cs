@@ -53,5 +53,22 @@ namespace BookEcommerce.Services
                 };
             }
         }
+
+        public async Task<List<AddressViewModel>> GetAddressByCus(string token)
+        {
+            var customerId = await this.customerService.GetCustomerIdFromToken(token);
+            var listAddresses = await addressRepository.GetAddressByCusId(customerId);
+            var listResult = new List<AddressViewModel>();
+            foreach (var address in listAddresses)
+            {
+                var addressViewModel = new AddressViewModel
+                {
+                    Country = address.Country,
+                    StreetAddress = address.StreetAddress
+                };
+                listResult.Add(addressViewModel);
+            }
+            return listResult;
+        }
     }
 }

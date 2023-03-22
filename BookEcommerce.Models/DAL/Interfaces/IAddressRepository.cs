@@ -9,5 +9,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
 {
     public interface IAddressRepository : IRepository<Address>
     {
+        Task<List<Address>> GetAddressByCusId(Guid cusId);
     }
 }

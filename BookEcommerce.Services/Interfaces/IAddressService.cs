@@ -11,5 +11,6 @@ namespace BookEcommerce.Services.Interfaces
     public interface IAddressService
     {
         public Task<ResponseBase> CreateAddress(AddressViewModel AddressViewModel, string Token);
+        Task<List<AddressViewModel>> GetAddressByCus(string token);
     }
 }

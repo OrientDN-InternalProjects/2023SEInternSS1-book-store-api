@@ -37,5 +37,14 @@ namespace BookEcommerce.Controllers
                 Message = result.Message
             });
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "CUSTOMER")]
+        [HttpGet]
+        public async Task<IActionResult> GetAddress()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var result = await addressService.GetAddressByCus(authHeader);
+            return Ok(result);
+        }
     }
 }
