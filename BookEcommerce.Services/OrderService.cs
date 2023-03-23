@@ -12,6 +12,7 @@ namespace BookEcommerce.Services
     public class OrderService : BaseService, IOrderService
     {
         private readonly IOrderRepository orderRepository;
+        private readonly ICustomerRepository customerRepository;
         private readonly IOrderDetailRepository orderDetailRepository;
         private readonly IProductVariantRepository productVariantRepository;
         private readonly IProductPriceRepository productPriceRepository;
@@ -19,10 +20,20 @@ namespace BookEcommerce.Services
         private readonly ICartDetailRepository cartDetailRepository;
         private readonly ICartRepository cartRepository;
         private readonly ICartDetailService cartDetailService;
+        private readonly ITokenRepository tokenRepository;
         private readonly ILogger<OrderService> logger;
-        public OrderService(IUnitOfWork unitOfWork, IOrderRepository orderRepository,IOrderDetailRepository orderDetailRepository,
-                            IProductVariantRepository productVariantRepository, IProductPriceRepository productPriceRepository, IProductRepository productRepository,
-                            ICartDetailRepository cartDetailRepository, ICartRepository cartRepository, ILogger<OrderService> logger, ICartDetailService cartDetailService) : base(unitOfWork)
+        public OrderService(IUnitOfWork unitOfWork, 
+            IOrderRepository orderRepository,
+            IOrderDetailRepository orderDetailRepository,
+            IProductVariantRepository productVariantRepository, 
+            IProductPriceRepository productPriceRepository, 
+            IProductRepository productRepository,
+            ICartDetailRepository cartDetailRepository, 
+            ICartRepository cartRepository, 
+            ILogger<OrderService> logger, 
+            ICustomerRepository customerRepository,
+            ITokenRepository tokenRepository,
+            ICartDetailService cartDetailService) : base(unitOfWork)
         {
             this.orderRepository = orderRepository;
             this.orderDetailRepository = orderDetailRepository;
@@ -33,6 +44,8 @@ namespace BookEcommerce.Services
             this.cartRepository = cartRepository;
             this.logger = logger;
             this.cartDetailService = cartDetailService;
+            this.customerRepository = customerRepository;
+            this.tokenRepository = tokenRepository;
         }
 
         public async Task<OrderResponse> AddOrder(OrderRequest req, Guid cusId)
@@ -190,7 +203,7 @@ namespace BookEcommerce.Services
                 Message = req.Message,
                 OrderDate = DateTime.Now,
                 StatusOrder = "Pending",
-                VendorId = req.ShopId,
+                //VendorId = req.ShopId,
                 TotalPrice = 0
             };
             await orderRepository.AddAsync(order);
@@ -244,5 +257,37 @@ namespace BookEcommerce.Services
             }
         }
 
+        public async Task<OrderViewModel> GetOrderByCustomerId(string token)
+        {
+            var userId = this.tokenRepository.GetUserIdFromToken(token);
+            var customer = await this.customerRepository.FindAsync(v => v.AccountId!.Equals(userId.ToString()));
+            var findOrder = await orderRepository.GetOrderByCustomerId(customer.CustomerId);
+            var findOrderDetails = await orderDetailRepository.GetOrderDetailsByOrderId((Guid)findOrder.OrderId!);
+            var listOrderDetails = new List<OrderDetailViewModel>();
+            foreach (var item in findOrderDetails)
+            {
+                var findProduct = await productVariantRepository.GetProductVariantById(item.ProductVariantId);
+                var orderDetail = new OrderDetailViewModel
+                {
+                    ProductVariantId = item.ProductVariantId,
+                    ProductName = findProduct.ProductVariantName!,
+                    Price = item.Price,
+                    Quantity = item.Quantity
+                };
+                listOrderDetails.Add(orderDetail);
+            }
+            return new OrderViewModel
+            {
+                OrderId = (Guid)findOrder.OrderId,
+                IsSuccess = true,
+                CustomerId = findOrder.CustomerId!.Value,
+                TransferAddress = findOrder.TransferAddress!,
+                Message = findOrder.Message!,
+                OrderDate = findOrder.OrderDate,
+                OrderStatus = findOrder.StatusOrder!,
+                TotalPrice = findOrder.TotalPrice,
+                OrderDetails = listOrderDetails
+            };
+        }
     }
 }

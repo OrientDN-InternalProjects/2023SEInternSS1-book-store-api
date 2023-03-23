@@ -56,6 +56,25 @@ namespace BookEcommerce.Controllers
             return BadRequest(res.Message);
         }
 
+        [HttpGet("/order-from-customer")]
+        public async Task<IActionResult> GetOrderByCustomerId()
+        {
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var res = await orderService.GetOrderByCustomerId(authHeader);
+            if (res.IsSuccess)
+            {
+                logger.LogInformation("Get Order Success!");
+                return Ok(res);
+            }
+            logger.LogError("Get Order was failed!");
+            return BadRequest(
+                new OrderResponse
+                {
+                    IsSuccess = false,
+                    Message = res.Message
+                });
+        }
+
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(Guid orderId)
         {
