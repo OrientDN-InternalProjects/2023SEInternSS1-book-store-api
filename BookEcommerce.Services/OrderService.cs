@@ -203,7 +203,6 @@ namespace BookEcommerce.Services
                 Message = req.Message,
                 OrderDate = DateTime.Now,
                 StatusOrder = "Pending",
-                //VendorId = req.ShopId,
                 TotalPrice = 0
             };
             await orderRepository.AddAsync(order);

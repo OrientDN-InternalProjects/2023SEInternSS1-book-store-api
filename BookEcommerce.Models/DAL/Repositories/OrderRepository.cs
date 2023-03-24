@@ -17,7 +17,7 @@ namespace BookEcommerce.Models.DAL.Repositories
 
         public async Task<Order> GetOrderByCustomerId(Guid? customerId)
         {
-            return await GetQuery(or => or.CustomerId == customerId).SingleAsync();
+            return await GetQuery(or => or.CustomerId == customerId && or.StatusOrder!.Equals("Pending".ToLower())).SingleAsync();
         }
 
         public async Task<Order> GetOrderByOrderId(Guid? orderId)

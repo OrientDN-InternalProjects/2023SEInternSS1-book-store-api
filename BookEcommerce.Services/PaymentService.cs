@@ -21,8 +21,16 @@ namespace BookEcommerce.Services
         private readonly IOrderRepository orderRepository;
         private readonly ILogger<PaymentService> logger;
         private readonly IPaypalContextService paypalContextService;
+        private readonly IOrderService orderService;
         private string? paymentId;
-        public PaymentService(IUnitOfWork unitOfWork, IPaymentRepository paymentRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IOrderRepository orderRepository, ILogger<PaymentService> logger, IPaypalContextService paypalContextService) : base(unitOfWork)
+        public PaymentService(IUnitOfWork unitOfWork, 
+                              IPaymentRepository paymentRepository,
+                              IConfiguration configuration,
+                              IHttpContextAccessor httpContextAccessor,
+                              IOrderRepository orderRepository,
+                              ILogger<PaymentService> logger, 
+                              IPaypalContextService paypalContextService, 
+                              IOrderService orderService) : base(unitOfWork)
         {
             this.paymentRepository = paymentRepository;
             this.configuration = configuration;
@@ -30,6 +38,7 @@ namespace BookEcommerce.Services
             this.orderRepository = orderRepository;
             this.logger = logger;
             this.paypalContextService = paypalContextService;
+            this.orderService = orderService;
         }
 
         public async Task<PaymentResponse> CreatePaymentWithPaypal(Guid? orderId, string paymentId, string? payerId, string cancel = null)
@@ -84,6 +93,7 @@ namespace BookEcommerce.Services
                 var executedPayment = ExecutePayment(apiContext, payerId, paymentId);
                 if (executedPayment.state.ToLower() != "approved")
                 {
+                    await this.orderService.ChangeStatusOrder(new Models.DTOs.Request.StatusRequest { StatusOrder = "Cancel" }, orderId);
                     return new PaymentResponse
                     {
                         IsSuccess = false,
@@ -91,6 +101,7 @@ namespace BookEcommerce.Services
                     };
                 }
                 await this.paymentRepository.SaveToPaymentHistory(executedPayment.state.ToUpper(), orderId);
+                await this.orderService.ChangeStatusOrder(new Models.DTOs.Request.StatusRequest {StatusOrder = "Accepted"}, orderId);
                 await this._unitOfWork.CommitTransaction();
                 return new PaymentResponse
                 {
