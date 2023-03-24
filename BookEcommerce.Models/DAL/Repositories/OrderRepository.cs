@@ -15,6 +15,11 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
         }
 
+        public async Task<Order> GetOrderByCustomerId(Guid? customerId)
+        {
+            return await GetQuery(or => or.CustomerId == customerId).SingleAsync();
+        }
+
         public async Task<Order> GetOrderByOrderId(Guid? orderId)
         {
             return await GetQuery(or => or.OrderId == orderId).SingleAsync();

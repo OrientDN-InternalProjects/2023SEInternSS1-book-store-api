@@ -13,6 +13,7 @@ namespace BookEcommerce.Services.Interfaces
     {
         Task<OrderResponse> AddOrder(OrderRequest orderRequest, Guid cusId);
         Task<OrderResponse> ChangeStatusOrder(StatusRequest statusReq, Guid orderId);
+        Task<OrderViewModel> GetOrderByCustomerId(string token);
         Task<OrderViewModel> GetOrder(Guid orderId);
     }
 }
