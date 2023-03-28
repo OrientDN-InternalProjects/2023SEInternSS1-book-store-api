@@ -47,13 +47,8 @@ namespace BookEcommerce.Controllers
         {
             logger.LogInformation("Start To Update Status Order");
             var res = await orderService.ChangeStatusOrder(status, orderId);
-            if (res.IsSuccess)
-            {
-                logger.LogInformation("Order status has been updated");
-                return Ok(res.Message);
-            }
-            logger.LogError("Status Order was failed!");
-            return BadRequest(res.Message);
+            logger.LogInformation("Order status has been updated");
+            return Ok(res);
         }
 
         [HttpGet("/order-from-customer")]

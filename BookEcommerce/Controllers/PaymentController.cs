@@ -36,12 +36,7 @@ namespace BookEcommerce.Controllers
         {
             var result = await this.paymentService.ExecutePayment(orderId, payerId!, paymentId!);
             logger.LogInformation(paymentId);
-            return Ok(new PaymentResponse
-            {
-                IsSuccess = result.IsSuccess,
-                Message = result.Message,
-                Transaction = result.Transaction
-            });
+            return Redirect("http://localhost:5173/payment-success");
         }
     }
 }
