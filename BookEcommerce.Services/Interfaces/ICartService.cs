@@ -13,5 +13,6 @@ namespace BookEcommerce.Services.Interfaces
     {
         public Task<CartResponse> AddCart(CartRequest req,Guid cusId);
         public Task<List<CartViewModel>> GetCart(Guid cusId);
+        public Task<CartResponse> DeleteProductVariant(Guid productVariantId, Guid cusId);
     }
 }

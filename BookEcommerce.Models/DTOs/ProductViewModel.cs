@@ -15,6 +15,8 @@ namespace BookEcommerce.Models.DTOs
         public Guid VendorId { get; set; }
         public string? ProductDescription { get; set; }
         public int Sold { get; set; }
+        public int Quantity { get; set; }
+        public string? VendorName { get; set; }
         public DateTime? Created { get; set; }
         public List<ImageViewModel>? Images { get; set; }
         public List<ProductVariantViewModel>? ProductVariants { get; set; }
