@@ -92,7 +92,7 @@ namespace BookEcommerce.Services
             }
         }
 
-        public async Task<CartResponse> DeleteProductVariant(Guid productVariantId, Guid cusId)
+        public async Task<CartResponse> DeleteProductVariant(List<CartDeleteRequest> productVariants, Guid cusId)
         {
             try
             {
@@ -100,21 +100,19 @@ namespace BookEcommerce.Services
                 var findCartDetail = await cartDetailRepository.GetListCartDetailByCartId(findCart.CartId);
                 foreach (var item in findCartDetail)
                 {
-                    if (item.ProductVariantId.Equals(productVariantId))
+                    foreach (var productVariant in productVariants)
                     {
-                        cartDetailRepository.Delete(item);
-                        await _unitOfWork.CommitTransaction();
-                        return new CartResponse
+                        if(item.ProductVariantId == productVariant.ProductVariantId)
                         {
-                            IsSuccess = true,
-                            Message = "Delete ProductVariant success!"
-                        };
+                           cartDetailRepository.Delete(item);
+                        }
                     }
                 }
+                await _unitOfWork.CommitTransaction();
                 return new CartResponse
                 {
-                    IsSuccess = false,
-                    Message = "Can't delete ProductVariant!"
+                    IsSuccess = true,
+                    Message = "Delete ProductVariant success!"
                 };
             }
             catch (InvalidOperationException e)
