@@ -23,6 +23,16 @@ namespace BookEcommerce.Services.Mapper
             return autoMapper.Map<List<Image>, List<ImageViewModel>>(images);
         }
 
+        private int quantitiesProduct(List<ProductVariantViewModel>? productVariantViewModels)
+        {
+            var quantities = 0;
+            foreach (var item in productVariantViewModels!)
+            {
+                quantities += item.Quantity;
+            }
+            return quantities;
+        }
+
         public List<ProductViewModel> MapProducts(List<Product> products)
         {
             var storeProducts = new List<ProductViewModel>();
@@ -34,8 +44,10 @@ namespace BookEcommerce.Services.Mapper
                     ProductName = item.ProductName,
                     ProductDescription = item.ProductDecription,
                     VendorId = item.VendorId!.Value,
+                    VendorName = item.Vendor!.FullName,
                     Sold = item.Sold,
                     Created = item.DateCreated,
+                    Quantity = quantitiesProduct(MapProductVariant((item.ProductVariants!).ToList())),
                     ProductVariants = MapProductVariant((item.ProductVariants!).ToList()),
                     Images = MapImages((item.Images!).ToList())
                 };

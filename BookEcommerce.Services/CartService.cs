@@ -35,6 +35,14 @@ namespace BookEcommerce.Services
         {
             try
             {
+                if(!await checkQuantities(req))
+                {
+                    return new CartResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Can't add to cart more than available quantity!"
+                    };
+                }
                 var findCart = await cartRepository.GetCartByCustomerId(cusId);
                 var findCartDetail = await cartDetailRepository.GetListCartDetailByCartId(findCart.CartId);
                 foreach (var item in findCartDetail)
@@ -84,6 +92,51 @@ namespace BookEcommerce.Services
             }
         }
 
+        public async Task<CartResponse> DeleteProductVariant(Guid productVariantId, Guid cusId)
+        {
+            try
+            {
+                var findCart = await cartRepository.GetCartByCustomerId(cusId);
+                var findCartDetail = await cartDetailRepository.GetListCartDetailByCartId(findCart.CartId);
+                foreach (var item in findCartDetail)
+                {
+                    if (item.ProductVariantId.Equals(productVariantId))
+                    {
+                        cartDetailRepository.Delete(item);
+                        await _unitOfWork.CommitTransaction();
+                        return new CartResponse
+                        {
+                            IsSuccess = true,
+                            Message = "Delete ProductVariant success!"
+                        };
+                    }
+                }
+                return new CartResponse
+                {
+                    IsSuccess = false,
+                    Message = "Can't delete ProductVariant!"
+                };
+            }
+            catch (InvalidOperationException e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new CartResponse
+                {
+                    IsSuccess = false,
+                    Message = "Some properties is valid !",
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"{e.Message}. Detail {e.StackTrace}");
+                return new CartResponse
+                {
+                    IsSuccess = false,
+                    Message = "System error, Add Product to Cart was fasle and please try again later! "
+                };
+            }
+        }
+
         public async Task<List<CartViewModel>> GetCart(Guid cusId)
         {
             var findCart = await cartRepository.GetCartByCustomerId(cusId);
@@ -123,6 +176,16 @@ namespace BookEcommerce.Services
                 }
             }
             return cart;
+        }
+
+        private async Task<bool> checkQuantities(CartRequest req)
+        {
+            var findProductVariant = await productVariantRepository.GetProductVariantById(req.ProductVariantId);
+            if (findProductVariant.Quantity > req.Quantity)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

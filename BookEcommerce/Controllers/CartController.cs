@@ -39,17 +39,39 @@ namespace BookEcommerce.Controllers
                     Message = res.Message
                 });
             }
-            return BadRequest(new ResponseBase
+            return Ok(new ResponseBase
             {
                 IsSuccess = res.IsSuccess,
                 Message = res.Message
             });
         }
+
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetCartByIdCustomer(Guid customerId)
         {
             var res = await cartService.GetCart(customerId);
             return Ok(res);
+        }
+
+        [HttpDelete("{productVariantId}")]
+        public async Task<IActionResult> DeleteProductVariant(Guid productVariantId)
+        {
+            string authHeader = Request.Headers["Authorization"].ToString().Split(' ')[1];
+            var customerId = await this.customerService.GetCustomerIdFromToken(authHeader);
+            var res = await cartService.DeleteProductVariant(productVariantId, customerId);
+            if (res.IsSuccess)
+            {
+                return Ok(new ResponseBase
+                {
+                    IsSuccess = res.IsSuccess,
+                    Message = res.Message
+                });
+            }
+            return BadRequest(new ResponseBase
+            {
+                IsSuccess = res.IsSuccess,
+                Message = res.Message
+            });
         }
     }
 }
