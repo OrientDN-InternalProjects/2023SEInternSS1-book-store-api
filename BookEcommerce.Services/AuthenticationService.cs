@@ -22,6 +22,7 @@ namespace BookEcommerce.Services
     {
         private readonly IAuthenticationRepository authenticationRepository;
         private readonly ITokenService tokenService;
+        private readonly ITokenRepository tokenRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly ILogger logger;
@@ -31,7 +32,8 @@ namespace BookEcommerce.Services
             IAuthenticationRepository authenticationRepository,
             IMapper mapper,
             ITokenService tokenService,
-            ILogger logger
+            ILogger logger,
+            ITokenRepository tokenRepository
         )
         {
             this.unitOfWork = unitOfWork;
@@ -39,6 +41,7 @@ namespace BookEcommerce.Services
             this.mapper = mapper;
             this.tokenService = tokenService;
             this.logger = logger;
+            this.tokenRepository = tokenRepository;
         }
 
         public async Task<ResponseBase> AdminRegister(AccountViewModel accountViewModel)
@@ -128,7 +131,7 @@ namespace BookEcommerce.Services
                         Message = "Account did not confirmed",
                     };
                 }
-                string id = await this.tokenService.StoreRefreshToken();
+                string id = await this.tokenService.StoreRefreshToken(token.RefreshToken!);
                 user.RefreshTokenId = Guid.Parse(id);
                 authenticationRepository.Update(user);
                 await unitOfWork.CommitTransaction();
@@ -206,8 +209,22 @@ namespace BookEcommerce.Services
                         Message = "Non user exist"
                     };
                 }
-                var Token = await this.authenticationRepository.RefreshToken(emailToUpdateToken.Email, tokenViewModel);
-                if (Token == null)
+                var existRefreshToken = this.tokenRepository.GetRefreshTokenExist(tokenViewModel.RefreshToken!);
+                if (existRefreshToken == null)
+                {
+                    return new TokenResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to refresh"
+                    };
+                }
+                var token = this.authenticationRepository.RefreshToken(emailToUpdateToken.Email, tokenViewModel);
+                var storeToken = this.tokenService.CreateRefreshToken();
+                var tokenStored = await this.tokenService.StoreRefreshToken(storeToken);
+                emailToUpdateToken.RefreshTokenId = Guid.Parse(tokenStored);
+                this.authenticationRepository.Update(emailToUpdateToken);
+                await unitOfWork.CommitTransaction();
+                if (token == null)
                 {
                     return new TokenResponse
                     {
@@ -219,7 +236,8 @@ namespace BookEcommerce.Services
                 {
                     IsSuccess = true,
                     Message = "Refreshed",
-                    AccessToken = Token
+                    AccessToken = token,
+                    RefreshToken = storeToken
                 };
             }
             catch(Exception ex)

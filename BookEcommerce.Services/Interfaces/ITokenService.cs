@@ -10,7 +10,7 @@ namespace BookEcommerce.Services.Interfaces
     public interface ITokenService
     {
         public string CreateRefreshToken();
-        public Task<string> StoreRefreshToken();
+        public Task<string> StoreRefreshToken(string token);
         //public string RefreshToken(string AccessToken);
         public string GetUserIdFromToken(string token);
         public string GetUserEmailFromToken(string token);
