@@ -107,6 +107,8 @@ namespace BookEcommerce.Services
                     IsSuccess = true,
                     ProductId = findProduct.ProductId,
                     ProductName = findProduct.ProductName,
+                    VendorId = findProduct.Vendor!.VendorId,
+                    VendorName = findProduct.Vendor.FullName,
                     ProductDescription = findProduct.ProductDecription,
                     Sold = findProduct.Sold,
                     Created = findProduct.DateCreated,
