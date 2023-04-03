@@ -20,5 +20,6 @@ namespace BookEcommerce.Models.DAL.Interfaces
         public ClaimsPrincipal GetClaimsPrincipal(string Token);
         public Guid GetUserIdFromToken(string Token);
         public string GetUserEmailFromToken(string token);
+        public string GetRefreshTokenExist(string token);
     }
 }

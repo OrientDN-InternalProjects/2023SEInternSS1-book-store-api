@@ -17,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace BookEcommerce.Models.DAL.Repositories
 {
-    public class TokenRepository : ITokenRepository
+    public class TokenRepository : Repository<RefreshToken>, ITokenRepository
     {
         private readonly IConfiguration? configuration;
         private readonly ApplicationDbContext applicationDbContext;
 
-        public TokenRepository(IConfiguration configuration, ApplicationDbContext applicationDbContext)
+        public TokenRepository(DbFactory dbFactory, IConfiguration configuration, ApplicationDbContext applicationDbContext) : base(dbFactory)
         {
             this.configuration = configuration;
             this.applicationDbContext = applicationDbContext;
@@ -47,6 +47,12 @@ namespace BookEcommerce.Models.DAL.Repositories
             return result;
         }
 
+        public string GetRefreshTokenExist(string token)
+        {
+            var getToken = this.GetQuery(refreshToken => token == refreshToken.Token);
+            return getToken.ToString()!;
+        }
+
         public string CreateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -64,7 +70,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         public string RefreshToken(string accessToken)
         {
             var principal = GetClaimsPrincipal(accessToken);
-            var email = principal.FindFirstValue(JwtRegisteredClaimNames.Email);
+            var email = principal.FindFirst(ClaimTypes.Email);
             if (email == null)
             {
                 return String.Empty;
@@ -77,7 +83,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             var handler = new JwtSecurityTokenHandler();
             var tokenString = handler.ReadToken(token) as JwtSecurityToken;
-            var userId = new Guid(tokenString!.Claims.First(token => token.Type == "nameid").Value);
+            var userId = new Guid(tokenString!.Claims.First(token => token.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value);
             return userId;
         }
 
@@ -85,7 +91,7 @@ namespace BookEcommerce.Models.DAL.Repositories
         {
             var handler = new JwtSecurityTokenHandler();
             var tokenString = handler.ReadToken(token) as JwtSecurityToken;
-            var email = tokenString!.Claims.First(token => token.Type == "email").Value;
+            var email = tokenString!.Claims.First(token => token.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Value;
             return email;
         }
 

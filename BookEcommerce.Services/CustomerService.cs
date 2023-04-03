@@ -82,7 +82,7 @@ namespace BookEcommerce.Services
                     CustomerId = customer.CustomerId.ToString()
                 };
             }
-            catch(Exception e)
+             catch(Exception e)
             {
                 return new CustomerResponse
                 {

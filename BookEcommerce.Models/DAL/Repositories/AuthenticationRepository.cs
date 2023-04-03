@@ -75,9 +75,9 @@ namespace BookEcommerce.Models.DAL.Repositories
 
             List<Claim> claims = new List<Claim>
             {
-            new Claim(JwtRegisteredClaimNames.NameId, user.Id),
-            new Claim(JwtRegisteredClaimNames.Email, loginDTO.Email!),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, loginDTO.Email!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var roleManager = await this.userManager!.GetRolesAsync(user);
@@ -120,16 +120,18 @@ namespace BookEcommerce.Models.DAL.Repositories
             return result;      
         }
 
-        public async Task<string> RefreshToken(string email, TokenViewModel tokenViewModel)
-        {           
-            var user = await this.userManager!.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return null!;
-            }
-            if (user.RefreshToken!.Token != tokenViewModel.RefreshToken!) return null!;
+        public string RefreshToken(string email, TokenViewModel tokenViewModel)
+        {
+            //var user = await this.userManager!.FindByEmailAsync(email);
+            //var token = await this.tokenRepository.
+            //if (user == null)
+            //{
+            //    return null!;
+            //}
+            //if (user.RefreshToken!.Token != tokenViewModel.RefreshToken!) return null!;
             string token = this.tokenRepository!.RefreshToken(tokenViewModel.AccessToken!);
-            return token;            
+            return token;
+            //throw new NotImplementedException();
         }
 
         public async Task<ApplicationUser> GetUserByEmail(string email)
